@@ -1,62 +1,95 @@
-# ABAP-Emoji
+# ABAP HTML Differ
 
-Emoji for ABAP (abapGit)
+Highlight the content difference between two HTML blocks
 
 Made by [Marc Bernard Tools](https://marcbernardtools.com/) giving back to the [SAP Community](https://community.sap.com/)
 
 NO WARRANTIES, [MIT License](LICENSE)
 
-Based on [Twemoji Awesome](http://ellekasai.github.io/twemoji-awesome/) (MIT License)
+`
+This  is a port of JavaScript        (https://github.com/alaorneto/htmldiffer, no license)
+which is a port of CoffeeScript      (https://github.com/tnwinc/htmldiff.js, MIT license)
+which is a port of the original Ruby (https://github.com/myobie/htmldiff, MIT license)
+`
 
 ## Prerequisite
 
-HTML output with Internet connection since Emoji graphics are hosted on https://twemoji.maxcdn.com/.
+None.
 
 ## Installation
 
-You can install ABAP Emoji using [abapGit](https://github.com/abapGit/abapGit) either creating a new online repository for https://github.com/Marc-Bernard-Tools/ABAP_Emoji or downloading the repository [ZIP file](https://github.com/Marc-Bernard-Tools/ABAP_Emoji/archive/main.zip) and creating a new offline repository.
+You can install ABAP HTML Differ using [abapGit](https://github.com/abapGit/abapGit) either creating a new online repository for https://github.com/Marc-Bernard-Tools/ABAP-HTML-Differ or downloading the repository [ZIP file](https://github.com/Marc-Bernard-Tools/ABAP-HTML-Differ/archive/main.zip) and creating a new offline repository.
 
-We recommend to use package `$EMOJI`.
+We recommend to use package `$HTMLDIFF`.
 
 ## Usage
 
 ### ABAP
 
 ```abap
-write zcl_emoji=>format_emoji( 'I :heart: ABAP' ).
+CONSTANTS:
+  c_cr TYPE string VALUE cl_abap_char_utilities=>cr_lf.
+  
+DATA:
+  lv_original   TYPE string,
+  lv_modified   TYPE string,
+  lo_htmldiffer TYPE REF TO zcl_html_differ.
+
+lv_original = '' 
+  && c_cr && '    <p>First paragraph.</p>'
+  && c_cr && '    <ul>'
+  && c_cr && '        <li>Item A</li>'
+  && c_cr && '        <li>Item B</li>'
+  && c_cr && '        <li>Item C</li>'
+  && c_cr && '    </ul>'
+  && c_cr && '    <img src="previous.jpg">'
+  && c_cr && '    <span>This is some interesting text.</span>'
+  && c_cr.
+  
+lv_modified = ''
+  && c_cr && '    <p>First paragraph.</p>'
+  && c_cr && '    <ul>'
+  && c_cr && '        <li>Item A</li>'
+  && c_cr && '        <li>Item B</li>'
+  && c_cr && '        <li>Item D</li>'
+  && c_cr && '    </ul>'
+  && c_cr && '    <img src="next.jpg">'
+  && c_cr && '    <span>This is some new text.</span>'
+  && c_cr.
+  
+lv_diff = mo_htmldiffer->diff(
+  iv_before   = lv_original
+  iv_after    = lv_modified
+  iv_with_img = abap_false ).
 ```
 
 ### Output
 
-I ❤️ ABAP
+`lv_diff` will contain the following result:
 
 ```html
-I <i class="twa twa-heart"></i> ABAP
+    <p>First paragraph.</p>
+    <ul>
+        <li>Item A</li>
+        <li>Item B</li>
+        <li>Item <del>C</del><ins>D</ins></li>
+    </ul>
+    <img src='previous.jpg'><img src='next.jpg'>
+    <span>This is some <del>interesting</del><ins>new</ins> text.</span>
 ```
 
-Note: Include [`twemoji-awesome.css`](https://github.com/mbtools/ABAP-Emoji/blob/main/css/twemoji-awesome.css) in your HTML output.
+If you call with `iv_with_img = abap_true`, the result will be as following:
 
-## Integrate with abapGit (Developer Version)
-
-![image](img/abapGit_Emoji_Example.png)
-
-1. Insert one line into the following class
-
-```abap
-CLASS zcl_abapgit_syntax_highlighter IMPLEMENTATION.
-...
-  METHOD apply_style.
-...
-    lv_escaped = show_hidden_chars( lv_escaped ).
-
-    lv_escaped = zcl_emoji=>format_emoji( lv_escaped ). "<<< insert
-...
-  ENDMETHOD.
+```html
+    <p>First paragraph.</p>
+    <ul>
+        <li>Item A</li>
+        <li>Item B</li>
+        <li>Item <del>C</del><ins>D</ins></li>
+    </ul>
+    <del><img src='previous.jpg'></del><ins><img src='next.jpg'></ins>
+    <span>This is some <del>interesting</del><ins>new</ins> text.</span>
 ```
-
-2. Start transaction `SMW0` > `Binary data` > `$ABAPGIT` 
-3. Edit `ZABAPGIT_ICON_FONT_CSS`
-4. Append [`twemoji-awesome.css`](https://github.com/mbtools/ABAP-Emoji/blob/main/css/twemoji-awesome.css) to the icon css and save
 
 ## Contributions
 
