@@ -6,13 +6,11 @@ Made by [Marc Bernard Tools](https://marcbernardtools.com/) giving back to the [
 
 NO WARRANTIES, [MIT License](LICENSE)
 
-`
-This  is a port of JavaScript        (https://github.com/alaorneto/htmldiffer, no license)
-which is a port of CoffeeScript      (https://github.com/tnwinc/htmldiff.js, MIT license)
-which is a port of the original Ruby (https://github.com/myobie/htmldiff, MIT license)
-`
+- This is a port of JavaScript (https://github.com/alaorneto/htmldiffer, no license defined)
+- which is a port of CoffeeScript (https://github.com/tnwinc/htmldiff.js, MIT license)
+- which is a port of the original Ruby (https://github.com/myobie/htmldiff, MIT license)
 
-## Prerequisite
+## Prerequisites
 
 None.
 
@@ -20,7 +18,7 @@ None.
 
 You can install ABAP HTML Differ using [abapGit](https://github.com/abapGit/abapGit) either creating a new online repository for https://github.com/Marc-Bernard-Tools/ABAP-HTML-Differ or downloading the repository [ZIP file](https://github.com/Marc-Bernard-Tools/ABAP-HTML-Differ/archive/main.zip) and creating a new offline repository.
 
-We recommend to use package `$HTMLDIFF`.
+We recommend using package `$HTMLDIFF`.
 
 ## Usage
 
@@ -31,9 +29,9 @@ CONSTANTS:
   c_cr TYPE string VALUE cl_abap_char_utilities=>cr_lf.
   
 DATA:
-  lv_original   TYPE string,
-  lv_modified   TYPE string,
-  lo_htmldiffer TYPE REF TO zcl_html_differ.
+  lv_original    TYPE string,
+  lv_modified    TYPE string,
+  lo_html_differ TYPE REF TO zcl_html_differ.
 
 lv_original = '' 
   && c_cr && '    <p>First paragraph.</p>'
@@ -57,7 +55,7 @@ lv_modified = ''
   && c_cr && '    <span>This is some new text.</span>'
   && c_cr.
   
-lv_diff = mo_htmldiffer->diff(
+lv_diff = lo_html_differ->diff(
   iv_before   = lv_original
   iv_after    = lv_modified
   iv_with_img = abap_false ).
