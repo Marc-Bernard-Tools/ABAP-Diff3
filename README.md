@@ -56,6 +56,8 @@ lv_modified = ''
   && c_cr && '    <span>This is some new text.</span>'
   && c_cr.
   
+CREATE OBJECT lo_html_differ.
+  
 lv_diff = lo_html_differ->diff(
   iv_before   = lv_original
   iv_after    = lv_modified
