@@ -31,6 +31,7 @@ CONSTANTS:
 DATA:
   lv_original    TYPE string,
   lv_modified    TYPE string,
+  lv_diff        TYPE string,  
   lo_html_differ TYPE REF TO zcl_html_differ.
 
 lv_original = '' 
