@@ -2,10 +2,19 @@ CLASS zcl_abap_differ DEFINITION
   PUBLIC
   CREATE PUBLIC.
 
-* ABAP HTML Diff (c) 2021 by Marc Bernard Tools
+************************************************************************
+* ABAP Emoji
+*
+* https://github.com/Marc-Bernard-Tools/ABAP-Differ
+*
 * This  is a port of JavaScript        (https://github.com/alaorneto/htmldiffer, no license)
 * which is a port of CoffeeScript      (https://github.com/tnwinc/htmldiff.js, MIT license)
 * which is a port of the original Ruby (https://github.com/myobie/htmldiff, MIT license)
+*
+* Copyright 2021 Marc Bernard <https://marcbernardtools.com/>
+* SPDX-License-Identifier: MIT
+************************************************************************
+
   PUBLIC SECTION.
 
     TYPES:
@@ -31,9 +40,10 @@ CLASS zcl_abap_differ DEFINITION
 
     METHODS constructor
       IMPORTING
-        !iv_inserts      TYPE abap_bool DEFAULT abap_true
-        !iv_deletes      TYPE abap_bool DEFAULT abap_true
-        !iv_with_classes TYPE abap_bool DEFAULT abap_false.
+        !iv_inserts         TYPE abap_bool DEFAULT abap_true
+        !iv_deletes         TYPE abap_bool DEFAULT abap_true
+        !iv_with_classes    TYPE abap_bool DEFAULT abap_false
+        !iv_support_chinese TYPE abap_bool DEFAULT abap_false.
 
     METHODS htmldiff
       IMPORTING
@@ -86,86 +96,86 @@ CLASS zcl_abap_differ DEFINITION
 
     METHODS is_character
       IMPORTING
-        iv_char          TYPE string
+        !iv_input        TYPE csequence
       RETURNING
         VALUE(rv_result) TYPE abap_bool.
 
     METHODS is_quote
       IMPORTING
-        iv_string        TYPE string
+        !iv_input        TYPE csequence
       RETURNING
         VALUE(rv_result) TYPE abap_bool.
 
     METHODS is_whitespace
       IMPORTING
-        iv_string        TYPE string
+        !iv_input        TYPE csequence
       RETURNING
         VALUE(rv_result) TYPE abap_bool.
 
     METHODS is_tag
       IMPORTING
-        iv_token         TYPE ty_token
+        !iv_token        TYPE ty_token
       RETURNING
         VALUE(rv_result) TYPE abap_bool.
 
     METHODS isnt_tag
       IMPORTING
-        iv_token         TYPE ty_token
+        !iv_token        TYPE ty_token
       RETURNING
         VALUE(rv_result) TYPE abap_bool.
 
     METHODS html_to_tokens
       IMPORTING
-        iv_html          TYPE string
+        !iv_html         TYPE string
       RETURNING
         VALUE(rt_result) TYPE ty_tokens.
 
     METHODS find_match
       IMPORTING
-        it_before_tokens         TYPE ty_tokens
-        it_after_tokens          TYPE ty_tokens
-        it_index_before_in_after TYPE ty_index_tab
-        iv_start_in_before       TYPE i
-        iv_end_in_before         TYPE i
-        iv_start_in_after        TYPE i
-        iv_end_in_after          TYPE i
+        !it_before_tokens         TYPE ty_tokens
+        !it_after_tokens          TYPE ty_tokens
+        !it_index_before_in_after TYPE ty_index_tab
+        !iv_start_in_before       TYPE i
+        !iv_end_in_before         TYPE i
+        !iv_start_in_after        TYPE i
+        !iv_end_in_after          TYPE i
       RETURNING
-        VALUE(rs_result)         TYPE ty_match.
+        VALUE(rs_result)          TYPE ty_match.
 
     METHODS find_matching_blocks
       IMPORTING
-        it_before_tokens TYPE ty_tokens
-        it_after_tokens  TYPE ty_tokens
+        !it_before_tokens TYPE ty_tokens
+        !it_after_tokens  TYPE ty_tokens
       RETURNING
-        VALUE(rt_result) TYPE ty_matches.
+        VALUE(rt_result)  TYPE ty_matches.
 
     METHODS recurs_find_matching_blocks
       IMPORTING
-        it_before_tokens         TYPE ty_tokens
-        it_after_tokens          TYPE ty_tokens
-        it_index_before_in_after TYPE ty_index_tab
-        iv_start_in_before       TYPE i
-        iv_end_in_before         TYPE i
-        iv_start_in_after        TYPE i
-        iv_end_in_after          TYPE i
+        !it_before_tokens         TYPE ty_tokens
+        !it_after_tokens          TYPE ty_tokens
+        !it_index_before_in_after TYPE ty_index_tab
+        !iv_start_in_before       TYPE i
+        !iv_end_in_before         TYPE i
+        !iv_start_in_after        TYPE i
+        !iv_end_in_after          TYPE i
       CHANGING
-        ct_matching_blocks       TYPE ty_matches
+        !ct_matching_blocks       TYPE ty_matches
       RETURNING
-        VALUE(rt_result)         TYPE ty_matches.
+        VALUE(rt_result)          TYPE ty_matches.
 
     METHODS create_index
       IMPORTING
-        it_find_these    TYPE ty_tokens
-        it_in_these      TYPE ty_tokens
+        !it_find_these   TYPE ty_tokens
+        !it_in_these     TYPE ty_tokens
       RETURNING
         VALUE(rt_result) TYPE ty_index_tab.
 
     METHODS calculate_operations
       IMPORTING
-        it_before_tokens TYPE ty_tokens
-        it_after_tokens  TYPE ty_tokens
+        !it_before_tokens TYPE ty_tokens
+        !it_after_tokens  TYPE ty_tokens
       RETURNING
-        VALUE(rt_result) TYPE ty_operations.
+        VALUE(rt_result)  TYPE ty_operations.
 
     METHODS calculate_simple
       IMPORTING
@@ -176,41 +186,41 @@ CLASS zcl_abap_differ DEFINITION
 
     METHODS is_single_whitespace
       IMPORTING
-        is_op            TYPE ty_operation
-        it_tokens        TYPE ty_tokens
+        !is_op           TYPE ty_operation
+        !it_tokens       TYPE ty_tokens
       RETURNING
         VALUE(rv_result) TYPE abap_bool.
 
     METHODS consecutive_where
       IMPORTING
-        iv_start         TYPE i
-        it_content       TYPE ty_tokens
-        is_tag           TYPE abap_bool
+        !iv_start        TYPE i
+        !it_content      TYPE ty_tokens
+        !is_tag          TYPE abap_bool
       RETURNING
         VALUE(rt_result) TYPE ty_tokens.
 
     METHODS wrap
       IMPORTING
-        iv_tag           TYPE ty_token
-        it_content       TYPE ty_tokens
+        !iv_tag          TYPE ty_token
+        !it_content      TYPE ty_tokens
       RETURNING
         VALUE(rv_result) TYPE string.
 
     METHODS operation
       IMPORTING
-        is_op            TYPE ty_operation
-        it_before_tokens TYPE ty_tokens
-        it_after_tokens  TYPE ty_tokens
+        !is_op            TYPE ty_operation
+        !it_before_tokens TYPE ty_tokens
+        !it_after_tokens  TYPE ty_tokens
       RETURNING
-        VALUE(rv_result) TYPE string.
+        VALUE(rv_result)  TYPE string.
 
     METHODS render_operations
       IMPORTING
-        it_before_tokens TYPE ty_tokens
-        it_after_tokens  TYPE ty_tokens
-        it_operations    TYPE ty_operations
+        !it_before_tokens TYPE ty_tokens
+        !it_after_tokens  TYPE ty_tokens
+        !it_operations    TYPE ty_operations
       RETURNING
-        VALUE(rv_result) TYPE string.
+        VALUE(rv_result)  TYPE string.
 
     METHODS render_simple
       IMPORTING
@@ -239,17 +249,20 @@ CLASS zcl_abap_differ DEFINITION
       END OF c_tag.
 
     CONSTANTS:
-      BEGIN OF c_class,
+      BEGIN OF c_tag_class,
         insert  TYPE string VALUE 'diffins',
         delete  TYPE string VALUE 'diffdel',
         replace TYPE string VALUE 'diffmod',
-      END OF c_class.
+      END OF c_tag_class.
 
-    DATA mv_with_classes TYPE abap_bool.
-    DATA mv_inserts TYPE abap_bool.
-    DATA mv_deletes TYPE abap_bool.
-    DATA mv_with_img TYPE abap_bool.
-    DATA mv_with_tags TYPE abap_bool.
+    DATA:
+      mv_with_classes    TYPE abap_bool,
+      mv_inserts         TYPE abap_bool,
+      mv_deletes         TYPE abap_bool,
+      mv_with_img        TYPE abap_bool,
+      mv_with_tags       TYPE abap_bool,
+      mv_support_chinese TYPE abap_bool,
+      mo_conv            TYPE REF TO cl_abap_conv_out_ce.
 
     METHODS slice
       IMPORTING
@@ -289,6 +302,12 @@ CLASS zcl_abap_differ DEFINITION
         !iv_tag          TYPE string
       RETURNING
         VALUE(rv_result) TYPE string.
+
+    METHODS is_chinese
+      IMPORTING
+        !iv_input        TYPE csequence
+      RETURNING
+        VALUE(rv_result) TYPE abap_bool.
 ENDCLASS.
 
 
@@ -460,9 +479,18 @@ CLASS zcl_abap_differ IMPLEMENTATION.
 
 
   METHOD constructor.
-    mv_inserts = iv_inserts.
-    mv_deletes = iv_deletes.
-    mv_with_classes = iv_with_classes.
+
+    mv_inserts         = iv_inserts.
+    mv_deletes         = iv_deletes.
+    mv_with_classes    = iv_with_classes.
+    mv_support_chinese = iv_support_chinese.
+
+    IF mv_support_chinese = abap_true.
+      mo_conv = cl_abap_conv_out_ce=>create(
+        encoding = 'UTF-8'
+        endian   = 'B' ).
+    ENDIF.
+
   ENDMETHOD.
 
 
@@ -653,11 +681,11 @@ CLASS zcl_abap_differ IMPLEMENTATION.
     IF mv_with_classes = abap_true.
       CASE iv_tag.
         WHEN c_tag-ins.
-          lv_class = c_class-insert.
+          lv_class = c_tag_class-insert.
         WHEN c_tag-del.
-          lv_class = c_class-delete.
+          lv_class = c_tag_class-delete.
         WHEN c_tag-insmod OR c_tag-delmod.
-          lv_class = c_class-replace.
+          lv_class = c_tag_class-replace.
         WHEN OTHERS.
           ASSERT 0 = 1. " Unknown tag
       ENDCASE.
@@ -699,7 +727,7 @@ CLASS zcl_abap_differ IMPLEMENTATION.
   METHOD html_to_tokens.
 
     DATA:
-      lv_char         TYPE string,
+      lv_char         TYPE c LENGTH 1,
       lv_current_word TYPE string,
       lv_idx          TYPE i,
       lv_mode         TYPE string,
@@ -734,6 +762,11 @@ CLASS zcl_abap_differ IMPLEMENTATION.
             ENDIF.
             lv_current_word = lv_char.
             lv_mode = c_mode-whitespace.
+          ELSEIF is_chinese( lv_char ) = abap_true.
+            IF NOT lv_current_word IS INITIAL.
+              APPEND lv_current_word TO lt_words.
+            ENDIF.
+            lv_current_word = lv_char.
           ELSEIF is_character( lv_char ) = abap_true.
             lv_current_word = lv_current_word && lv_char.
             IF is_quote( lv_current_word ) = abap_true.
@@ -781,17 +814,19 @@ CLASS zcl_abap_differ IMPLEMENTATION.
 
 
   METHOD isnt_tag.
+
     IF is_tag( iv_token ) = abap_true.
       rv_result = abap_false.
     ELSE.
       rv_result = abap_true.
     ENDIF.
+
   ENDMETHOD.
 
 
   METHOD is_character.
 
-    FIND REGEX '[\w\#@;]' IN iv_char.
+    FIND REGEX '[\w\#@;]' IN iv_input.
     IF sy-subrc = 0.
       rv_result = abap_true.
     ELSE.
@@ -801,14 +836,36 @@ CLASS zcl_abap_differ IMPLEMENTATION.
   ENDMETHOD.
 
 
+  METHOD is_chinese.
+
+    " This is the common range for CJK Unified Ideographs
+    " There can be more, see http://www.unicode.org/faq/han_cjk.html
+    CONSTANTS:
+      c_from TYPE x LENGTH 2 VALUE '4E00',
+      c_to   TYPE x LENGTH 2 VALUE '9FFF'.
+
+    DATA lv_x TYPE x LENGTH 2.
+
+    IF mv_support_chinese = abap_true.
+      mo_conv->write( iv_input ).
+      lv_x = mo_conv->get_buffer( ).
+
+      IF lv_x BETWEEN c_from AND c_to.
+        rv_result = abap_true.
+      ENDIF.
+    ENDIF.
+
+  ENDMETHOD.
+
+
   METHOD is_quote.
 
     " https://www.w3schools.com/charsets/ref_utf_basic_latin.asp
-    IF iv_string = '&quot;' OR iv_string = '&#34;' OR " QUOTATION MARK
-       iv_string = '&#39;'  OR iv_string = '&#96;' OR " APOSTROPHE & GRAVE ACCENT
-       iv_string = '&lt;'   OR iv_string = '&#60;' OR " LESS-THAN SIGN
-       iv_string = '&gt;'   OR iv_string = '&#62;' OR " GREATER-THAN SIGN
-       iv_string = '&#124;'. " VERTICAL LINE
+    IF iv_input = '&quot;' OR iv_input = '&#34;' OR " QUOTATION MARK
+       iv_input = '&#39;'  OR iv_input = '&#96;' OR " APOSTROPHE & GRAVE ACCENT
+       iv_input = '&lt;'   OR iv_input = '&#60;' OR " LESS-THAN SIGN
+       iv_input = '&gt;'   OR iv_input = '&#62;' OR " GREATER-THAN SIGN
+       iv_input = '&#124;'. " VERTICAL LINE
       rv_result = abap_true.
     ELSE.
       rv_result = abap_false.
@@ -819,8 +876,7 @@ CLASS zcl_abap_differ IMPLEMENTATION.
 
   METHOD is_single_whitespace.
 
-    DATA:
-      lv_str TYPE string.
+    DATA lv_string TYPE string.
 
     IF is_op-action <> c_action-equal.
       rv_result = abap_false.
@@ -831,10 +887,10 @@ CLASS zcl_abap_differ IMPLEMENTATION.
       RETURN.
     ENDIF.
 
-    lv_str = join( slice( it_tokens = it_tokens
-                          iv_start  = is_op-start_in_before
-                          iv_end    = is_op-end_in_before + 1 ) ).
-    IF is_whitespace( lv_str ) = abap_true.
+    lv_string = join( slice( it_tokens = it_tokens
+                             iv_start  = is_op-start_in_before
+                             iv_end    = is_op-end_in_before + 1 ) ).
+    IF is_whitespace( lv_string ) = abap_true.
       rv_result = abap_true.
     ELSE.
       rv_result = abap_false.
@@ -861,12 +917,12 @@ CLASS zcl_abap_differ IMPLEMENTATION.
 
   METHOD is_whitespace.
 
-    DATA: lv_whitespace TYPE string.
+    DATA lv_whitespace TYPE string.
 
     "/^\s+$/
     lv_whitespace = ` ` && cl_abap_char_utilities=>horizontal_tab && cl_abap_char_utilities=>cr_lf.
 
-    IF iv_string CO lv_whitespace.
+    IF iv_input CO lv_whitespace.
       rv_result = abap_true.
     ELSE.
       rv_result = abap_false.
@@ -877,7 +933,7 @@ CLASS zcl_abap_differ IMPLEMENTATION.
 
   METHOD join.
 
-    DATA: lv_token TYPE ty_token.
+    DATA lv_token TYPE ty_token.
 
     LOOP AT it_tokens INTO lv_token.
 
@@ -979,7 +1035,7 @@ CLASS zcl_abap_differ IMPLEMENTATION.
 
   METHOD recurs_find_matching_blocks.
 
-    DATA: ls_match TYPE ty_match.
+    DATA ls_match TYPE ty_match.
 
     ls_match = find_match( it_before_tokens         = it_before_tokens
                            it_after_tokens          = it_after_tokens
@@ -1068,7 +1124,7 @@ CLASS zcl_abap_differ IMPLEMENTATION.
 
   METHOD slice.
 
-    DATA: lv_token TYPE ty_token.
+    DATA lv_token TYPE ty_token.
 
     LOOP AT it_tokens INTO lv_token FROM iv_start + 1 TO iv_end + 1.
 
@@ -1129,7 +1185,7 @@ CLASS zcl_abap_differ IMPLEMENTATION.
       lv_position = lv_position + lines( lt_non_tags ).
 
       IF lines( lt_non_tags ) <> 0.
-        lv_rendering = |{ lv_rendering }<{ iv_tag(3) }{ get_class( iv_tag ) }>{ join( lt_non_tags ) }</{ iv_tag(3) }>|.
+        lv_rendering = lv_rendering && |<{ iv_tag(3) }{ get_class( iv_tag ) }>{ join( lt_non_tags ) }</{ iv_tag(3) }>|.
       ENDIF.
 
       IF lv_position >= lv_length.

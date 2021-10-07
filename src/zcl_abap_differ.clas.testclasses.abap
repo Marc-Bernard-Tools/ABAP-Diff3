@@ -1,39 +1,49 @@
 CLASS lct_helper DEFINITION.
   PUBLIC SECTION.
+
     CLASS-METHODS format
       IMPORTING iv_string        TYPE string
       RETURNING VALUE(rv_result) TYPE string.
+
     CLASS-METHODS diff
       IMPORTING iv_before        TYPE string
                 iv_after         TYPE string
                 iv_with_img      TYPE abap_bool DEFAULT abap_false
+                iv_chinese       TYPE abap_bool DEFAULT abap_false
       RETURNING VALUE(rv_result) TYPE string.
+
 ENDCLASS.
+
 CLASS lct_helper IMPLEMENTATION.
+
   METHOD format.
     rv_result = iv_string.
     REPLACE ALL OCCURRENCES OF '\n' IN rv_result WITH cl_abap_char_utilities=>newline.
   ENDMETHOD.
+
   METHOD diff.
     DATA lo_differ TYPE REF TO zcl_abap_differ.
 
     CREATE OBJECT lo_differ
       EXPORTING
-        iv_with_classes = abap_true.
+        iv_with_classes    = abap_true
+        iv_support_chinese = iv_chinese.
 
     rv_result = lo_differ->htmldiff(
       iv_before   = iv_before
       iv_after    = iv_after
       iv_with_img = iv_with_img ).
   ENDMETHOD.
+
 ENDCLASS.
 
 CLASS lct_differ_test DEFINITION FOR TESTING
-    DURATION SHORT
-    RISK LEVEL HARMLESS.
+  DURATION SHORT
+  RISK LEVEL HARMLESS.
 
   " Tests from https://github.com/alaorneto/htmldiffer
   PRIVATE SECTION.
+
     METHODS setup.
     METHODS test_ignore_image FOR TESTING.
     METHODS test_with_image FOR TESTING.
@@ -127,11 +137,12 @@ CLASS lct_differ_test IMPLEMENTATION.
 ENDCLASS.
 
 CLASS lct_differ_test_2 DEFINITION FOR TESTING
-    DURATION SHORT
-    RISK LEVEL HARMLESS.
+  DURATION SHORT
+  RISK LEVEL HARMLESS.
 
   " Tests from https://github.com/myobie/htmldiff
   PRIVATE SECTION.
+
     METHODS diff_text FOR TESTING.
     METHODS insert_a_letter_and_a_space FOR TESTING.
     METHODS remove_a_letter_and_a_space FOR TESTING.
@@ -215,8 +226,9 @@ CLASS lct_differ_test_2 IMPLEMENTATION.
           lv_exp TYPE string.
 
     lv_act = lct_helper=>diff(
-      iv_before = '这个是中文内容, Ruby is the bast'
-      iv_after  = '这是中国语内容,Ruby is the best language.' ).
+      iv_before  = '这个是中文内容, Ruby is the bast'
+      iv_after   = '这是中国语内容,Ruby is the best language.'
+      iv_chinese = abap_true ).
 
     lv_exp = '这<del class=\"diffdel\">个</del>是中<del class=\"diffmod\">文</del><ins class=\"diffmod\">'
           && '国语</ins>内<del class=\"diffmod\">容, Ruby</del><ins class=\"diffmod\">容，Ruby'
