@@ -1,6 +1,6 @@
-# ABAP HTML Differ
+# ABAP Differ
 
-Highlight the content difference between two HTML blocks
+Highlight the content difference between two text or HTML blocks
 
 Made by [Marc Bernard Tools](https://marcbernardtools.com/) giving back to the [SAP Community](https://community.sap.com/)
 
@@ -9,6 +9,8 @@ NO WARRANTIES, [MIT License](LICENSE)
 - This is a port of JavaScript (https://github.com/alaorneto/htmldiffer, no license defined)
 - which is a port of CoffeeScript (https://github.com/tnwinc/htmldiff.js, MIT license)
 - which is a port of the original Ruby (https://github.com/myobie/htmldiff, MIT license)
+
+An enhancement was made so the code can also produce the diff of two texts (tags are treated like text).
 
 ## Prerequisites
 
@@ -22,51 +24,50 @@ We recommend using package `$HTMLDIFF`.
 
 ## Usage
 
-### ABAP
+### HTML Diff
+
+The following produces the diff of two example HTML snippets:
 
 ```abap
-CONSTANTS:
-  c_cr TYPE string VALUE cl_abap_char_utilities=>cr_lf.
-  
 DATA:
   lv_original    TYPE string,
   lv_modified    TYPE string,
-  lv_diff        TYPE string,  
-  lo_html_differ TYPE REF TO zcl_html_differ.
+  lv_diff        TYPE string,
+  lo_abap_differ TYPE REF TO zcl_abap_differ.
 
-lv_original = '' 
-  && c_cr && '    <p>First paragraph.</p>'
-  && c_cr && '    <ul>'
-  && c_cr && '        <li>Item A</li>'
-  && c_cr && '        <li>Item B</li>'
-  && c_cr && '        <li>Item C</li>'
-  && c_cr && '    </ul>'
-  && c_cr && '    <img src="previous.jpg">'
-  && c_cr && '    <span>This is some interesting text.</span>'
-  && c_cr.
+lv_original = '\n'
+  && '    <p>First paragraph.</p>\n'
+  && '    <ul>\n'
+  && '        <li>Item A</li>\n'
+  && '        <li>Item B</li>\n'
+  && '        <li>Item C</li>\n'
+  && '    </ul>\n'
+  && '    <img src="previous.jpg">\n'
+  && '    <span>This is some interesting text.</span>\n'.
+
+
+lv_modified = '\n'
+  && '    <p>First paragraph.</p>\n'
+  && '    <ul>\n'
+  && '        <li>Item A</li>\n'
+  && '        <li>Item B</li>\n'
+  && '        <li>Item D</li>\n'
+  && '    </ul>\n'
+  && '    <img src="next.jpg">\n'
+  && '    <span>This is some new text.</span>\n'.
+
+REPLACE ALL OCCURRENCES OF '\n' IN lv_original WITH cl_abap_char_utilities=>newline.
+REPLACE ALL OCCURRENCES OF '\n' IN lv_modified WITH cl_abap_char_utilities=>newline.
   
-lv_modified = ''
-  && c_cr && '    <p>First paragraph.</p>'
-  && c_cr && '    <ul>'
-  && c_cr && '        <li>Item A</li>'
-  && c_cr && '        <li>Item B</li>'
-  && c_cr && '        <li>Item D</li>'
-  && c_cr && '    </ul>'
-  && c_cr && '    <img src="next.jpg">'
-  && c_cr && '    <span>This is some new text.</span>'
-  && c_cr.
+CREATE OBJECT lo_differ.
   
-CREATE OBJECT lo_html_differ.
-  
-lv_diff = lo_html_differ->diff(
+lv_diff = lo_differ->htmldiff(
   iv_before   = lv_original
   iv_after    = lv_modified
   iv_with_img = abap_false ).
 ```
 
-### Output
-
-`lv_diff` will contain the following result:
+Result:
 
 ```html
     <p>First paragraph.</p>
@@ -79,7 +80,16 @@ lv_diff = lo_html_differ->diff(
     <span>This is some <del>interesting</del><ins>new</ins> text.</span>
 ```
 
-If you call with `iv_with_img = abap_true`, the result will be as following:
+By setting `iv_with_img = abap_true`, you can also mark changed images as deletions or insertions:
+
+```abap
+lv_diff = lo_differ->htmldiff(
+  iv_before   = lv_original
+  iv_after    = lv_modified
+  iv_with_img = abap_true ).
+```  
+
+Result:
 
 ```html
     <p>First paragraph.</p>
