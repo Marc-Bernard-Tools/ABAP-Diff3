@@ -20,7 +20,7 @@ None.
 
 You can install ABAP HTML Differ using [abapGit](https://github.com/abapGit/abapGit) either creating a new online repository for https://github.com/Marc-Bernard-Tools/ABAP-HTML-Differ or downloading the repository [ZIP file](https://github.com/Marc-Bernard-Tools/ABAP-HTML-Differ/archive/main.zip) and creating a new offline repository.
 
-We recommend using package `$HTMLDIFF`.
+We recommend using package `$ABAPDIFF`.
 
 ## Usage
 
