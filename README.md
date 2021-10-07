@@ -80,7 +80,7 @@ Result:
     <span>This is some <del>interesting</del><ins>new</ins> text.</span>
 ```
 
-By setting `iv_with_img = abap_true`, you can also mark changed images as deletions or insertions:
+By setting the image parameter to true, you can also mark changed images as deletions or insertions:
 
 ```abap
 lv_diff = lo_differ->htmldiff(
@@ -100,6 +100,31 @@ Result:
     </ul>
     <del><img src='previous.jpg'></del><ins><img src='next.jpg'></ins>
     <span>This is some <del>interesting</del><ins>new</ins> text.</span>
+```
+
+### Text Diff
+
+
+
+## Styling
+
+Here's an examle for styling the insertions and deletions using CSS.
+
+```css
+ins {
+    background-color: #ddffdd;
+}
+
+ins img {
+    border-color: #ddffdd;
+}
+
+del {
+    background-color: #ffdddd;
+}
+
+del img {
+    border-color: #ffdddd;
 ```
 
 ## Contributions
