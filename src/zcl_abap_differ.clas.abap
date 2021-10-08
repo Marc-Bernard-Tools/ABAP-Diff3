@@ -419,7 +419,7 @@ CLASS zcl_abap_differ IMPLEMENTATION.
                                             it_tokens = it_before_tokens ).
 
       IF ( lv_whitespace = abap_true OR ls_op-action = c_action-replace ) AND
-         ( <ls_last_op> IS ASSIGNED and <ls_last_op>-action = c_action-replace ).
+         ( <ls_last_op> IS ASSIGNED AND <ls_last_op>-action = c_action-replace ).
         <ls_last_op>-end_in_before = ls_op-end_in_before.
         <ls_last_op>-end_in_after  = ls_op-end_in_after.
       ELSE.
@@ -468,7 +468,6 @@ CLASS zcl_abap_differ IMPLEMENTATION.
 
     DATA:
       lv_answer TYPE abap_bool,
-      lv_index  TYPE i,
       lv_token  TYPE ty_token.
 
     LOOP AT it_content INTO lv_token FROM iv_start + 1.
@@ -582,7 +581,6 @@ CLASS zcl_abap_differ IMPLEMENTATION.
       lv_best_match_length    TYPE i,
       lv_index_in_after       TYPE i,
       lv_index_in_before      TYPE i,
-      lv_idx                  TYPE i,
       ls_index_row            TYPE ty_index_row,
       lt_locations_in_after   TYPE ty_locations,
       lv_looking_for          TYPE ty_token,
@@ -750,20 +748,20 @@ CLASS zcl_abap_differ IMPLEMENTATION.
 
         WHEN c_mode-char.
           IF lv_char = c_tag-begin AND mv_with_tags = abap_true.
-            IF NOT lv_current_word IS INITIAL.
+            IF lv_current_word IS NOT INITIAL.
               APPEND lv_current_word TO lt_words.
             ENDIF.
             lv_current_word = c_tag-begin.
             lv_mode = c_mode-tag.
           ELSEIF is_whitespace( lv_char ) = abap_true.
-            IF NOT lv_current_word IS INITIAL.
+            IF lv_current_word IS NOT INITIAL.
               APPEND lv_current_word TO lt_words.
             ENDIF.
             lv_current_word = lv_char.
             lv_mode = c_mode-whitespace.
           ELSEIF is_chinese( lv_char ) = abap_true.
             " Treat Chinese characters as individual words
-            IF NOT lv_current_word IS INITIAL.
+            IF lv_current_word IS NOT INITIAL.
               APPEND lv_current_word TO lt_words.
             ENDIF.
             APPEND lv_char TO lt_words.
@@ -775,7 +773,7 @@ CLASS zcl_abap_differ IMPLEMENTATION.
               lv_current_word = ''.
             ENDIF.
           ELSE.
-            IF NOT lv_current_word IS INITIAL.
+            IF lv_current_word IS NOT INITIAL.
               APPEND lv_current_word TO lt_words.
             ENDIF.
             lv_current_word = lv_char.
@@ -783,7 +781,7 @@ CLASS zcl_abap_differ IMPLEMENTATION.
 
         WHEN c_mode-whitespace.
           IF lv_char = c_tag-begin.
-            IF NOT lv_current_word IS INITIAL.
+            IF lv_current_word IS NOT INITIAL.
               APPEND lv_current_word TO lt_words.
             ENDIF.
             lv_current_word = c_tag-begin.
@@ -791,7 +789,7 @@ CLASS zcl_abap_differ IMPLEMENTATION.
           ELSEIF is_whitespace( lv_char ) = abap_true.
             lv_current_word = lv_current_word && lv_char.
           ELSE.
-            IF NOT lv_current_word IS INITIAL.
+            IF lv_current_word IS NOT INITIAL.
               APPEND lv_current_word TO lt_words.
             ENDIF.
             lv_current_word = lv_char.
@@ -805,7 +803,7 @@ CLASS zcl_abap_differ IMPLEMENTATION.
       lv_idx = lv_idx + 1.
     ENDDO.
 
-    IF NOT lv_current_word IS INITIAL.
+    IF lv_current_word IS NOT INITIAL.
       APPEND lv_current_word TO lt_words.
     ENDIF.
 
@@ -816,11 +814,7 @@ CLASS zcl_abap_differ IMPLEMENTATION.
 
   METHOD isnt_tag.
 
-    IF is_tag( iv_token ) = abap_true.
-      rv_result = abap_false.
-    ELSE.
-      rv_result = abap_true.
-    ENDIF.
+    rv_result = boolc( is_tag( iv_token ) = abap_false ).
 
   ENDMETHOD.
 
@@ -828,11 +822,8 @@ CLASS zcl_abap_differ IMPLEMENTATION.
   METHOD is_character.
 
     FIND REGEX '[\w\#@;]' IN iv_input.
-    IF sy-subrc = 0.
-      rv_result = abap_true.
-    ELSE.
-      rv_result = abap_false.
-    ENDIF.
+
+    rv_result = boolc( sy-subrc = 0 ).
 
   ENDMETHOD.
 
@@ -842,14 +833,14 @@ CLASS zcl_abap_differ IMPLEMENTATION.
     " This is the common range for CJK Unified Ideographs
     " There can be more, see http://www.unicode.org/faq/han_cjk.html
     CONSTANTS:
-      c_from TYPE x LENGTH 2 VALUE '4E00',
-      c_to   TYPE x LENGTH 2 VALUE '9FFF'.
+      lc_from TYPE x LENGTH 2 VALUE '4E00',
+      lc_to   TYPE x LENGTH 2 VALUE '9FFF'.
 
     DATA lv_x TYPE x LENGTH 2.
 
     IF mv_support_chinese = abap_true.
       lv_x = cl_abap_conv_out_ce=>uccp( iv_input ).
-      IF lv_x BETWEEN c_from AND c_to.
+      IF lv_x BETWEEN lc_from AND lc_to.
         rv_result = abap_true.
       ENDIF.
     ENDIF.
@@ -889,11 +880,8 @@ CLASS zcl_abap_differ IMPLEMENTATION.
     lv_string = _join( _slice( it_tokens = it_tokens
                                iv_start  = is_op-start_in_before
                                iv_end    = _get_end( is_op-end_in_before ) ) ).
-    IF lv_string = ` `. " single space
-      rv_result = abap_true.
-    ELSE.
-      rv_result = abap_false.
-    ENDIF.
+
+    rv_result = boolc( lv_string = ` ` ). " single space
 
   ENDMETHOD.
 
@@ -1005,7 +993,7 @@ CLASS zcl_abap_differ IMPLEMENTATION.
                            iv_start_in_after        = iv_start_in_after
                            iv_end_in_after          = iv_end_in_after ).
 
-    IF NOT ls_match IS INITIAL.
+    IF ls_match IS NOT INITIAL.
       IF iv_start_in_before < ls_match-start_in_before AND iv_start_in_after < ls_match-start_in_after.
         recurs_find_matching_blocks(
           EXPORTING

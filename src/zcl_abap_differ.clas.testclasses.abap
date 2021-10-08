@@ -2,7 +2,7 @@
 * Helper Class
 ************************************************************************
 
-CLASS lct_helper DEFINITION.
+CLASS ltcl_helper DEFINITION.
 
   PUBLIC SECTION.
 
@@ -24,7 +24,7 @@ CLASS lct_helper DEFINITION.
 
 ENDCLASS.
 
-CLASS lct_helper IMPLEMENTATION.
+CLASS ltcl_helper IMPLEMENTATION.
 
   METHOD format.
     rv_result = iv_string.
@@ -51,7 +51,7 @@ ENDCLASS.
 * Tests from https://github.com/alaorneto/htmldiffer
 ************************************************************************
 
-CLASS lct_differ_test_1 DEFINITION FOR TESTING
+CLASS ltcl_differ_test_1 DEFINITION FOR TESTING
   DURATION SHORT
   RISK LEVEL HARMLESS.
 
@@ -69,13 +69,13 @@ CLASS lct_differ_test_1 DEFINITION FOR TESTING
 
 ENDCLASS.
 
-CLASS lct_differ_test_1 IMPLEMENTATION.
+CLASS ltcl_differ_test_1 IMPLEMENTATION.
 
   METHOD setup.
 
     CREATE OBJECT mo_differ.
 
-    mv_original = lct_helper=>format( '\n'
+    mv_original = ltcl_helper=>format( '\n'
       && '    <p>First paragraph.</p>\n'
       && '    <ul>\n'
       && '        <li>Item A</li>\n'
@@ -85,7 +85,7 @@ CLASS lct_differ_test_1 IMPLEMENTATION.
       && '    <img src="previous.jpg">\n'
       && '    <span>This is some interesting text.</span>\n' ).
 
-    mv_modified = lct_helper=>format( '\n'
+    mv_modified = ltcl_helper=>format( '\n'
       && '    <p>First paragraph.</p>\n'
       && '    <ul>\n'
       && '        <li>Item A</li>\n'
@@ -103,7 +103,7 @@ CLASS lct_differ_test_1 IMPLEMENTATION.
       lv_exp TYPE string,
       lv_act TYPE string.
 
-    lv_exp = lct_helper=>format( '\n'
+    lv_exp = ltcl_helper=>format( '\n'
       && '    <p>First paragraph.</p>\n'
       && '    <ul>\n'
       && '        <li>Item A</li>\n'
@@ -130,7 +130,7 @@ CLASS lct_differ_test_1 IMPLEMENTATION.
       lv_exp TYPE string,
       lv_act TYPE string.
 
-    lv_exp = lct_helper=>format( '\n'
+    lv_exp = ltcl_helper=>format( '\n'
       && '    <p>First paragraph.</p>\n'
       && '    <ul>\n'
       && '        <li>Item A</li>\n'
@@ -157,7 +157,7 @@ ENDCLASS.
 * Tests from https://github.com/myobie/htmldiff
 ************************************************************************
 
-CLASS lct_differ_test_2 DEFINITION FOR TESTING
+CLASS ltcl_differ_test_2 DEFINITION FOR TESTING
   DURATION SHORT
   RISK LEVEL HARMLESS.
 
@@ -174,18 +174,19 @@ CLASS lct_differ_test_2 DEFINITION FOR TESTING
 
 ENDCLASS.
 
-CLASS lct_differ_test_2 IMPLEMENTATION.
+CLASS ltcl_differ_test_2 IMPLEMENTATION.
 
   METHOD diff_text.
 
     DATA: lv_act TYPE string,
           lv_exp TYPE string.
 
-    lv_act = lct_helper=>diff(
+    lv_act = ltcl_helper=>diff(
       iv_before = 'a word is here'
       iv_after  = 'a nother word is there' ).
 
-    lv_exp = 'a<ins class="diffins"> nother</ins> word is <del class="diffmod">here</del><ins class="diffmod">there</ins>'.
+    lv_exp = 'a<ins class="diffins"> nother</ins> word is <del class="diffmod">'
+      && 'here</del><ins class="diffmod">there</ins>'.
 
     cl_abap_unit_assert=>assert_equals(
       act = lv_act
@@ -198,7 +199,7 @@ CLASS lct_differ_test_2 IMPLEMENTATION.
     DATA: lv_act TYPE string,
           lv_exp TYPE string.
 
-    lv_act = lct_helper=>diff(
+    lv_act = ltcl_helper=>diff(
       iv_before = 'a c'
       iv_after  = 'a b c' ).
 
@@ -215,7 +216,7 @@ CLASS lct_differ_test_2 IMPLEMENTATION.
     DATA: lv_act TYPE string,
           lv_exp TYPE string.
 
-    lv_act = lct_helper=>diff(
+    lv_act = ltcl_helper=>diff(
       iv_before = 'a b c'
       iv_after  = 'a c' ).
 
@@ -232,7 +233,7 @@ CLASS lct_differ_test_2 IMPLEMENTATION.
     DATA: lv_act TYPE string,
           lv_exp TYPE string.
 
-    lv_act = lct_helper=>diff(
+    lv_act = ltcl_helper=>diff(
       iv_before = 'a b c'
       iv_after  = 'a d c' ).
 
@@ -249,7 +250,7 @@ CLASS lct_differ_test_2 IMPLEMENTATION.
     DATA: lv_act TYPE string,
           lv_exp TYPE string.
 
-    lv_act = lct_helper=>diff(
+    lv_act = ltcl_helper=>diff(
       iv_before  = '这个是中文内容, Ruby is the bast'
       iv_after   = '这是中国语内容,Ruby is the best language.'
       iv_chinese = abap_true ).
@@ -269,7 +270,7 @@ CLASS lct_differ_test_2 IMPLEMENTATION.
     DATA: lv_act TYPE string,
           lv_exp TYPE string.
 
-    lv_act = lct_helper=>diff(
+    lv_act = ltcl_helper=>diff(
       iv_before = 'a b c'
       iv_after  = 'a b <img src="some_url" /> c'
       iv_with_img = abap_true ).
@@ -287,7 +288,7 @@ CLASS lct_differ_test_2 IMPLEMENTATION.
     DATA: lv_act TYPE string,
           lv_exp TYPE string.
 
-    lv_act = lct_helper=>diff(
+    lv_act = ltcl_helper=>diff(
       iv_before = 'a b <img src="some_url" /> c'
       iv_after  = 'a b c'
       iv_with_img = abap_true ).
@@ -307,10 +308,10 @@ ENDCLASS.
 * https://github.com/tnwinc/htmldiff.js/tree/master/test
 ************************************************************************
 
-CLASS lct_calculate_operations DEFINITION DEFERRED.
-CLASS zcl_abap_differ DEFINITION LOCAL FRIENDS lct_calculate_operations.
+CLASS ltcl_calculate_operations DEFINITION DEFERRED.
+CLASS zcl_abap_differ DEFINITION LOCAL FRIENDS ltcl_calculate_operations.
 
-CLASS lct_calculate_operations DEFINITION FOR TESTING
+CLASS ltcl_calculate_operations DEFINITION FOR TESTING
   DURATION SHORT
   RISK LEVEL HARMLESS.
 
@@ -337,7 +338,7 @@ CLASS lct_calculate_operations DEFINITION FOR TESTING
 
 ENDCLASS.
 
-CLASS lct_calculate_operations IMPLEMENTATION.
+CLASS ltcl_calculate_operations IMPLEMENTATION.
 
   METHOD setup.
     CREATE OBJECT mo_differ.
@@ -587,7 +588,7 @@ ENDCLASS.
 
 ******
 
-CLASS lct_diff DEFINITION FOR TESTING
+CLASS ltcl_diff DEFINITION FOR TESTING
   DURATION SHORT
   RISK LEVEL HARMLESS.
 
@@ -601,7 +602,7 @@ CLASS lct_diff DEFINITION FOR TESTING
 
 ENDCLASS.
 
-CLASS lct_diff IMPLEMENTATION.
+CLASS ltcl_diff IMPLEMENTATION.
 
   METHOD setup.
     CREATE OBJECT mo_differ.
@@ -637,11 +638,10 @@ ENDCLASS.
 
 ******
 
-CLASS lct_html_to_token DEFINITION DEFERRED.
-CLASS zcl_abap_differ DEFINITION LOCAL FRIENDS lct_html_to_token.
+CLASS ltcl_html_to_token DEFINITION DEFERRED.
+CLASS zcl_abap_differ DEFINITION LOCAL FRIENDS ltcl_html_to_token.
 
-CLASS lct_html_to_token DEFINITION FOR TESTING
-
+CLASS ltcl_html_to_token DEFINITION FOR TESTING
   DURATION SHORT
   RISK LEVEL HARMLESS.
 
@@ -655,7 +655,7 @@ CLASS lct_html_to_token DEFINITION FOR TESTING
 
 ENDCLASS.
 
-CLASS lct_html_to_token IMPLEMENTATION.
+CLASS ltcl_html_to_token IMPLEMENTATION.
 
   METHOD setup.
     CREATE OBJECT mo_differ.
@@ -730,10 +730,10 @@ ENDCLASS.
 
 ******
 
-CLASS lct_find_matching_blocks DEFINITION DEFERRED.
-CLASS zcl_abap_differ DEFINITION LOCAL FRIENDS lct_find_matching_blocks.
+CLASS ltcl_find_matching_blocks DEFINITION DEFERRED.
+CLASS zcl_abap_differ DEFINITION LOCAL FRIENDS ltcl_find_matching_blocks.
 
-CLASS lct_find_matching_blocks DEFINITION FOR TESTING
+CLASS ltcl_find_matching_blocks DEFINITION FOR TESTING
   DURATION SHORT
   RISK LEVEL HARMLESS.
 
@@ -769,7 +769,7 @@ CLASS lct_find_matching_blocks DEFINITION FOR TESTING
 
 ENDCLASS.
 
-CLASS lct_find_matching_blocks IMPLEMENTATION.
+CLASS ltcl_find_matching_blocks IMPLEMENTATION.
 
   METHOD setup.
     CREATE OBJECT mo_differ.
