@@ -303,7 +303,7 @@
 			"severity": "Error"
 		},
 		"if_in_if": {
-			"exclude": [],
+			"exclude": [".*"],
 			"severity": "Error"
 		},
 		"implement_methods": {
