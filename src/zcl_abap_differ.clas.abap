@@ -139,7 +139,7 @@ CLASS zcl_abap_differ DEFINITION
     METHODS find_match
       IMPORTING
         !it_before_tokens         TYPE ty_tokens
-        !it_after_tokens          TYPE ty_tokens
+        !it_after_tokens          TYPE ty_tokens ##NEEDED
         !it_index_before_in_after TYPE ty_index_tab
         !iv_start_in_before       TYPE i
         !iv_end_in_before         TYPE i
@@ -234,7 +234,6 @@ CLASS zcl_abap_differ DEFINITION
         !iv_after        TYPE string
       RETURNING
         VALUE(rv_result) TYPE string.
-
   PRIVATE SECTION.
 
     CONSTANTS:
@@ -851,15 +850,12 @@ CLASS zcl_abap_differ IMPLEMENTATION.
   METHOD is_quote.
 
     " https://www.w3schools.com/charsets/ref_utf_basic_latin.asp
-    IF iv_input = '&quot;' OR iv_input = '&#34;' OR " QUOTATION MARK
-       iv_input = '&#39;'  OR iv_input = '&#96;' OR " APOSTROPHE & GRAVE ACCENT
-       iv_input = '&lt;'   OR iv_input = '&#60;' OR " LESS-THAN SIGN
-       iv_input = '&gt;'   OR iv_input = '&#62;' OR " GREATER-THAN SIGN
-       iv_input = '&#124;'. " VERTICAL LINE
-      rv_result = abap_true.
-    ELSE.
-      rv_result = abap_false.
-    ENDIF.
+    rv_result = boolc(
+      iv_input = '&quot;' OR iv_input = '&#34;' OR " QUOTATION MARK
+      iv_input = '&#39;'  OR iv_input = '&#96;' OR " APOSTROPHE & GRAVE ACCENT
+      iv_input = '&lt;'   OR iv_input = '&#60;' OR " LESS-THAN SIGN
+      iv_input = '&gt;'   OR iv_input = '&#62;' OR " GREATER-THAN SIGN
+      iv_input = '&#124;' ). " VERTICAL LINE
 
   ENDMETHOD.
 

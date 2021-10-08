@@ -2,7 +2,7 @@
 * Helper Class
 ************************************************************************
 
-CLASS ltcl_helper DEFINITION.
+CLASS lcl_helper DEFINITION.
 
   PUBLIC SECTION.
 
@@ -24,7 +24,7 @@ CLASS ltcl_helper DEFINITION.
 
 ENDCLASS.
 
-CLASS ltcl_helper IMPLEMENTATION.
+CLASS lcl_helper IMPLEMENTATION.
 
   METHOD format.
     rv_result = iv_string.
@@ -75,7 +75,7 @@ CLASS ltcl_differ_test_1 IMPLEMENTATION.
 
     CREATE OBJECT mo_differ.
 
-    mv_original = ltcl_helper=>format( '\n'
+    mv_original = lcl_helper=>format( '\n'
       && '    <p>First paragraph.</p>\n'
       && '    <ul>\n'
       && '        <li>Item A</li>\n'
@@ -85,7 +85,7 @@ CLASS ltcl_differ_test_1 IMPLEMENTATION.
       && '    <img src="previous.jpg">\n'
       && '    <span>This is some interesting text.</span>\n' ).
 
-    mv_modified = ltcl_helper=>format( '\n'
+    mv_modified = lcl_helper=>format( '\n'
       && '    <p>First paragraph.</p>\n'
       && '    <ul>\n'
       && '        <li>Item A</li>\n'
@@ -103,7 +103,7 @@ CLASS ltcl_differ_test_1 IMPLEMENTATION.
       lv_exp TYPE string,
       lv_act TYPE string.
 
-    lv_exp = ltcl_helper=>format( '\n'
+    lv_exp = lcl_helper=>format( '\n'
       && '    <p>First paragraph.</p>\n'
       && '    <ul>\n'
       && '        <li>Item A</li>\n'
@@ -130,7 +130,7 @@ CLASS ltcl_differ_test_1 IMPLEMENTATION.
       lv_exp TYPE string,
       lv_act TYPE string.
 
-    lv_exp = ltcl_helper=>format( '\n'
+    lv_exp = lcl_helper=>format( '\n'
       && '    <p>First paragraph.</p>\n'
       && '    <ul>\n'
       && '        <li>Item A</li>\n'
@@ -181,7 +181,7 @@ CLASS ltcl_differ_test_2 IMPLEMENTATION.
     DATA: lv_act TYPE string,
           lv_exp TYPE string.
 
-    lv_act = ltcl_helper=>diff(
+    lv_act = lcl_helper=>diff(
       iv_before = 'a word is here'
       iv_after  = 'a nother word is there' ).
 
@@ -199,7 +199,7 @@ CLASS ltcl_differ_test_2 IMPLEMENTATION.
     DATA: lv_act TYPE string,
           lv_exp TYPE string.
 
-    lv_act = ltcl_helper=>diff(
+    lv_act = lcl_helper=>diff(
       iv_before = 'a c'
       iv_after  = 'a b c' ).
 
@@ -216,7 +216,7 @@ CLASS ltcl_differ_test_2 IMPLEMENTATION.
     DATA: lv_act TYPE string,
           lv_exp TYPE string.
 
-    lv_act = ltcl_helper=>diff(
+    lv_act = lcl_helper=>diff(
       iv_before = 'a b c'
       iv_after  = 'a c' ).
 
@@ -233,7 +233,7 @@ CLASS ltcl_differ_test_2 IMPLEMENTATION.
     DATA: lv_act TYPE string,
           lv_exp TYPE string.
 
-    lv_act = ltcl_helper=>diff(
+    lv_act = lcl_helper=>diff(
       iv_before = 'a b c'
       iv_after  = 'a d c' ).
 
@@ -250,7 +250,7 @@ CLASS ltcl_differ_test_2 IMPLEMENTATION.
     DATA: lv_act TYPE string,
           lv_exp TYPE string.
 
-    lv_act = ltcl_helper=>diff(
+    lv_act = lcl_helper=>diff(
       iv_before  = '这个是中文内容, Ruby is the bast'
       iv_after   = '这是中国语内容,Ruby is the best language.'
       iv_chinese = abap_true ).
@@ -270,7 +270,7 @@ CLASS ltcl_differ_test_2 IMPLEMENTATION.
     DATA: lv_act TYPE string,
           lv_exp TYPE string.
 
-    lv_act = ltcl_helper=>diff(
+    lv_act = lcl_helper=>diff(
       iv_before = 'a b c'
       iv_after  = 'a b <img src="some_url" /> c'
       iv_with_img = abap_true ).
@@ -288,7 +288,7 @@ CLASS ltcl_differ_test_2 IMPLEMENTATION.
     DATA: lv_act TYPE string,
           lv_exp TYPE string.
 
-    lv_act = ltcl_helper=>diff(
+    lv_act = lcl_helper=>diff(
       iv_before = 'a b <img src="some_url" /> c'
       iv_after  = 'a b c'
       iv_with_img = abap_true ).
