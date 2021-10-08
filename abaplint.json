@@ -442,7 +442,7 @@
 			"severity": "Error"
 		},
 		"mix_returning": {
-			"exclude": [],
+			"exclude": [".*"],
 			"severity": "Error"
 		},
 		"msag_consistency": {
