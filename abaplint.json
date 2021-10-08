@@ -103,7 +103,7 @@
 			"assign": true,
 			"authorityCheck": true,
 			"exclude": [],
-			"find": true,
+			"find": false,
 			"insertDatabase": true,
 			"modifyDatabase": true,
 			"openDataset": true,
