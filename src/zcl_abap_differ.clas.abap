@@ -85,16 +85,22 @@ CLASS zcl_abap_differ DEFINITION
 
     TYPES:
       ty_location  TYPE i,
-      ty_locations TYPE STANDARD TABLE OF ty_location WITH DEFAULT KEY.
+      ty_locations TYPE SORTED TABLE OF ty_location WITH UNIQUE DEFAULT KEY.
 
     TYPES:
       BEGIN OF ty_index_row,
         token     TYPE ty_token,
         locations TYPE ty_locations,
       END OF ty_index_row,
-      ty_index_tab TYPE STANDARD TABLE OF ty_index_row WITH DEFAULT KEY.
+      ty_index_tab TYPE HASHED TABLE OF ty_index_row WITH UNIQUE KEY token.
 
     METHODS is_character
+      IMPORTING
+        !iv_input        TYPE csequence
+      RETURNING
+        VALUE(rv_result) TYPE abap_bool.
+
+    METHODS is_chinese
       IMPORTING
         !iv_input        TYPE csequence
       RETURNING
@@ -261,10 +267,13 @@ CLASS zcl_abap_differ DEFINITION
       mv_deletes         TYPE abap_bool,
       mv_with_img        TYPE abap_bool,
       mv_with_tags       TYPE abap_bool,
-      mv_support_chinese TYPE abap_bool,
-      mo_conv            TYPE REF TO cl_abap_conv_out_ce.
+      mv_support_chinese TYPE abap_bool.
 
-    METHODS slice
+    METHODS _inject
+      IMPORTING
+        !iv_with_tags TYPE abap_bool.
+
+    METHODS _slice
       IMPORTING
         !it_tokens       TYPE ty_tokens
         !iv_start        TYPE i
@@ -272,14 +281,14 @@ CLASS zcl_abap_differ DEFINITION
       RETURNING
         VALUE(rt_result) TYPE ty_tokens.
 
-    METHODS join
+    METHODS _join
       IMPORTING
         !it_tokens       TYPE ty_tokens
         !iv_separator    TYPE string OPTIONAL
       RETURNING
         VALUE(rv_result) TYPE string.
 
-    METHODS new_match
+    METHODS _new_match
       IMPORTING
         !iv_start_in_before TYPE i
         !iv_start_in_after  TYPE i
@@ -287,7 +296,7 @@ CLASS zcl_abap_differ DEFINITION
       RETURNING
         VALUE(rs_result)    TYPE ty_match.
 
-    METHODS new_operation
+    METHODS _new_operation
       IMPORTING
         !iv_action          TYPE string
         !iv_start_in_before TYPE i OPTIONAL
@@ -297,17 +306,18 @@ CLASS zcl_abap_differ DEFINITION
       RETURNING
         VALUE(rs_result)    TYPE ty_operation.
 
-    METHODS get_class
+    METHODS _get_class
       IMPORTING
         !iv_tag          TYPE string
       RETURNING
         VALUE(rv_result) TYPE string.
 
-    METHODS is_chinese
+    METHODS _get_end
       IMPORTING
-        !iv_input        TYPE csequence
+        !iv_end          TYPE i
       RETURNING
-        VALUE(rv_result) TYPE abap_bool.
+        VALUE(rv_result) TYPE i.
+
 ENDCLASS.
 
 
@@ -321,15 +331,17 @@ CLASS zcl_abap_differ IMPLEMENTATION.
       lv_action             TYPE string,
       lv_end_in_before      TYPE i,
       lv_end_in_after       TYPE i,
-      ls_last_op            TYPE ty_operation,
       ls_match              TYPE ty_match,
       lt_matches            TYPE ty_matches,
-      ls_op                 TYPE ty_operation,
       lt_operations         TYPE ty_operations,
       lv_position_in_after  TYPE i,
       lv_position_in_before TYPE i,
+      ls_op                 TYPE ty_operation,
       lt_post_processed     TYPE ty_operations,
       lv_whitespace         TYPE abap_bool.
+
+    FIELD-SYMBOLS:
+      <ls_last_op> TYPE ty_operation.
 
     IF it_before_tokens IS INITIAL.
       ASSERT 0 = 1. " no before_tokens?
@@ -344,7 +356,7 @@ CLASS zcl_abap_differ IMPLEMENTATION.
     lt_matches = find_matching_blocks( it_before_tokens = it_before_tokens
                                        it_after_tokens  = it_after_tokens ).
 
-    APPEND new_match(
+    APPEND _new_match(
       iv_start_in_before = lines( it_before_tokens )
       iv_start_in_after  = lines( it_after_tokens )
       iv_length          = 0 )
@@ -370,15 +382,15 @@ CLASS zcl_abap_differ IMPLEMENTATION.
         IF lv_action <> c_action-insert.
           lv_end_in_before = ls_match-start_in_before - 1.
         ELSE.
-          lv_end_in_before = 0.
+          lv_end_in_before = -1.
         ENDIF.
         IF lv_action <> c_action-delete.
           lv_end_in_after = ls_match-start_in_after - 1.
         ELSE.
-          lv_end_in_after = 0.
+          lv_end_in_after = -1.
         ENDIF.
 
-        APPEND new_operation(
+        APPEND _new_operation(
           iv_action          = lv_action
           iv_start_in_before = lv_position_in_before
           iv_end_in_before   = lv_end_in_before
@@ -388,7 +400,7 @@ CLASS zcl_abap_differ IMPLEMENTATION.
       ENDIF.
 
       IF ls_match-length <> 0.
-        APPEND new_operation(
+        APPEND _new_operation(
           iv_action          = c_action-equal
           iv_start_in_before = ls_match-start_in_before
           iv_end_in_before   = ls_match-end_in_before
@@ -402,19 +414,16 @@ CLASS zcl_abap_differ IMPLEMENTATION.
 
     ENDLOOP.
 
-    ls_last_op = new_operation( iv_action = c_action-none ).
-
     LOOP AT lt_operations INTO ls_op.
-
       lv_whitespace = is_single_whitespace( is_op     = ls_op
                                             it_tokens = it_before_tokens ).
 
-      IF ( lv_whitespace = abap_true OR ls_op-action = c_action-replace ) AND ls_last_op-action = c_action-replace.
-        ls_last_op-end_in_before = ls_op-end_in_before.
-        ls_last_op-end_in_after  = ls_op-end_in_after.
+      IF ( lv_whitespace = abap_true OR ls_op-action = c_action-replace ) AND
+         ( <ls_last_op> IS ASSIGNED and <ls_last_op>-action = c_action-replace ).
+        <ls_last_op>-end_in_before = ls_op-end_in_before.
+        <ls_last_op>-end_in_after  = ls_op-end_in_after.
       ELSE.
-        APPEND ls_op TO lt_post_processed.
-        ls_last_op = ls_op.
+        APPEND ls_op TO lt_post_processed ASSIGNING <ls_last_op>.
       ENDIF.
 
     ENDLOOP.
@@ -430,23 +439,25 @@ CLASS zcl_abap_differ IMPLEMENTATION.
 
     IF iv_before = iv_after.
       lv_action = c_action-none.
-    ELSEIF iv_after IS INITIAL.
-      IF mv_deletes = abap_true.
-        lv_action = c_action-delete.
-      ENDIF.
+    ELSEIF iv_before IS INITIAL AND iv_after IS INITIAL.
+      lv_action = ''.
     ELSEIF iv_before IS INITIAL.
       IF mv_inserts = abap_true.
         lv_action = c_action-insert.
       ENDIF.
+    ELSEIF iv_after IS INITIAL.
+      IF mv_deletes = abap_true.
+        lv_action = c_action-delete.
+      ENDIF.
     ENDIF.
 
     IF lv_action IS NOT INITIAL.
-      APPEND new_operation(
+      APPEND _new_operation(
         iv_action          = lv_action
-        iv_start_in_before = 1
-        iv_end_in_before   = strlen( iv_before )
-        iv_start_in_after  = 1
-        iv_end_in_after    = strlen( iv_after )
+        iv_start_in_before = 0
+        iv_end_in_before   = -1
+        iv_start_in_after  = 0
+        iv_end_in_after    = -1
         ) TO rt_result.
     ENDIF.
 
@@ -485,12 +496,6 @@ CLASS zcl_abap_differ IMPLEMENTATION.
     mv_with_classes    = iv_with_classes.
     mv_support_chinese = iv_support_chinese.
 
-    IF mv_support_chinese = abap_true.
-      mo_conv = cl_abap_conv_out_ce=>create(
-        encoding = 'UTF-8'
-        endian   = 'B' ).
-    ENDIF.
-
   ENDMETHOD.
 
 
@@ -498,6 +503,7 @@ CLASS zcl_abap_differ IMPLEMENTATION.
 
     DATA:
       lv_idx   TYPE i,
+      ls_index TYPE ty_index_row,
       lt_index TYPE ty_index_tab,
       lv_token TYPE ty_token.
 
@@ -509,8 +515,9 @@ CLASS zcl_abap_differ IMPLEMENTATION.
 
       READ TABLE lt_index ASSIGNING <ls_index> WITH TABLE KEY token = <lv_token>.
       IF sy-subrc <> 0.
-        APPEND INITIAL LINE TO lt_index ASSIGNING <ls_index>.
-        <ls_index>-token = <lv_token>.
+        CLEAR ls_index.
+        ls_index-token = <lv_token>.
+        INSERT ls_index INTO TABLE lt_index ASSIGNING <ls_index>.
       ENDIF.
 
       lv_idx = 1.
@@ -543,7 +550,7 @@ CLASS zcl_abap_differ IMPLEMENTATION.
       lt_before_tokens TYPE ty_tokens,
       lt_after_tokens  TYPE ty_tokens.
 
-    mv_with_img = abap_false.
+    mv_with_img  = abap_false.
     mv_with_tags = abap_false.
 
     IF iv_before = iv_after OR iv_after IS INITIAL OR iv_before IS INITIAL.
@@ -580,10 +587,10 @@ CLASS zcl_abap_differ IMPLEMENTATION.
       lt_locations_in_after   TYPE ty_locations,
       lv_looking_for          TYPE ty_token,
       ls_match                TYPE ty_match,
-      lv_key                  TYPE i,
-      ls_keyval               TYPE ty_keyval,
+      ls_match_length_at      TYPE ty_keyval,
       lt_match_length_at      TYPE ty_keyvals,
       lv_new_match_length     TYPE i,
+      ls_new_match_length_at  TYPE ty_keyval,
       lt_new_match_length_at  TYPE ty_keyvals.
 
     lv_best_match_in_before = iv_start_in_before.
@@ -592,17 +599,26 @@ CLASS zcl_abap_differ IMPLEMENTATION.
 
     CLEAR lt_match_length_at.
 
-    LOOP AT it_before_tokens INTO lv_looking_for FROM iv_start_in_before + 1 TO iv_end_in_before + 1.
-      lv_index_in_before = sy-tabix - 1.
+    lv_index_in_before = iv_start_in_before.
+    DO.
+      IF iv_start_in_before <= iv_end_in_before.
+        IF lv_index_in_before >= iv_end_in_before.
+          EXIT.
+        ENDIF.
+      ELSE.
+        IF lv_index_in_before <= iv_end_in_before.
+          EXIT.
+        ENDIF.
+      ENDIF.
+
+      READ TABLE it_before_tokens INTO lv_looking_for INDEX lv_index_in_before + 1.
+      ASSERT sy-subrc = 0. " something wrong with do-loop.
 
       CLEAR lt_new_match_length_at.
 
-      READ TABLE it_index_before_in_after INTO ls_index_row WITH KEY token = lv_looking_for.
-      IF sy-subrc = 0.
-        lt_locations_in_after = ls_index_row-locations.
-      ELSE.
-        BREAK-POINT.
-      ENDIF.
+      READ TABLE it_index_before_in_after INTO ls_index_row WITH TABLE KEY token = lv_looking_for.
+      ASSERT sy-subrc = 0. " all tokens must be in index
+      lt_locations_in_after = ls_index_row-locations.
 
       LOOP AT lt_locations_in_after INTO lv_index_in_after.
 
@@ -613,19 +629,18 @@ CLASS zcl_abap_differ IMPLEMENTATION.
           EXIT.
         ENDIF.
 
-        lv_key = lv_index_in_after - 1.
-        READ TABLE lt_match_length_at INTO ls_keyval WITH TABLE KEY key = lv_key.
+        READ TABLE lt_match_length_at INTO ls_match_length_at WITH TABLE KEY key = lv_index_in_after - 1.
         IF sy-subrc <> 0.
-          ls_keyval-key = lv_key.
-          ls_keyval-val = 0.
-          INSERT ls_keyval INTO TABLE lt_match_length_at.
+          ls_match_length_at-key = lv_index_in_after - 1.
+          ls_match_length_at-val = 0.
+          INSERT ls_match_length_at INTO TABLE lt_match_length_at.
         ENDIF.
 
-        lv_new_match_length = ls_keyval-val + 1.
+        lv_new_match_length = ls_match_length_at-val + 1.
 
-        ls_keyval-key = lv_index_in_after.
-        ls_keyval-val = lv_new_match_length.
-        INSERT ls_keyval INTO TABLE lt_new_match_length_at.
+        ls_new_match_length_at-key = lv_index_in_after.
+        ls_new_match_length_at-val = lv_new_match_length.
+        INSERT ls_new_match_length_at INTO TABLE lt_new_match_length_at.
 
         IF lv_new_match_length > lv_best_match_length.
           lv_best_match_in_before = lv_index_in_before - lv_new_match_length + 1.
@@ -637,12 +652,18 @@ CLASS zcl_abap_differ IMPLEMENTATION.
 
       lt_match_length_at = lt_new_match_length_at.
 
-    ENDLOOP.
+      IF iv_start_in_before <= iv_end_in_before.
+        lv_index_in_before = lv_index_in_before + 1.
+      ELSE.
+        lv_index_in_before = lv_index_in_before - 1.
+      ENDIF.
+
+    ENDDO.
 
     IF lv_best_match_length <> 0.
-      ls_match = new_match( iv_start_in_before = lv_best_match_in_before
-                            iv_start_in_after  = lv_best_match_in_after
-                            iv_length          = lv_best_match_length ).
+      ls_match = _new_match( iv_start_in_before = lv_best_match_in_before
+                             iv_start_in_after  = lv_best_match_in_after
+                             iv_length          = lv_best_match_length ).
     ENDIF.
 
     rs_result = ls_match.
@@ -674,28 +695,6 @@ CLASS zcl_abap_differ IMPLEMENTATION.
   ENDMETHOD.
 
 
-  METHOD get_class.
-
-    DATA lv_class TYPE string.
-
-    IF mv_with_classes = abap_true.
-      CASE iv_tag.
-        WHEN c_tag-ins.
-          lv_class = c_tag_class-insert.
-        WHEN c_tag-del.
-          lv_class = c_tag_class-delete.
-        WHEN c_tag-insmod OR c_tag-delmod.
-          lv_class = c_tag_class-replace.
-        WHEN OTHERS.
-          ASSERT 0 = 1. " Unknown tag
-      ENDCASE.
-
-      rv_result = | class="{ lv_class }"|.
-    ENDIF.
-
-  ENDMETHOD.
-
-
   METHOD htmldiff.
 
     DATA:
@@ -703,7 +702,7 @@ CLASS zcl_abap_differ IMPLEMENTATION.
       lt_after_tokens  TYPE ty_tokens,
       lt_ops           TYPE ty_operations.
 
-    mv_with_img = iv_with_img.
+    mv_with_img  = iv_with_img.
     mv_with_tags = abap_true.
 
     IF iv_before = iv_after OR iv_after IS INITIAL OR iv_before IS INITIAL.
@@ -727,7 +726,7 @@ CLASS zcl_abap_differ IMPLEMENTATION.
   METHOD html_to_tokens.
 
     DATA:
-      lv_char         TYPE c LENGTH 1,
+      lv_char         TYPE string,
       lv_current_word TYPE string,
       lv_idx          TYPE i,
       lv_mode         TYPE string,
@@ -763,10 +762,12 @@ CLASS zcl_abap_differ IMPLEMENTATION.
             lv_current_word = lv_char.
             lv_mode = c_mode-whitespace.
           ELSEIF is_chinese( lv_char ) = abap_true.
+            " Treat Chinese characters as individual words
             IF NOT lv_current_word IS INITIAL.
               APPEND lv_current_word TO lt_words.
             ENDIF.
-            lv_current_word = lv_char.
+            APPEND lv_char TO lt_words.
+            lv_current_word = ''.
           ELSEIF is_character( lv_char ) = abap_true.
             lv_current_word = lv_current_word && lv_char.
             IF is_quote( lv_current_word ) = abap_true.
@@ -847,9 +848,7 @@ CLASS zcl_abap_differ IMPLEMENTATION.
     DATA lv_x TYPE x LENGTH 2.
 
     IF mv_support_chinese = abap_true.
-      mo_conv->write( iv_input ).
-      lv_x = mo_conv->get_buffer( ).
-
+      lv_x = cl_abap_conv_out_ce=>uccp( iv_input ).
       IF lv_x BETWEEN c_from AND c_to.
         rv_result = abap_true.
       ENDIF.
@@ -887,10 +886,10 @@ CLASS zcl_abap_differ IMPLEMENTATION.
       RETURN.
     ENDIF.
 
-    lv_string = join( slice( it_tokens = it_tokens
-                             iv_start  = is_op-start_in_before
-                             iv_end    = is_op-end_in_before + 1 ) ).
-    IF is_whitespace( lv_string ) = abap_true.
+    lv_string = _join( _slice( it_tokens = it_tokens
+                               iv_start  = is_op-start_in_before
+                               iv_end    = _get_end( is_op-end_in_before ) ) ).
+    IF lv_string = ` `. " single space
       rv_result = abap_true.
     ELSE.
       rv_result = abap_false.
@@ -931,45 +930,6 @@ CLASS zcl_abap_differ IMPLEMENTATION.
   ENDMETHOD.
 
 
-  METHOD join.
-
-    DATA lv_token TYPE ty_token.
-
-    LOOP AT it_tokens INTO lv_token.
-
-      IF sy-tabix > 1.
-        rv_result = rv_result && iv_separator.
-      ENDIF.
-
-      rv_result = rv_result && lv_token.
-
-    ENDLOOP.
-
-  ENDMETHOD.
-
-
-  METHOD new_match.
-
-    rs_result-start_in_before = iv_start_in_before.
-    rs_result-start_in_after  = iv_start_in_after.
-    rs_result-length          = iv_length.
-    rs_result-end_in_before   = iv_start_in_before + iv_length - 1.
-    rs_result-end_in_after    = iv_start_in_after  + iv_length - 1.
-
-  ENDMETHOD.
-
-
-  METHOD new_operation.
-
-    rs_result-action          = iv_action.
-    rs_result-start_in_before = iv_start_in_before.
-    rs_result-start_in_after  = iv_start_in_after.
-    rs_result-end_in_before   = iv_end_in_before.
-    rs_result-end_in_after    = iv_end_in_after.
-
-  ENDMETHOD.
-
-
   METHOD operation.
 
     DATA:
@@ -979,16 +939,16 @@ CLASS zcl_abap_differ IMPLEMENTATION.
 
     CASE is_op-action.
       WHEN c_action-equal.
-        lt_val = slice( it_tokens = it_before_tokens
-                        iv_start  = is_op-start_in_before
-                        iv_end    = is_op-end_in_before ).
-        rv_result = join( lt_val ).
+        lt_val = _slice( it_tokens = it_before_tokens
+                         iv_start  = is_op-start_in_before
+                         iv_end    = _get_end( is_op-end_in_before ) ).
+        rv_result = _join( lt_val ).
 
       WHEN c_action-insert OR c_action-insmod.
         IF mv_inserts = abap_true.
-          lt_val = slice( it_tokens = it_after_tokens
-                          iv_start  = is_op-start_in_after
-                          iv_end    = is_op-end_in_after ).
+          lt_val = _slice( it_tokens = it_after_tokens
+                           iv_start  = is_op-start_in_after
+                           iv_end    = _get_end( is_op-end_in_after ) ).
           IF is_op-action = c_action-insert.
             rv_result = wrap( iv_tag     = c_tag-ins
                               it_content = lt_val ).
@@ -1000,9 +960,9 @@ CLASS zcl_abap_differ IMPLEMENTATION.
 
       WHEN c_action-delete OR c_action-delmod.
         IF mv_deletes = abap_true.
-          lt_val = slice( it_tokens = it_before_tokens
-                          iv_start  = is_op-start_in_before
-                          iv_end    = is_op-end_in_before ).
+          lt_val = _slice( it_tokens = it_before_tokens
+                           iv_start  = is_op-start_in_before
+                           iv_end    = _get_end( is_op-end_in_before ) ).
           IF is_op-action = c_action-delete.
             rv_result = wrap( iv_tag     = c_tag-del
                               it_content = lt_val ).
@@ -1105,32 +1065,21 @@ CLASS zcl_abap_differ IMPLEMENTATION.
 
     IF iv_before = iv_after.
       rv_result = iv_before.
-    ELSEIF iv_after IS INITIAL.
-      IF mv_deletes = abap_true.
-        rv_result = |<{ c_tag-del }>{ iv_before }</{ c_tag-del }>|.
-      ELSE.
-        rv_result = ''.
-      ENDIF.
+    ELSEIF iv_before IS INITIAL AND iv_after IS INITIAL.
+      rv_result = ''.
     ELSEIF iv_before IS INITIAL.
       IF mv_inserts = abap_true.
         rv_result = |<{ c_tag-ins }>{ iv_after }</{ c_tag-ins }>|.
       ELSE.
         rv_result = ''.
       ENDIF.
+    ELSEIF iv_after IS INITIAL.
+      IF mv_deletes = abap_true.
+        rv_result = |<{ c_tag-del }>{ iv_before }</{ c_tag-del }>|.
+      ELSE.
+        rv_result = ''.
+      ENDIF.
     ENDIF.
-
-  ENDMETHOD.
-
-
-  METHOD slice.
-
-    DATA lv_token TYPE ty_token.
-
-    LOOP AT it_tokens INTO lv_token FROM iv_start + 1 TO iv_end + 1.
-
-      APPEND lv_token TO rt_result.
-
-    ENDLOOP.
 
   ENDMETHOD.
 
@@ -1142,7 +1091,7 @@ CLASS zcl_abap_differ IMPLEMENTATION.
       lt_after_tokens  TYPE ty_tokens,
       lt_ops           TYPE ty_operations.
 
-    mv_with_img = abap_false.
+    mv_with_img  = abap_false.
     mv_with_tags = abap_false.
 
     IF iv_before = iv_after OR iv_after IS INITIAL OR iv_before IS INITIAL.
@@ -1185,7 +1134,8 @@ CLASS zcl_abap_differ IMPLEMENTATION.
       lv_position = lv_position + lines( lt_non_tags ).
 
       IF lines( lt_non_tags ) <> 0.
-        lv_rendering = lv_rendering && |<{ iv_tag(3) }{ get_class( iv_tag ) }>{ join( lt_non_tags ) }</{ iv_tag(3) }>|.
+        lv_rendering = lv_rendering &&
+          |<{ iv_tag(3) }{ _get_class( iv_tag ) }>| && _join( lt_non_tags ) && |</{ iv_tag(3) }>|.
       ENDIF.
 
       IF lv_position >= lv_length.
@@ -1198,11 +1148,100 @@ CLASS zcl_abap_differ IMPLEMENTATION.
       lv_position = lv_position + lines( lt_tags ).
 
       IF lines( lt_tags ) <> 0.
-        lv_rendering = lv_rendering && join( lt_tags ).
+        lv_rendering = lv_rendering && _join( lt_tags ).
       ENDIF.
     ENDDO.
 
     rv_result = lv_rendering.
+
+  ENDMETHOD.
+
+
+  METHOD _get_class.
+
+    DATA lv_class TYPE string.
+
+    IF mv_with_classes = abap_true.
+      CASE iv_tag.
+        WHEN c_tag-ins.
+          lv_class = c_tag_class-insert.
+        WHEN c_tag-del.
+          lv_class = c_tag_class-delete.
+        WHEN c_tag-insmod OR c_tag-delmod.
+          lv_class = c_tag_class-replace.
+        WHEN OTHERS.
+          ASSERT 0 = 1. " Unknown tag
+      ENDCASE.
+
+      rv_result = | class="{ lv_class }"|.
+    ENDIF.
+
+  ENDMETHOD.
+
+
+  METHOD _get_end.
+    IF iv_end = -1.
+      rv_result = 2 ** 31.
+    ELSE.
+      rv_result = iv_end + 1.
+    ENDIF.
+  ENDMETHOD.
+
+
+  METHOD _inject.
+    mv_with_tags = iv_with_tags.
+  ENDMETHOD.
+
+
+  METHOD _join.
+
+    DATA lv_token TYPE ty_token.
+
+    LOOP AT it_tokens INTO lv_token.
+
+      IF sy-tabix > 1.
+        rv_result = rv_result && iv_separator.
+      ENDIF.
+
+      rv_result = rv_result && lv_token.
+
+    ENDLOOP.
+
+  ENDMETHOD.
+
+
+  METHOD _new_match.
+
+    rs_result-start_in_before = iv_start_in_before.
+    rs_result-start_in_after  = iv_start_in_after.
+    rs_result-length          = iv_length.
+    rs_result-end_in_before   = iv_start_in_before + iv_length - 1.
+    rs_result-end_in_after    = iv_start_in_after  + iv_length - 1.
+
+  ENDMETHOD.
+
+
+  METHOD _new_operation.
+
+    rs_result-action          = iv_action.
+    rs_result-start_in_before = iv_start_in_before.
+    rs_result-start_in_after  = iv_start_in_after.
+    rs_result-end_in_before   = iv_end_in_before.
+    rs_result-end_in_after    = iv_end_in_after.
+
+  ENDMETHOD.
+
+
+  METHOD _slice.
+
+    DATA lv_token TYPE ty_token.
+
+    " select from start to end (end not included!)
+    LOOP AT it_tokens INTO lv_token FROM iv_start + 1 TO iv_end.
+
+      APPEND lv_token TO rt_result.
+
+    ENDLOOP.
 
   ENDMETHOD.
 ENDCLASS.
