@@ -893,11 +893,8 @@ CLASS zcl_abap_differ IMPLEMENTATION.
     ELSE.
       FIND REGEX '<(?!img)[^>]+>' IN iv_token.
     ENDIF.
-    IF sy-subrc = 0.
-      rv_result = abap_true.
-    ELSE.
-      rv_result = abap_false.
-    ENDIF.
+
+    rv_result = boolc( sy-subrc = 0 ).
 
   ENDMETHOD.
 
@@ -909,11 +906,7 @@ CLASS zcl_abap_differ IMPLEMENTATION.
     "/^\s+$/
     lv_whitespace = ` ` && cl_abap_char_utilities=>horizontal_tab && cl_abap_char_utilities=>cr_lf.
 
-    IF iv_input CO lv_whitespace.
-      rv_result = abap_true.
-    ELSE.
-      rv_result = abap_false.
-    ENDIF.
+    rv_result = boolc( iv_input CO lv_whitespace ).
 
   ENDMETHOD.
 

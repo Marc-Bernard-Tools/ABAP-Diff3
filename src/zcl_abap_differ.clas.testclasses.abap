@@ -833,7 +833,6 @@ CLASS ltcl_find_matching_blocks IMPLEMENTATION.
     DATA:
       lt_before TYPE zcl_abap_differ=>ty_tokens,
       lt_after  TYPE zcl_abap_differ=>ty_tokens,
-      ls_index  TYPE zcl_abap_differ=>ty_index_row,
       lt_index  TYPE zcl_abap_differ=>ty_index_tab.
 
     SPLIT iv_before AT space INTO TABLE lt_before.
@@ -860,7 +859,7 @@ CLASS ltcl_find_matching_blocks IMPLEMENTATION.
 
     " When there is a match, should match the match
     ls_match = find_match( iv_before = 'a dog bites'
-                           iv_after =  'a dog bites a man' ).
+                           iv_after  = 'a dog bites a man' ).
 
     ls_exp-start_in_before = 0.
     ls_exp-start_in_after  = 0.
@@ -882,7 +881,7 @@ CLASS ltcl_find_matching_blocks IMPLEMENTATION.
 
     " When the match is surrounded, should match with appropriate indexing
     ls_match = find_match( iv_before = 'dog bites'
-                           iv_after =  'the dog bites a man' ).
+                           iv_after  = 'the dog bites a man' ).
 
     ls_exp-start_in_before = 0.
     ls_exp-start_in_after  = 1.
@@ -904,7 +903,7 @@ CLASS ltcl_find_matching_blocks IMPLEMENTATION.
 
     " When these is no match, should return nothing
     ls_match = find_match( iv_before = 'the rat squeaks'
-                           iv_after =  'a dog bites a man' ).
+                           iv_after  = 'a dog bites a man' ).
 
     cl_abap_unit_assert=>assert_equals(
       act = ls_match
@@ -936,7 +935,7 @@ CLASS ltcl_find_matching_blocks IMPLEMENTATION.
 
     " When called with a single match, should return a match
     lt_matches = find_matching_blocks( iv_before = 'a dog bites'
-                                       iv_after =  'when a dog bites it hurts' ).
+                                       iv_after  = 'when a dog bites it hurts' ).
 
     cl_abap_unit_assert=>assert_equals(
       act = lines( lt_matches )
@@ -953,7 +952,7 @@ CLASS ltcl_find_matching_blocks IMPLEMENTATION.
 
     " When called with multiple matches, should return 3 matches
     lt_matches = find_matching_blocks( iv_before = 'the dog bit a man'
-                                       iv_after =  'the large brown dog bit a tall man' ).
+                                       iv_after  = 'the large brown dog bit a tall man' ).
 
     cl_abap_unit_assert=>assert_equals(
       act = lines( lt_matches )
