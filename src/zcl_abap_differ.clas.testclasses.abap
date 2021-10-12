@@ -638,98 +638,6 @@ ENDCLASS.
 
 ******
 
-CLASS ltcl_html_to_token DEFINITION DEFERRED.
-CLASS zcl_abap_differ DEFINITION LOCAL FRIENDS ltcl_html_to_token.
-
-CLASS ltcl_html_to_token DEFINITION FOR TESTING
-  DURATION SHORT
-  RISK LEVEL HARMLESS.
-
-  PRIVATE SECTION.
-
-    DATA mo_differ TYPE REF TO zcl_abap_differ.
-
-    METHODS:
-      setup,
-      test FOR TESTING.
-
-ENDCLASS.
-
-CLASS ltcl_html_to_token IMPLEMENTATION.
-
-  METHOD setup.
-    CREATE OBJECT mo_differ.
-    mo_differ->_inject( abap_true ).
-  ENDMETHOD.
-
-  METHOD test.
-
-    DATA:
-      lv_token  TYPE zcl_abap_differ=>ty_token,
-      lt_tokens TYPE zcl_abap_differ=>ty_tokens,
-      lt_exp    TYPE zcl_abap_differ=>ty_tokens.
-
-    " when called with text, should return 7
-    lt_tokens = mo_differ->html_to_tokens( 'this is a test' ).
-
-    cl_abap_unit_assert=>assert_equals(
-      act = lines( lt_tokens )
-      exp = 7 ).
-
-    " when called with html, should return 11
-    lt_tokens = mo_differ->html_to_tokens( '<p>this is a <strong>test</strong></p>' ).
-
-    cl_abap_unit_assert=>assert_equals(
-      act = lines( lt_tokens )
-      exp = 11 ).
-
-    " should identify contiguous whitespace as a single token
-    lt_tokens = mo_differ->html_to_tokens( `a   b` ).
-
-    cl_abap_unit_assert=>assert_equals(
-      act = lines( lt_tokens )
-      exp = 3 ).
-
-    READ TABLE lt_tokens INTO lv_token INDEX 2.
-    cl_abap_unit_assert=>assert_subrc( ).
-
-    cl_abap_unit_assert=>assert_equals(
-      act = lv_token
-      exp = `   ` ).
-
-    " should identify a single space as a single token
-    lt_tokens = mo_differ->html_to_tokens( ` a b ` ).
-
-    cl_abap_unit_assert=>assert_equals(
-      act = lines( lt_tokens )
-      exp = 5 ).
-
-    READ TABLE lt_tokens INTO lv_token INDEX 5.
-    cl_abap_unit_assert=>assert_subrc( ).
-
-    cl_abap_unit_assert=>assert_equals(
-      act = lv_token
-      exp = ` ` ).
-
-    " should identify self closing tags as tokens
-    lt_tokens = mo_differ->html_to_tokens( '<p>hello</br>goodbye</p>' ).
-
-    APPEND '<p>' TO lt_exp.
-    APPEND 'hello' TO lt_exp.
-    APPEND '</br>' TO lt_exp.
-    APPEND 'goodbye' TO lt_exp.
-    APPEND '</p>' TO lt_exp.
-
-    cl_abap_unit_assert=>assert_equals(
-      act = lt_tokens
-      exp = lt_exp ).
-
-  ENDMETHOD.
-
-ENDCLASS.
-
-******
-
 CLASS ltcl_find_matching_blocks DEFINITION DEFERRED.
 CLASS zcl_abap_differ DEFINITION LOCAL FRIENDS ltcl_find_matching_blocks.
 
@@ -999,6 +907,245 @@ CLASS ltcl_find_matching_blocks IMPLEMENTATION.
     cl_abap_unit_assert=>assert_equals(
       act = ls_match
       exp = ls_exp ).
+
+  ENDMETHOD.
+
+ENDCLASS.
+
+******
+
+CLASS ltcl_html_to_token DEFINITION DEFERRED.
+CLASS zcl_abap_differ DEFINITION LOCAL FRIENDS ltcl_html_to_token.
+
+CLASS ltcl_html_to_token DEFINITION FOR TESTING
+  DURATION SHORT
+  RISK LEVEL HARMLESS.
+
+  PRIVATE SECTION.
+
+    DATA mo_differ TYPE REF TO zcl_abap_differ.
+
+    METHODS:
+      setup,
+      test FOR TESTING.
+
+ENDCLASS.
+
+CLASS ltcl_html_to_token IMPLEMENTATION.
+
+  METHOD setup.
+    CREATE OBJECT mo_differ.
+    mo_differ->_inject( abap_true ).
+  ENDMETHOD.
+
+  METHOD test.
+
+    DATA:
+      lv_token  TYPE zcl_abap_differ=>ty_token,
+      lt_tokens TYPE zcl_abap_differ=>ty_tokens,
+      lt_exp    TYPE zcl_abap_differ=>ty_tokens.
+
+    " when called with text, should return 7
+    lt_tokens = mo_differ->html_to_tokens( 'this is a test' ).
+
+    cl_abap_unit_assert=>assert_equals(
+      act = lines( lt_tokens )
+      exp = 7 ).
+
+    " when called with html, should return 11
+    lt_tokens = mo_differ->html_to_tokens( '<p>this is a <strong>test</strong></p>' ).
+
+    cl_abap_unit_assert=>assert_equals(
+      act = lines( lt_tokens )
+      exp = 11 ).
+
+    " should identify contiguous whitespace as a single token
+    lt_tokens = mo_differ->html_to_tokens( `a   b` ).
+
+    cl_abap_unit_assert=>assert_equals(
+      act = lines( lt_tokens )
+      exp = 3 ).
+
+    READ TABLE lt_tokens INTO lv_token INDEX 2.
+    cl_abap_unit_assert=>assert_subrc( ).
+
+    cl_abap_unit_assert=>assert_equals(
+      act = lv_token
+      exp = `   ` ).
+
+    " should identify a single space as a single token
+    lt_tokens = mo_differ->html_to_tokens( ` a b ` ).
+
+    cl_abap_unit_assert=>assert_equals(
+      act = lines( lt_tokens )
+      exp = 5 ).
+
+    READ TABLE lt_tokens INTO lv_token INDEX 5.
+    cl_abap_unit_assert=>assert_subrc( ).
+
+    cl_abap_unit_assert=>assert_equals(
+      act = lv_token
+      exp = ` ` ).
+
+    " should identify self closing tags as tokens
+    lt_tokens = mo_differ->html_to_tokens( '<p>hello</br>goodbye</p>' ).
+
+    APPEND '<p>' TO lt_exp.
+    APPEND 'hello' TO lt_exp.
+    APPEND '</br>' TO lt_exp.
+    APPEND 'goodbye' TO lt_exp.
+    APPEND '</p>' TO lt_exp.
+
+    cl_abap_unit_assert=>assert_equals(
+      act = lt_tokens
+      exp = lt_exp ).
+
+  ENDMETHOD.
+
+ENDCLASS.
+
+******
+
+CLASS ltcl_render_operations DEFINITION DEFERRED.
+CLASS zcl_abap_differ DEFINITION LOCAL FRIENDS ltcl_render_operations.
+
+CLASS ltcl_render_operations DEFINITION FOR TESTING
+  DURATION SHORT
+  RISK LEVEL HARMLESS.
+
+  PRIVATE SECTION.
+
+    DATA mo_differ TYPE REF TO zcl_abap_differ.
+
+    METHODS:
+      setup,
+
+      render_operations
+        IMPORTING
+          !iv_before       TYPE string
+          !iv_after        TYPE string
+        RETURNING
+          VALUE(rv_result) TYPE string,
+
+      equal FOR TESTING,
+      insert FOR TESTING,
+      delete FOR TESTING,
+      replace FOR TESTING,
+      dealing_with_tags FOR TESTING,
+      change_at_beginning_of_tag FOR TESTING.
+
+ENDCLASS.
+
+CLASS ltcl_render_operations IMPLEMENTATION.
+
+  METHOD setup.
+    CREATE OBJECT mo_differ.
+    mo_differ->_inject( abap_true ).
+  ENDMETHOD.
+
+  METHOD render_operations.
+
+    DATA:
+      lt_before TYPE zcl_abap_differ=>ty_tokens,
+      lt_after  TYPE zcl_abap_differ=>ty_tokens,
+      lt_ops    TYPE zcl_abap_differ=>ty_operations.
+
+    SPLIT iv_before AT space INTO TABLE lt_before.
+    SPLIT iv_after  AT space INTO TABLE lt_after.
+
+    REPLACE ALL OCCURRENCES OF '_' IN TABLE lt_before WITH ` `.
+    REPLACE ALL OCCURRENCES OF '_' IN TABLE lt_after  WITH ` `.
+
+    lt_ops = mo_differ->calculate_operations( it_before_tokens = lt_before
+                                              it_after_tokens  = lt_after ).
+
+    rv_result = mo_differ->render_operations( it_before_tokens = lt_before
+                                              it_after_tokens  = lt_after
+                                              it_operations    = lt_ops ).
+
+  ENDMETHOD.
+
+  METHOD equal.
+
+    DATA lv_act TYPE string.
+
+    lv_act = render_operations( iv_before = 'this _ is _ a _ test'
+                                iv_after  = 'this _ is _ a _ test' ).
+
+    cl_abap_unit_assert=>assert_equals(
+      act = lv_act
+      exp = 'this is a test'
+      msg = 'should output the text' ).
+
+  ENDMETHOD.
+
+  METHOD insert.
+
+    DATA lv_act TYPE string.
+
+    lv_act = render_operations( iv_before = 'this _ is'
+                                iv_after  = 'this _ is _ a _ test' ).
+
+    cl_abap_unit_assert=>assert_equals(
+      act = lv_act
+      exp = 'this is<ins> a test</ins>'
+      msg = 'should wrap in an <ins>' ).
+
+  ENDMETHOD.
+
+  METHOD delete.
+
+    DATA lv_act TYPE string.
+
+    lv_act = render_operations( iv_before = 'this _ is _ a _ test _ of _ stuff'
+                                iv_after  = 'this _ is _ a _ test' ).
+
+    cl_abap_unit_assert=>assert_equals(
+      act = lv_act
+      exp = 'this is a test<del> of stuff</del>'
+      msg = 'should wrap in a <del>' ).
+
+  ENDMETHOD.
+
+  METHOD replace.
+
+    DATA lv_act TYPE string.
+
+    lv_act = render_operations( iv_before = 'this _ is _ a _ break'
+                                iv_after  = 'this _ is _ a _ test' ).
+
+    cl_abap_unit_assert=>assert_equals(
+      act = lv_act
+      exp = 'this is a <del>break</del><ins>test</ins>'
+      msg = 'should wrap in both <ins> and <del>' ).
+
+  ENDMETHOD.
+
+  METHOD dealing_with_tags.
+
+    DATA lv_act TYPE string.
+
+    lv_act = render_operations( iv_before = '<p> a </p>'
+                                iv_after  = '<p> a _ b </p> <p> c </p>' ).
+
+    cl_abap_unit_assert=>assert_equals(
+      act = lv_act
+      exp = '<p>a<ins> b</ins></p><p><ins>c</ins></p>'
+      msg = 'should make sure the <ins/del> tags are within the <p> tags' ).
+
+  ENDMETHOD.
+
+  METHOD change_at_beginning_of_tag.
+
+    DATA lv_act TYPE string.
+
+    lv_act = render_operations( iv_before = '<p> this _ is _ awesome </p>'
+                                iv_after  = '<p> I _ is _ awesome </p>' ).
+
+    cl_abap_unit_assert=>assert_equals(
+      act = lv_act
+      exp = '<p><del>this</del><ins>I</ins> is awesome</p>'
+      msg = 'should keep the change inside the <p>' ).
 
   ENDMETHOD.
 
