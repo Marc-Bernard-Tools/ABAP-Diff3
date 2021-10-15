@@ -1,9 +1,9 @@
-CLASS zcl_abap_differ DEFINITION
+CLASS zcl_htmldiff DEFINITION
   PUBLIC
   CREATE PUBLIC.
 
 ************************************************************************
-* ABAP Emoji
+* ABAP Diff for Text and HTML
 *
 * https://github.com/Marc-Bernard-Tools/ABAP-Differ
 *
@@ -14,58 +14,16 @@ CLASS zcl_abap_differ DEFINITION
 * Copyright 2021 Marc Bernard <https://marcbernardtools.com/>
 * SPDX-License-Identifier: MIT
 ************************************************************************
-
   PUBLIC SECTION.
 
-    TYPES:
-      BEGIN OF ty_operation,
-        action          TYPE string,
-        start_in_before TYPE i,
-        end_in_before   TYPE i,
-        start_in_after  TYPE i,
-        end_in_after    TYPE i,
-      END OF ty_operation,
-      ty_operations TYPE STANDARD TABLE OF ty_operation WITH DEFAULT KEY.
-
-    CONSTANTS:
-      BEGIN OF c_action,
-        none    TYPE string VALUE 'none',
-        equal   TYPE string VALUE 'equal',
-        insert  TYPE string VALUE 'insert',
-        delete  TYPE string VALUE 'delete',
-        insmod  TYPE string VALUE 'insmod',
-        delmod  TYPE string VALUE 'delmod',
-        replace TYPE string VALUE 'replace',
-      END OF c_action.
+    INTERFACES zif_htmldiff.
 
     METHODS constructor
       IMPORTING
         !iv_inserts         TYPE abap_bool DEFAULT abap_true
         !iv_deletes         TYPE abap_bool DEFAULT abap_true
-        !iv_with_classes    TYPE abap_bool DEFAULT abap_false
+        !iv_css_classes     TYPE abap_bool DEFAULT abap_false
         !iv_support_chinese TYPE abap_bool DEFAULT abap_false.
-
-    METHODS htmldiff
-      IMPORTING
-        !iv_before       TYPE string
-        !iv_after        TYPE string
-        !iv_with_img     TYPE abap_bool DEFAULT abap_false
-      RETURNING
-        VALUE(rv_result) TYPE string.
-
-    METHODS textdiff
-      IMPORTING
-        !iv_before       TYPE string
-        !iv_after        TYPE string
-      RETURNING
-        VALUE(rv_result) TYPE string.
-
-    METHODS diff
-      IMPORTING
-        !iv_before       TYPE string
-        !iv_after        TYPE string
-      RETURNING
-        VALUE(rt_result) TYPE ty_operations.
 
   PROTECTED SECTION.
 
@@ -93,6 +51,35 @@ CLASS zcl_abap_differ DEFINITION
         locations TYPE ty_locations,
       END OF ty_index_row,
       ty_index_tab TYPE HASHED TABLE OF ty_index_row WITH UNIQUE KEY token.
+
+    TYPES:
+      BEGIN OF ty_operation,
+        action          TYPE string,
+        start_in_before TYPE i,
+        end_in_before   TYPE i,
+        start_in_after  TYPE i,
+        end_in_after    TYPE i,
+      END OF ty_operation.
+    TYPES:
+      ty_operations TYPE STANDARD TABLE OF ty_operation WITH DEFAULT KEY.
+
+    CONSTANTS:
+      BEGIN OF c_action,
+        none    TYPE string VALUE 'none',
+        equal   TYPE string VALUE 'equal',
+        insert  TYPE string VALUE 'insert',
+        delete  TYPE string VALUE 'delete',
+        insmod  TYPE string VALUE 'insmod',
+        delmod  TYPE string VALUE 'delmod',
+        replace TYPE string VALUE 'replace',
+      END OF c_action.
+
+    METHODS diff
+      IMPORTING
+        !iv_before       TYPE string
+        !iv_after        TYPE string
+      RETURNING
+        VALUE(rt_result) TYPE ty_operations.
 
     METHODS is_character
       IMPORTING
@@ -125,6 +112,18 @@ CLASS zcl_abap_differ DEFINITION
         VALUE(rv_result) TYPE abap_bool.
 
     METHODS isnt_tag
+      IMPORTING
+        !iv_token        TYPE ty_token
+      RETURNING
+        VALUE(rv_result) TYPE abap_bool.
+
+    METHODS is_tag_begin
+      IMPORTING
+        !iv_token        TYPE ty_token
+      RETURNING
+        VALUE(rv_result) TYPE abap_bool.
+
+    METHODS is_tag_end
       IMPORTING
         !iv_token        TYPE ty_token
       RETURNING
@@ -234,6 +233,7 @@ CLASS zcl_abap_differ DEFINITION
         !iv_after        TYPE string
       RETURNING
         VALUE(rv_result) TYPE string.
+
   PRIVATE SECTION.
 
     CONSTANTS:
@@ -261,7 +261,7 @@ CLASS zcl_abap_differ DEFINITION
       END OF c_tag_class.
 
     DATA:
-      mv_with_classes    TYPE abap_bool,
+      mv_css_classes     TYPE abap_bool,
       mv_inserts         TYPE abap_bool,
       mv_deletes         TYPE abap_bool,
       mv_with_img        TYPE abap_bool,
@@ -321,7 +321,7 @@ ENDCLASS.
 
 
 
-CLASS zcl_abap_differ IMPLEMENTATION.
+CLASS zcl_htmldiff IMPLEMENTATION.
 
 
   METHOD calculate_operations.
@@ -342,13 +342,11 @@ CLASS zcl_abap_differ IMPLEMENTATION.
     FIELD-SYMBOLS:
       <ls_last_op> TYPE ty_operation.
 
-    IF it_before_tokens IS INITIAL.
-      ASSERT 0 = 1. " no before_tokens?
-    ENDIF.
+    " any before_tokens?
+    ASSERT it_before_tokens IS NOT INITIAL.
 
-    IF it_after_tokens IS INITIAL.
-      ASSERT 0 = 1. " no after_tokens?
-    ENDIF.
+    " any after_tokens?
+    ASSERT it_after_tokens IS NOT INITIAL.
 
     lv_position_in_before = lv_position_in_after = 0.
 
@@ -491,7 +489,7 @@ CLASS zcl_abap_differ IMPLEMENTATION.
 
     mv_inserts         = iv_inserts.
     mv_deletes         = iv_deletes.
-    mv_with_classes    = iv_with_classes.
+    mv_css_classes     = iv_css_classes.
     mv_support_chinese = iv_support_chinese.
 
   ENDMETHOD.
@@ -692,34 +690,6 @@ CLASS zcl_abap_differ IMPLEMENTATION.
   ENDMETHOD.
 
 
-  METHOD htmldiff.
-
-    DATA:
-      lt_before_tokens TYPE ty_tokens,
-      lt_after_tokens  TYPE ty_tokens,
-      lt_ops           TYPE ty_operations.
-
-    mv_with_img  = iv_with_img.
-    mv_with_tags = abap_true.
-
-    IF iv_before = iv_after OR iv_after IS INITIAL OR iv_before IS INITIAL.
-      rv_result = render_simple( iv_before  = iv_before
-                                 iv_after   = iv_after ).
-    ELSE.
-      lt_before_tokens = html_to_tokens( iv_before ).
-      lt_after_tokens  = html_to_tokens( iv_after ).
-
-      lt_ops = calculate_operations( it_before_tokens = lt_before_tokens
-                                     it_after_tokens  = lt_after_tokens ).
-
-      rv_result = render_operations( it_before_tokens = lt_before_tokens
-                                     it_after_tokens  = lt_after_tokens
-                                     it_operations    = lt_ops ).
-    ENDIF.
-
-  ENDMETHOD.
-
-
   METHOD html_to_tokens.
 
     DATA:
@@ -736,7 +706,7 @@ CLASS zcl_abap_differ IMPLEMENTATION.
 
       CASE lv_mode.
         WHEN c_mode-tag.
-          IF lv_char = c_tag-end AND mv_with_tags = abap_true.
+          IF is_tag_end( lv_char ) = abap_true.
             lv_current_word = lv_current_word && c_tag-end.
             APPEND lv_current_word TO lt_words.
             lv_current_word = ''.
@@ -746,7 +716,7 @@ CLASS zcl_abap_differ IMPLEMENTATION.
           ENDIF.
 
         WHEN c_mode-char.
-          IF lv_char = c_tag-begin AND mv_with_tags = abap_true.
+          IF is_tag_begin( lv_char ) = abap_true.
             IF lv_current_word IS NOT INITIAL.
               APPEND lv_current_word TO lt_words.
             ENDIF.
@@ -775,11 +745,12 @@ CLASS zcl_abap_differ IMPLEMENTATION.
             IF lv_current_word IS NOT INITIAL.
               APPEND lv_current_word TO lt_words.
             ENDIF.
-            lv_current_word = lv_char.
+            APPEND lv_char TO lt_words.
+            lv_current_word = ''.
           ENDIF.
 
         WHEN c_mode-whitespace.
-          IF lv_char = c_tag-begin.
+          IF is_tag_begin( lv_char ) = abap_true.
             IF lv_current_word IS NOT INITIAL.
               APPEND lv_current_word TO lt_words.
             ENDIF.
@@ -895,6 +866,20 @@ CLASS zcl_abap_differ IMPLEMENTATION.
   ENDMETHOD.
 
 
+  METHOD is_tag_begin.
+
+    rv_result = boolc( iv_token(1) = c_tag-begin AND mv_with_tags = abap_true ).
+
+  ENDMETHOD.
+
+
+  METHOD is_tag_end.
+
+    rv_result = boolc( iv_token(1) = c_tag-end AND mv_with_tags = abap_true ).
+
+  ENDMETHOD.
+
+
   METHOD is_whitespace.
 
     DATA lv_whitespace TYPE string.
@@ -951,7 +936,7 @@ CLASS zcl_abap_differ IMPLEMENTATION.
 
       WHEN c_action-replace.
         ls_op_del = ls_op_ins = is_op.
-        IF mv_with_classes = abap_true.
+        IF mv_css_classes = abap_true.
           ls_op_del-action = c_action-delmod.
           ls_op_ins-action = c_action-insmod.
         ELSE.
@@ -1061,34 +1046,6 @@ CLASS zcl_abap_differ IMPLEMENTATION.
   ENDMETHOD.
 
 
-  METHOD textdiff.
-
-    DATA:
-      lt_before_tokens TYPE ty_tokens,
-      lt_after_tokens  TYPE ty_tokens,
-      lt_ops           TYPE ty_operations.
-
-    mv_with_img  = abap_false.
-    mv_with_tags = abap_false.
-
-    IF iv_before = iv_after OR iv_after IS INITIAL OR iv_before IS INITIAL.
-      rv_result = render_simple( iv_before  = iv_before
-                                 iv_after   = iv_after ).
-    ELSE.
-      lt_before_tokens = html_to_tokens( iv_before ).
-      lt_after_tokens  = html_to_tokens( iv_after ).
-
-      lt_ops = calculate_operations( it_before_tokens = lt_before_tokens
-                                     it_after_tokens  = lt_after_tokens ).
-
-      rv_result = render_operations( it_before_tokens = lt_before_tokens
-                                     it_after_tokens  = lt_after_tokens
-                                     it_operations    = lt_ops ).
-    ENDIF.
-
-  ENDMETHOD.
-
-
   METHOD wrap.
 
     DATA:
@@ -1134,11 +1091,67 @@ CLASS zcl_abap_differ IMPLEMENTATION.
   ENDMETHOD.
 
 
+  METHOD zif_htmldiff~htmldiff.
+
+    DATA:
+      lt_before_tokens TYPE ty_tokens,
+      lt_after_tokens  TYPE ty_tokens,
+      lt_ops           TYPE ty_operations.
+
+    mv_with_img  = iv_with_img.
+    mv_with_tags = abap_true.
+
+    IF iv_before = iv_after OR iv_after IS INITIAL OR iv_before IS INITIAL.
+      rv_result = render_simple( iv_before  = iv_before
+                                 iv_after   = iv_after ).
+    ELSE.
+      lt_before_tokens = html_to_tokens( iv_before ).
+      lt_after_tokens  = html_to_tokens( iv_after ).
+
+      lt_ops = calculate_operations( it_before_tokens = lt_before_tokens
+                                     it_after_tokens  = lt_after_tokens ).
+
+      rv_result = render_operations( it_before_tokens = lt_before_tokens
+                                     it_after_tokens  = lt_after_tokens
+                                     it_operations    = lt_ops ).
+    ENDIF.
+
+  ENDMETHOD.
+
+
+  METHOD zif_htmldiff~textdiff.
+
+    DATA:
+      lt_before_tokens TYPE ty_tokens,
+      lt_after_tokens  TYPE ty_tokens,
+      lt_ops           TYPE ty_operations.
+
+    mv_with_img  = abap_false.
+    mv_with_tags = abap_false.
+
+    IF iv_before = iv_after OR iv_after IS INITIAL OR iv_before IS INITIAL.
+      rv_result = render_simple( iv_before  = iv_before
+                                 iv_after   = iv_after ).
+    ELSE.
+      lt_before_tokens = html_to_tokens( iv_before ).
+      lt_after_tokens  = html_to_tokens( iv_after ).
+
+      lt_ops = calculate_operations( it_before_tokens = lt_before_tokens
+                                     it_after_tokens  = lt_after_tokens ).
+
+      rv_result = render_operations( it_before_tokens = lt_before_tokens
+                                     it_after_tokens  = lt_after_tokens
+                                     it_operations    = lt_ops ).
+    ENDIF.
+
+  ENDMETHOD.
+
+
   METHOD _get_class.
 
     DATA lv_class TYPE string.
 
-    IF mv_with_classes = abap_true.
+    IF mv_css_classes = abap_true.
       CASE iv_tag.
         WHEN c_tag-ins.
           lv_class = c_tag_class-insert.
