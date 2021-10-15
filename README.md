@@ -8,17 +8,19 @@ NO WARRANTIES, [MIT License](LICENSE)
 
 ## HTML Diff
 
-This is a port of JavaScript (https://github.com/alaorneto/htmldiffer, no license defined)
+This is a diffing library that understands HTML. Best suited for cases when you want to show a diff of user-generated HTML.
 
-which is a port of CoffeeScript (https://github.com/tnwinc/htmldiff.js, MIT license)
-
-which is a port of the original Ruby (https://github.com/myobie/htmldiff, MIT license)
+- The implementation is a port of JavaScript (https://github.com/alaorneto/htmldiffer, no license defined)
+- which is a port of CoffeeScript (https://github.com/tnwinc/htmldiff.js, MIT license)
+- which is a port of the original Ruby (https://github.com/myobie/htmldiff, MIT license)
 
 An enhancement was made so the code can also produce the diff of two texts (tags are treated like text).
 
 ## Diff3 Utils
 
-This is a port of node-diff3 (https://github.com/bhousel/node-diff3, MIT license)
+This is a library to find differences between two string tables, generate and apply patches, and perform 3-way merging between an original and two changed string tables. It contains similar functionality to the [GNU Diffutils](https://www.gnu.org/software/diffutils/manual/diffutils.html) tools.
+
+- The implementation is a port of node-diff3 (https://github.com/bhousel/node-diff3, MIT license)
 
 ## Prerequisites
 
