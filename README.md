@@ -111,6 +111,17 @@ Result:
     <span>This is some <del>interesting</del><ins>new</ins> text.</span>
 ```
 
+There are a few other options you can set in the `constructor`:
+
+- `iv_inserts`: Show `<ins>` tags (default: on)
+- `iv_deletes`: Show `<del>` tags (default: on)
+- `iv_css_classes`: Add CSS classes to `<ins>` and `<del>` tags (default: off)
+- `iv_support_chinese`: Treat Chinese characters as individual words (default: off)
+
+Using CSS classes, the result will distinguish between inserts (class `diffins`), deletes (class `diffdel`), and updates (class `diffmod`).
+
+See the [test classes](https://github.com/Marc-Bernard-Tools/ABAP-Differ/blob/main/src/zcl_htmldiff.clas.testclasses.abap) for more examples.
+
 ### Text Diff
 
 todo
@@ -120,11 +131,21 @@ todo
 Here's an examle for styling the insertions and deletions using CSS.
 
 ```css
+/* CSS for <ins> and <del> tags */
 ins { background-color: #ddffdd; }
 ins img { border-color: #ddffdd; }
 
 del { background-color: #ffdddd; }
 del img { border-color: #ffdddd; }
+```
+
+With the CSS class option, use the following:
+
+```css
+/* CSS for insert, delete, and modify classes */
+.diffins { background-color: #ddffdd; }
+.diffdel { background-color: #ffdddd; }
+.diffmod { background-color: #ffffdd; }
 ```
 
 ### Diff3
