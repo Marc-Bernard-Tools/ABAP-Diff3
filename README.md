@@ -1,10 +1,12 @@
 # ABAP Differ
 
-Highlight the content difference between two text or HTML blocks
+Libraries to highlight the content difference between HTML or text strings and between two or three string tables.
 
 Made by [Marc Bernard Tools](https://marcbernardtools.com/) giving back to the [SAP Community](https://community.sap.com/)
 
 NO WARRANTIES, [MIT License](LICENSE)
+
+1. HTML Diff
 
 - This is a port of JavaScript (https://github.com/alaorneto/htmldiffer, no license defined)
 - which is a port of CoffeeScript (https://github.com/tnwinc/htmldiff.js, MIT license)
@@ -12,9 +14,13 @@ NO WARRANTIES, [MIT License](LICENSE)
 
 An enhancement was made so the code can also produce the diff of two texts (tags are treated like text).
 
+2. Diff3 Utils
+
+- This is a port of node-diff3 (https://github.com/bhousel/node-diff3, MIT license)
+
 ## Prerequisites
 
-None.
+SAP Basis 7.4 or higher
 
 ## Installation
 
@@ -30,10 +36,10 @@ The following produces the diff of two example HTML snippets:
 
 ```abap
 DATA:
-  lv_original    TYPE string,
-  lv_modified    TYPE string,
-  lv_diff        TYPE string,
-  lo_abap_differ TYPE REF TO zcl_abap_differ.
+  lv_original TYPE string,
+  lv_modified TYPE string,
+  lv_diff     TYPE string,
+  lo_differ   TYPE REF TO zcl_abap_differ.
 
 lv_original = '\n'
   && '    <p>First paragraph.</p>\n'
@@ -44,7 +50,6 @@ lv_original = '\n'
   && '    </ul>\n'
   && '    <img src="previous.jpg">\n'
   && '    <span>This is some interesting text.</span>\n'.
-
 
 lv_modified = '\n'
   && '    <p>First paragraph.</p>\n'
@@ -104,28 +109,23 @@ Result:
 
 ### Text Diff
 
+todo
 
-
-## Styling
+### Styling
 
 Here's an examle for styling the insertions and deletions using CSS.
 
 ```css
-ins {
-    background-color: #ddffdd;
-}
+ins { background-color: #ddffdd; }
+ins img { border-color: #ddffdd; }
 
-ins img {
-    border-color: #ddffdd;
-}
-
-del {
-    background-color: #ffdddd;
-}
-
-del img {
-    border-color: #ffdddd;
+del { background-color: #ffdddd; }
+del img { border-color: #ffdddd; }
 ```
+
+### Diff3
+
+todo
 
 ## Contributions
 
