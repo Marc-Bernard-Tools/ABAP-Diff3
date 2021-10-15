@@ -1,22 +1,24 @@
 # ABAP Differ
 
-Libraries to highlight the content difference between HTML or text strings and between two or three string tables.
+Libraries to highlight the content difference between HTML (or text) strings and between two or three string tables.
 
 Made by [Marc Bernard Tools](https://marcbernardtools.com/) giving back to the [SAP Community](https://community.sap.com/)
 
 NO WARRANTIES, [MIT License](LICENSE)
 
-1. HTML Diff
+## HTML Diff
 
-- This is a port of JavaScript (https://github.com/alaorneto/htmldiffer, no license defined)
-- which is a port of CoffeeScript (https://github.com/tnwinc/htmldiff.js, MIT license)
-- which is a port of the original Ruby (https://github.com/myobie/htmldiff, MIT license)
+This is a port of JavaScript (https://github.com/alaorneto/htmldiffer, no license defined)
+
+which is a port of CoffeeScript (https://github.com/tnwinc/htmldiff.js, MIT license)
+
+which is a port of the original Ruby (https://github.com/myobie/htmldiff, MIT license)
 
 An enhancement was made so the code can also produce the diff of two texts (tags are treated like text).
 
-2. Diff3 Utils
+## Diff3 Utils
 
-- This is a port of node-diff3 (https://github.com/bhousel/node-diff3, MIT license)
+This is a port of node-diff3 (https://github.com/bhousel/node-diff3, MIT license)
 
 ## Prerequisites
 
@@ -24,7 +26,7 @@ SAP Basis 7.4 or higher
 
 ## Installation
 
-You can install ABAP HTML Differ using [abapGit](https://github.com/abapGit/abapGit) either creating a new online repository for https://github.com/Marc-Bernard-Tools/ABAP-HTML-Differ or downloading the repository [ZIP file](https://github.com/Marc-Bernard-Tools/ABAP-HTML-Differ/archive/main.zip) and creating a new offline repository.
+You can install ABAP Differ using [abapGit](https://github.com/abapGit/abapGit) either creating a new online repository for https://github.com/Marc-Bernard-Tools/ABAP-Differ or downloading the repository [ZIP file](https://github.com/Marc-Bernard-Tools/ABAP-Differ/archive/main.zip) and creating a new offline repository.
 
 We recommend using package `$ABAPDIFF`.
 
