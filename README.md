@@ -32,9 +32,7 @@ You can install ABAP Differ using [abapGit](https://github.com/abapGit/abapGit) 
 
 We recommend using package `$ABAPDIFF`.
 
-## Usage
-
-### HTML Diff
+## Usage: HTML Diff
 
 The following produces the diff of two example HTML snippets:
 
@@ -148,7 +146,7 @@ With the CSS class option, use the following:
 .diffmod { background-color: #ffffdd; }
 ```
 
-### Diff3
+## Usage: Diff3
 
 todo
 
