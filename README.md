@@ -34,6 +34,8 @@ We recommend using package `$ABAPDIFF`.
 
 ## Usage: HTML Diff
 
+**Diffing HTML**
+
 The following produces the diff of two example HTML snippets:
 
 ```abap
@@ -41,7 +43,7 @@ DATA:
   lv_original TYPE string,
   lv_modified TYPE string,
   lv_diff     TYPE string,
-  lo_differ   TYPE REF TO zcl_abap_differ.
+  li_htmldiff TYPE REF TO zif_htmldiff.
 
 lv_original = '\n'
   && '    <p>First paragraph.</p>\n'
@@ -66,9 +68,9 @@ lv_modified = '\n'
 REPLACE ALL OCCURRENCES OF '\n' IN lv_original WITH cl_abap_char_utilities=>newline.
 REPLACE ALL OCCURRENCES OF '\n' IN lv_modified WITH cl_abap_char_utilities=>newline.
   
-CREATE OBJECT lo_differ.
+CREATE OBJECT li_differ TYPE zcl_htmldiff.
   
-lv_diff = lo_differ->htmldiff(
+lv_diff = li_htmldiff->htmldiff(
   iv_before   = lv_original
   iv_after    = lv_modified
   iv_with_img = abap_false ).
@@ -90,7 +92,7 @@ Result:
 By setting the image parameter to true, you can also mark changed images as deletions or insertions:
 
 ```abap
-lv_diff = lo_differ->htmldiff(
+lv_diff = li_htmldiff->htmldiff(
   iv_before   = lv_original
   iv_after    = lv_modified
   iv_with_img = abap_true ).
@@ -120,11 +122,17 @@ Using CSS classes, the result will distinguish between inserts (class `diffins`)
 
 See the [test classes](https://github.com/Marc-Bernard-Tools/ABAP-Differ/blob/main/src/zcl_htmldiff.clas.testclasses.abap) for more examples.
 
-### Text Diff
+**Diffing Text**
 
 todo
 
-### Styling
+```abap
+lv_diff = li_htmldiff->textdiff(
+  iv_before = lv_original
+  iv_after  = lv_modified ).
+```  
+
+**Styling**
 
 Here's an examle for styling the insertions and deletions using CSS.
 
