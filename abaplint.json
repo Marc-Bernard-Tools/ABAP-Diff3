@@ -4,7 +4,7 @@
 			"url": "https://github.com/abaplint/deps",
 			"folder": "/deps",
 			"files": "/src/**/*.*"
-		},
+		}
 	],
 	"global": {
 		"exclude": [],
@@ -471,7 +471,7 @@
 		},
 		"object_naming": {
 			"auth": "^Z",
-			"clas": "^ZC(L|X)\\_ABAP_DIFFER",
+			"clas": "^ZC(L|X)\\_DIFFER",
 			"doma": "^Z",
 			"dtel": "^Z",
 			"enqu": "^EZ_",
@@ -480,11 +480,11 @@
 			"idoc": "^Z",
 			"ignoreNames": [],
 			"ignorePatterns": [],
-			"intf": "^ZIF\\_ABAP_DIFFER",
+			"intf": "^ZIF\\_DIFFER",
 			"msag": "^Z",
 			"patternKind": "required",
 			"pinf": "^Z",
-			"prog": "^Z_ABAP_DIFFER",
+			"prog": "^Z_DIFFER",
 			"severity": "Error",
 			"shlp": "^Z",
 			"ssfo": "^Z",
