@@ -1,6 +1,6 @@
 # ABAP Differ
 
-Libraries to highlight the content difference between HTML (or text) strings and between two or three string tables.
+Collection of diff libraries to highlight the content difference between two HTML strings (htmldiff) or between two or three string-tables (diff3).
 
 Made by [Marc Bernard Tools](https://marcbernardtools.com/) giving back to the [SAP Community](https://community.sap.com/)
 
