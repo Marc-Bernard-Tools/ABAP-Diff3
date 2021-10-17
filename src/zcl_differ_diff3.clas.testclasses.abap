@@ -58,23 +58,17 @@ ENDCLASS.
 CLASS ltcl_lcs IMPLEMENTATION.
 
   METHOD setup.
-
-    CREATE OBJECT mi_diff3 TYPE zcl_differ_diff3.
-
+    mi_diff3 = NEW zcl_differ_diff3( ).
   ENDMETHOD.
 
   METHOD test.
 
-    DATA:
-      lt_lcs    TYPE zif_differ_diff3=>ty_ilcsresult_t,
-      ls_result TYPE zif_differ_diff3=>ty_ilcsresult.
-
     " returns the LCS of two arrays
-    lt_lcs = mi_diff3->lcs(
+    DATA(lt_lcs) = mi_diff3->lcs(
       it_buffer1 = lcl_helper=>split( 'AA a b c ZZ new 00 a a M 99' )
       it_buffer2 = lcl_helper=>split( 'AA a d c ZZ 11 M z z 99' ) ).
 
-    ls_result = lt_lcs[ key = lines( lt_lcs ) - 1 ].
+    DATA(ls_result) = lt_lcs[ key = lines( lt_lcs ) - 1 ].
 
     " '99'
     cl_abap_unit_assert=>assert_equals(
@@ -170,15 +164,13 @@ ENDCLASS.
 CLASS ltcl_diff_comm IMPLEMENTATION.
 
   METHOD setup.
-    CREATE OBJECT mi_diff3 TYPE zcl_differ_diff3.
+    mi_diff3 = NEW zcl_differ_diff3( ).
   ENDMETHOD.
 
   METHOD test.
 
-    DATA lt_result TYPE zif_differ_diff3=>ty_icommresult_t.
-
     " returns a comm-style diff of two arrays
-    lt_result = mi_diff3->diff_comm(
+    DATA(lt_result) = mi_diff3->diff_comm(
       it_buffer1 = lcl_helper=>split( 'AA a b c ZZ new 00 a a M 99' )
       it_buffer2 = lcl_helper=>split( 'AA a d c ZZ 11 M z z 99' ) ).
 
@@ -251,15 +243,13 @@ ENDCLASS.
 CLASS ltcl_diff_indices IMPLEMENTATION.
 
   METHOD setup.
-    CREATE OBJECT mi_diff3 TYPE zcl_differ_diff3.
+    mi_diff3 = NEW zcl_differ_diff3( ).
   ENDMETHOD.
 
   METHOD test.
 
-    DATA lt_result TYPE zif_differ_diff3=>ty_idiffindicesresult_t.
-
     " returns array indices for differing regions of two arrays
-    lt_result = mi_diff3->diff_indices(
+    DATA(lt_result) = mi_diff3->diff_indices(
       it_buffer1 = lcl_helper=>split( 'AA a b c ZZ new 00 a a M 99' )
       it_buffer2 = lcl_helper=>split( 'AA a d c ZZ 11 M z z 99' ) ).
 
@@ -349,13 +339,9 @@ CLASS ltcl_abap_code IMPLEMENTATION.
 
   METHOD setup.
 
-    CREATE OBJECT mi_diff3 TYPE zcl_differ_diff3.
+    mi_diff3 = NEW zcl_differ_diff3( ).
 
-    DATA:
-      lv_old TYPE string,
-      lv_new TYPE string.
-
-    lv_old = `REPORT z_abapgit_test_prog.\n`
+    DATA(lv_old) = `REPORT z_differ_test_prog.\n`
       && `\n`
       && `* next line was added\n`
       && `\n`
@@ -375,7 +361,7 @@ CLASS ltcl_abap_code IMPLEMENTATION.
       && `\n`
       && `* eof *\n`.
 
-    lv_new = `REPORT z_abapgit_test_prog.\n`
+    DATA(lv_new) = `REPORT z_differ_test_prog.\n`
       && `\n`
       && `* next line was added\n`
       && `MESSAGE 'added line' TYPE 'I'.\n`
@@ -402,9 +388,7 @@ CLASS ltcl_abap_code IMPLEMENTATION.
 
   METHOD diff_comm.
 
-    DATA lt_result TYPE zif_differ_diff3=>ty_icommresult_t.
-
-    lt_result = mi_diff3->diff_comm(
+    DATA(lt_result) = mi_diff3->diff_comm(
       it_buffer1 = mt_old
       it_buffer2 = mt_new ).
 
@@ -464,9 +448,7 @@ CLASS ltcl_abap_code IMPLEMENTATION.
 
   METHOD diff_indices.
 
-    DATA lt_result TYPE zif_differ_diff3=>ty_idiffindicesresult_t.
-
-    lt_result = mi_diff3->diff_indices(
+    DATA(lt_result) = mi_diff3->diff_indices(
       it_buffer1 = mt_old
       it_buffer2 = mt_new ).
 

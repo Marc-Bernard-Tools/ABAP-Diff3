@@ -327,17 +327,8 @@ CLASS zcl_differ_htmldiff IMPLEMENTATION.
   METHOD calculate_operations.
 
     DATA:
-      lv_action             TYPE string,
-      lv_end_in_before      TYPE i,
-      lv_end_in_after       TYPE i,
-      ls_match              TYPE ty_match,
-      lt_matches            TYPE ty_matches,
-      lt_operations         TYPE ty_operations,
-      lv_position_in_after  TYPE i,
-      lv_position_in_before TYPE i,
-      ls_op                 TYPE ty_operation,
-      lt_post_processed     TYPE ty_operations,
-      lv_whitespace         TYPE abap_bool.
+      lt_operations     TYPE ty_operations,
+      lt_post_processed TYPE ty_operations.
 
     FIELD-SYMBOLS:
       <ls_last_op> TYPE ty_operation.
@@ -348,10 +339,11 @@ CLASS zcl_differ_htmldiff IMPLEMENTATION.
     " any after_tokens?
     ASSERT it_after_tokens IS NOT INITIAL.
 
-    lv_position_in_before = lv_position_in_after = 0.
+    DATA(lv_position_in_before) = 0.
+    DATA(lv_position_in_after)  = 0.
 
-    lt_matches = find_matching_blocks( it_before_tokens = it_before_tokens
-                                       it_after_tokens  = it_after_tokens ).
+    DATA(lt_matches) = find_matching_blocks( it_before_tokens = it_before_tokens
+                                             it_after_tokens  = it_after_tokens ).
 
     APPEND _new_match(
       iv_start_in_before = lines( it_before_tokens )
@@ -359,11 +351,11 @@ CLASS zcl_differ_htmldiff IMPLEMENTATION.
       iv_length          = 0 )
       TO lt_matches.
 
-    LOOP AT lt_matches INTO ls_match.
+    LOOP AT lt_matches INTO DATA(ls_match).
 
       IF lv_position_in_before = ls_match-start_in_before.
         IF lv_position_in_after = ls_match-start_in_after.
-          lv_action = c_action-none.
+          DATA(lv_action) = c_action-none.
         ELSE.
           lv_action = c_action-insert.
         ENDIF.
@@ -377,12 +369,12 @@ CLASS zcl_differ_htmldiff IMPLEMENTATION.
 
       IF lv_action <> c_action-none.
         IF lv_action <> c_action-insert.
-          lv_end_in_before = ls_match-start_in_before - 1.
+          DATA(lv_end_in_before) = ls_match-start_in_before - 1.
         ELSE.
           lv_end_in_before = -1.
         ENDIF.
         IF lv_action <> c_action-delete.
-          lv_end_in_after = ls_match-start_in_after - 1.
+          DATA(lv_end_in_after) = ls_match-start_in_after - 1.
         ELSE.
           lv_end_in_after = -1.
         ENDIF.
@@ -411,9 +403,9 @@ CLASS zcl_differ_htmldiff IMPLEMENTATION.
 
     ENDLOOP.
 
-    LOOP AT lt_operations INTO ls_op.
-      lv_whitespace = is_single_whitespace( is_op     = ls_op
-                                            it_tokens = it_before_tokens ).
+    LOOP AT lt_operations INTO DATA(ls_op).
+      DATA(lv_whitespace) = is_single_whitespace( is_op     = ls_op
+                                                  it_tokens = it_before_tokens ).
 
       IF ( lv_whitespace = abap_true OR ls_op-action = c_action-replace ) AND
          ( <ls_last_op> IS ASSIGNED AND <ls_last_op>-action = c_action-replace ).
@@ -432,10 +424,8 @@ CLASS zcl_differ_htmldiff IMPLEMENTATION.
 
   METHOD calculate_simple.
 
-    DATA lv_action TYPE string.
-
     IF iv_before = iv_after.
-      lv_action = c_action-none.
+      DATA(lv_action) = c_action-none.
     ELSEIF iv_before IS INITIAL AND iv_after IS INITIAL.
       lv_action = ''.
     ELSEIF iv_before IS INITIAL.
@@ -463,14 +453,10 @@ CLASS zcl_differ_htmldiff IMPLEMENTATION.
 
   METHOD consecutive_where.
 
-    DATA:
-      lv_answer TYPE abap_bool,
-      lv_token  TYPE ty_token.
-
-    LOOP AT it_content INTO lv_token FROM iv_start + 1.
+    LOOP AT it_content INTO DATA(lv_token) FROM iv_start + 1.
 
       IF is_tag = abap_true.
-        lv_answer = is_tag( lv_token ).
+        DATA(lv_answer) = is_tag( lv_token ).
       ELSE.
         lv_answer = isnt_tag( lv_token ).
       ENDIF.
@@ -498,27 +484,21 @@ CLASS zcl_differ_htmldiff IMPLEMENTATION.
   METHOD create_index.
 
     DATA:
-      lv_idx   TYPE i,
       ls_index TYPE ty_index_row,
-      lt_index TYPE ty_index_tab,
-      lv_token TYPE ty_token.
+      lt_index TYPE ty_index_tab.
 
-    FIELD-SYMBOLS:
-      <ls_index> TYPE ty_index_row,
-      <lv_token> TYPE ty_token.
+    LOOP AT it_find_these ASSIGNING FIELD-SYMBOL(<lv_token>).
 
-    LOOP AT it_find_these ASSIGNING <lv_token>.
-
-      READ TABLE lt_index ASSIGNING <ls_index> WITH TABLE KEY token = <lv_token>.
+      READ TABLE lt_index ASSIGNING FIELD-SYMBOL(<ls_index>) WITH TABLE KEY token = <lv_token>.
       IF sy-subrc <> 0.
         CLEAR ls_index.
         ls_index-token = <lv_token>.
         INSERT ls_index INTO TABLE lt_index ASSIGNING <ls_index>.
       ENDIF.
 
-      lv_idx = 1.
+      DATA(lv_idx) = 1.
       DO.
-        LOOP AT it_in_these INTO lv_token FROM lv_idx WHERE table_line = <lv_token>.
+        LOOP AT it_in_these INTO DATA(lv_token) FROM lv_idx WHERE table_line = <lv_token>.
           lv_idx = sy-tabix.
           EXIT.
         ENDLOOP.
@@ -542,10 +522,6 @@ CLASS zcl_differ_htmldiff IMPLEMENTATION.
 
   METHOD diff.
 
-    DATA:
-      lt_before_tokens TYPE ty_tokens,
-      lt_after_tokens  TYPE ty_tokens.
-
     mv_with_img  = abap_false.
     mv_with_tags = abap_false.
 
@@ -553,8 +529,8 @@ CLASS zcl_differ_htmldiff IMPLEMENTATION.
       rt_result = calculate_simple( iv_before = iv_before
                                     iv_after  = iv_after ).
     ELSE.
-      lt_before_tokens = html_to_tokens( iv_before ).
-      lt_after_tokens  = html_to_tokens( iv_after ).
+      DATA(lt_before_tokens) = html_to_tokens( iv_before ).
+      DATA(lt_after_tokens)  = html_to_tokens( iv_after ).
 
       rt_result = calculate_operations( it_before_tokens = lt_before_tokens
                                         it_after_tokens  = lt_after_tokens ).
@@ -573,28 +549,17 @@ CLASS zcl_differ_htmldiff IMPLEMENTATION.
       ty_keyvals TYPE HASHED TABLE OF ty_keyval WITH UNIQUE KEY key.
 
     DATA:
-      lv_best_match_in_after  TYPE i,
-      lv_best_match_in_before TYPE i,
-      lv_best_match_length    TYPE i,
-      lv_index_in_after       TYPE i,
-      lv_index_in_before      TYPE i,
-      ls_index_row            TYPE ty_index_row,
-      lt_locations_in_after   TYPE ty_locations,
-      lv_looking_for          TYPE ty_token,
-      ls_match                TYPE ty_match,
-      ls_match_length_at      TYPE ty_keyval,
-      lt_match_length_at      TYPE ty_keyvals,
-      lv_new_match_length     TYPE i,
-      ls_new_match_length_at  TYPE ty_keyval,
-      lt_new_match_length_at  TYPE ty_keyvals.
+      lt_match_length_at     TYPE ty_keyvals,
+      ls_new_match_length_at TYPE ty_keyval,
+      lt_new_match_length_at TYPE ty_keyvals.
 
-    lv_best_match_in_before = iv_start_in_before.
-    lv_best_match_in_after  = iv_start_in_after.
-    lv_best_match_length    = 0.
+    DATA(lv_best_match_in_before) = iv_start_in_before.
+    DATA(lv_best_match_in_after)  = iv_start_in_after.
+    DATA(lv_best_match_length)    = 0.
 
     CLEAR lt_match_length_at.
 
-    lv_index_in_before = iv_start_in_before.
+    DATA(lv_index_in_before) = iv_start_in_before.
     DO.
       IF iv_start_in_before <= iv_end_in_before.
         IF lv_index_in_before >= iv_end_in_before.
@@ -606,16 +571,16 @@ CLASS zcl_differ_htmldiff IMPLEMENTATION.
         ENDIF.
       ENDIF.
 
-      READ TABLE it_before_tokens INTO lv_looking_for INDEX lv_index_in_before + 1.
+      READ TABLE it_before_tokens INTO DATA(lv_looking_for) INDEX lv_index_in_before + 1.
       ASSERT sy-subrc = 0. " something wrong with do-loop.
 
       CLEAR lt_new_match_length_at.
 
-      READ TABLE it_index_before_in_after INTO ls_index_row WITH TABLE KEY token = lv_looking_for.
+      READ TABLE it_index_before_in_after INTO DATA(ls_index_row) WITH TABLE KEY token = lv_looking_for.
       ASSERT sy-subrc = 0. " all tokens must be in index
-      lt_locations_in_after = ls_index_row-locations.
+      DATA(lt_locations_in_after) = ls_index_row-locations.
 
-      LOOP AT lt_locations_in_after INTO lv_index_in_after.
+      LOOP AT lt_locations_in_after INTO DATA(lv_index_in_after).
 
         IF lv_index_in_after < iv_start_in_after.
           CONTINUE.
@@ -624,14 +589,14 @@ CLASS zcl_differ_htmldiff IMPLEMENTATION.
           EXIT.
         ENDIF.
 
-        READ TABLE lt_match_length_at INTO ls_match_length_at WITH TABLE KEY key = lv_index_in_after - 1.
+        READ TABLE lt_match_length_at INTO DATA(ls_match_length_at) WITH TABLE KEY key = lv_index_in_after - 1.
         IF sy-subrc <> 0.
           ls_match_length_at-key = lv_index_in_after - 1.
           ls_match_length_at-val = 0.
           INSERT ls_match_length_at INTO TABLE lt_match_length_at.
         ENDIF.
 
-        lv_new_match_length = ls_match_length_at-val + 1.
+        data(lv_new_match_length) = ls_match_length_at-val + 1.
 
         ls_new_match_length_at-key = lv_index_in_after.
         ls_new_match_length_at-val = lv_new_match_length.
@@ -656,9 +621,9 @@ CLASS zcl_differ_htmldiff IMPLEMENTATION.
     ENDDO.
 
     IF lv_best_match_length <> 0.
-      ls_match = _new_match( iv_start_in_before = lv_best_match_in_before
-                             iv_start_in_after  = lv_best_match_in_after
-                             iv_length          = lv_best_match_length ).
+      DATA(ls_match) = _new_match( iv_start_in_before = lv_best_match_in_before
+                                   iv_start_in_after  = lv_best_match_in_after
+                                   iv_length          = lv_best_match_length ).
     ENDIF.
 
     rs_result = ls_match.
@@ -668,12 +633,10 @@ CLASS zcl_differ_htmldiff IMPLEMENTATION.
 
   METHOD find_matching_blocks.
 
-    DATA:
-      lt_index_of_before_in_after TYPE ty_index_tab,
-      lt_matching_blocks          TYPE ty_matches.
+    DATA lt_matching_blocks TYPE ty_matches.
 
-    lt_index_of_before_in_after = create_index( it_find_these = it_before_tokens
-                                                it_in_these   = it_after_tokens ).
+    DATA(lt_index_of_before_in_after) = create_index( it_find_these = it_before_tokens
+                                                      it_in_these   = it_after_tokens ).
 
     rt_result = recurs_find_matching_blocks(
       EXPORTING
@@ -693,16 +656,14 @@ CLASS zcl_differ_htmldiff IMPLEMENTATION.
   METHOD html_to_tokens.
 
     DATA:
-      lv_char         TYPE string,
       lv_current_word TYPE string,
-      lv_idx          TYPE i,
-      lv_mode         TYPE string,
       lt_words        TYPE ty_tokens.
 
-    lv_mode = c_mode-char.
+    DATA(lv_mode) = c_mode-char.
 
+    DATA(lv_idx) = 0.
     DO strlen( iv_html ) TIMES.
-      lv_char = iv_html+lv_idx(1).
+      DATA(lv_char) = iv_html+lv_idx(1).
 
       CASE lv_mode.
         WHEN c_mode-tag.
@@ -806,10 +767,8 @@ CLASS zcl_differ_htmldiff IMPLEMENTATION.
       lc_from TYPE x LENGTH 2 VALUE '4E00',
       lc_to   TYPE x LENGTH 2 VALUE '9FFF'.
 
-    DATA lv_x TYPE x LENGTH 2.
-
     IF mv_support_chinese = abap_true.
-      lv_x = cl_abap_conv_out_ce=>uccp( iv_input ).
+      DATA(lv_x) = cl_abap_conv_out_ce=>uccp( iv_input ).
       IF lv_x BETWEEN lc_from AND lc_to.
         rv_result = abap_true.
       ENDIF.
@@ -833,8 +792,6 @@ CLASS zcl_differ_htmldiff IMPLEMENTATION.
 
   METHOD is_single_whitespace.
 
-    DATA lv_string TYPE string.
-
     IF is_op-action <> c_action-equal.
       rv_result = abap_false.
       RETURN.
@@ -844,9 +801,9 @@ CLASS zcl_differ_htmldiff IMPLEMENTATION.
       RETURN.
     ENDIF.
 
-    lv_string = _join( _slice( it_tokens = it_tokens
-                               iv_start  = is_op-start_in_before
-                               iv_end    = _get_end( is_op-end_in_before ) ) ).
+    DATA(lv_string) = _join( _slice( it_tokens = it_tokens
+                                     iv_start  = is_op-start_in_before
+                                     iv_end    = _get_end( is_op-end_in_before ) ) ).
 
     rv_result = boolc( lv_string = ` ` ). " single space
 

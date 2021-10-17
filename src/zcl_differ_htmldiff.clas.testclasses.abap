@@ -1137,10 +1137,10 @@ CLASS ltcl_render_operations DEFINITION FOR TESTING
         RETURNING
           VALUE(rv_result) TYPE string,
 
-      equal FOR TESTING,
-      insert FOR TESTING,
-      delete FOR TESTING,
-      replace FOR TESTING,
+      test_equal FOR TESTING,
+      test_insert FOR TESTING,
+      test_delete FOR TESTING,
+      test_replace FOR TESTING,
       dealing_with_tags FOR TESTING,
       change_at_beginning_of_tag FOR TESTING.
 
@@ -1175,7 +1175,7 @@ CLASS ltcl_render_operations IMPLEMENTATION.
 
   ENDMETHOD.
 
-  METHOD equal.
+  METHOD test_equal.
 
     DATA lv_act TYPE string.
 
@@ -1189,7 +1189,7 @@ CLASS ltcl_render_operations IMPLEMENTATION.
 
   ENDMETHOD.
 
-  METHOD insert.
+  METHOD test_insert.
 
     DATA lv_act TYPE string.
 
@@ -1203,7 +1203,7 @@ CLASS ltcl_render_operations IMPLEMENTATION.
 
   ENDMETHOD.
 
-  METHOD delete.
+  METHOD test_delete.
 
     DATA lv_act TYPE string.
 
@@ -1217,7 +1217,7 @@ CLASS ltcl_render_operations IMPLEMENTATION.
 
   ENDMETHOD.
 
-  METHOD replace.
+  METHOD test_replace.
 
     DATA lv_act TYPE string.
 
