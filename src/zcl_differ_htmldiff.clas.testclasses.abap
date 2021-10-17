@@ -87,14 +87,11 @@ CLASS ltcl_textdiff_test IMPLEMENTATION.
 
   METHOD insert_a_letter_and_a_space.
 
-    DATA: lv_act TYPE string,
-          lv_exp TYPE string.
-
-    lv_act = lcl_helper=>textdiff(
+    DATA(lv_act) = lcl_helper=>textdiff(
       iv_before = 'a c'
       iv_after  = 'a b c' ).
 
-    lv_exp = 'a <ins>b </ins>c'.
+    DATA(lv_exp) = 'a <ins>b </ins>c'.
 
     cl_abap_unit_assert=>assert_equals(
       act = lv_act
@@ -104,14 +101,11 @@ CLASS ltcl_textdiff_test IMPLEMENTATION.
 
   METHOD remove_a_letter_and_a_space.
 
-    DATA: lv_act TYPE string,
-          lv_exp TYPE string.
-
-    lv_act = lcl_helper=>textdiff(
+    DATA(lv_act) = lcl_helper=>textdiff(
       iv_before = 'a b c'
       iv_after  = 'a c' ).
 
-    lv_exp = 'a <del>b </del>c'.
+    DATA(lv_exp) = 'a <del>b </del>c'.
 
     cl_abap_unit_assert=>assert_equals(
       act = lv_act
@@ -121,14 +115,11 @@ CLASS ltcl_textdiff_test IMPLEMENTATION.
 
   METHOD change_a_letter.
 
-    DATA: lv_act TYPE string,
-          lv_exp TYPE string.
-
-    lv_act = lcl_helper=>textdiff(
+    DATA(lv_act) = lcl_helper=>textdiff(
       iv_before = 'a b c'
       iv_after  = 'a d c' ).
 
-    lv_exp = 'a <del>b</del><ins>d</ins> c'.
+    DATA(lv_exp) = 'a <del>b</del><ins>d</ins> c'.
 
     cl_abap_unit_assert=>assert_equals(
       act = lv_act
@@ -138,14 +129,11 @@ CLASS ltcl_textdiff_test IMPLEMENTATION.
 
   METHOD with_tags.
 
-    DATA: lv_act TYPE string,
-          lv_exp TYPE string.
-
-    lv_act = lcl_helper=>textdiff(
+    DATA(lv_act) = lcl_helper=>textdiff(
       iv_before = 'a <strong>b</strong> c'
       iv_after  = 'a <strong>d</strong> c' ).
 
-    lv_exp = 'a <strong><del>b</del><ins>d</ins></strong> c'.
+    DATA(lv_exp) = 'a <strong><del>b</del><ins>d</ins></strong> c'.
 
     cl_abap_unit_assert=>assert_equals(
       act = lv_act
@@ -204,15 +192,12 @@ CLASS ltcl_htmldiff_test_1 IMPLEMENTATION.
 
   METHOD test_ignore_image.
 
-    DATA: lv_act TYPE string,
-          lv_exp TYPE string.
-
-    lv_act = lcl_helper=>htmldiff(
+    DATA(lv_act) = lcl_helper=>htmldiff(
       iv_before   = mv_original
       iv_after    = mv_modified
       iv_with_img = abap_false ).
 
-    lv_exp = lcl_helper=>format( '\n'
+    DATA(lv_exp) = lcl_helper=>format( '\n'
       && '    <p>First paragraph.</p>\n'
       && '    <ul>\n'
       && '        <li>Item A</li>\n'
@@ -230,15 +215,12 @@ CLASS ltcl_htmldiff_test_1 IMPLEMENTATION.
 
   METHOD test_with_image.
 
-    DATA: lv_act TYPE string,
-          lv_exp TYPE string.
-
-    lv_act = lcl_helper=>htmldiff(
+    DATA(lv_act) = lcl_helper=>htmldiff(
       iv_before   = mv_original
       iv_after    = mv_modified
       iv_with_img = abap_true ).
 
-    lv_exp = lcl_helper=>format( '\n'
+    DATA(lv_exp) = lcl_helper=>format( '\n'
       && '    <p>First paragraph.</p>\n'
       && '    <ul>\n'
       && '        <li>Item A</li>\n'
@@ -281,15 +263,12 @@ CLASS ltcl_htmldiff_test_2 IMPLEMENTATION.
 
   METHOD diff_text.
 
-    DATA: lv_act TYPE string,
-          lv_exp TYPE string.
-
-    lv_act = lcl_helper=>htmldiff(
+    DATA(lv_act) = lcl_helper=>htmldiff(
       iv_before = 'a word is here'
       iv_after  = 'a nother word is there'
       iv_css    = abap_true ).
 
-    lv_exp = 'a<ins class="diffins"> nother</ins> word is <del class="diffmod">'
+    DATA(lv_exp) = 'a<ins class="diffins"> nother</ins> word is <del class="diffmod">'
       && 'here</del><ins class="diffmod">there</ins>'.
 
     cl_abap_unit_assert=>assert_equals(
@@ -300,15 +279,12 @@ CLASS ltcl_htmldiff_test_2 IMPLEMENTATION.
 
   METHOD insert_a_letter_and_a_space.
 
-    DATA: lv_act TYPE string,
-          lv_exp TYPE string.
-
-    lv_act = lcl_helper=>htmldiff(
+    DATA(lv_act) = lcl_helper=>htmldiff(
       iv_before = 'a c'
       iv_after  = 'a b c'
       iv_css    = abap_true ).
 
-    lv_exp = 'a <ins class="diffins">b </ins>c'.
+    DATA(lv_exp) = 'a <ins class="diffins">b </ins>c'.
 
     cl_abap_unit_assert=>assert_equals(
       act = lv_act
@@ -318,15 +294,12 @@ CLASS ltcl_htmldiff_test_2 IMPLEMENTATION.
 
   METHOD remove_a_letter_and_a_space.
 
-    DATA: lv_act TYPE string,
-          lv_exp TYPE string.
-
-    lv_act = lcl_helper=>htmldiff(
+    DATA(lv_act) = lcl_helper=>htmldiff(
       iv_before = 'a b c'
       iv_after  = 'a c'
       iv_css    = abap_true ).
 
-    lv_exp = 'a <del class="diffdel">b </del>c'.
+    DATA(lv_exp) = 'a <del class="diffdel">b </del>c'.
 
     cl_abap_unit_assert=>assert_equals(
       act = lv_act
@@ -336,15 +309,12 @@ CLASS ltcl_htmldiff_test_2 IMPLEMENTATION.
 
   METHOD change_a_letter.
 
-    DATA: lv_act TYPE string,
-          lv_exp TYPE string.
-
-    lv_act = lcl_helper=>htmldiff(
+    DATA(lv_act) = lcl_helper=>htmldiff(
       iv_before = 'a b c'
       iv_after  = 'a d c'
       iv_css    = abap_true ).
 
-    lv_exp = 'a <del class="diffmod">b</del><ins class="diffmod">d</ins> c'.
+    DATA(lv_exp) = 'a <del class="diffmod">b</del><ins class="diffmod">d</ins> c'.
 
     cl_abap_unit_assert=>assert_equals(
       act = lv_act
@@ -354,16 +324,13 @@ CLASS ltcl_htmldiff_test_2 IMPLEMENTATION.
 
   METHOD support_chinese.
 
-    DATA: lv_act TYPE string,
-          lv_exp TYPE string.
-
-    lv_act = lcl_helper=>htmldiff(
+    DATA(lv_act) = lcl_helper=>htmldiff(
       iv_before  = '这个是中文内容, Ruby is the bast'
       iv_after   = '这是中国语内容,Ruby is the best language.'
       iv_chinese = abap_true
       iv_css     = abap_true ).
 
-    lv_exp = '这<del class="diffdel">个</del>是中<del class="diffmod">文</del><ins class="diffmod">'
+    DATA(lv_exp) = '这<del class="diffdel">个</del>是中<del class="diffmod">文</del><ins class="diffmod">'
           && '国语</ins>内容,<del class="diffdel"> </del>Ruby is the <del class="diffmod">bast</del>'
           && '<ins class="diffmod">best language.</ins>'.
 
@@ -375,16 +342,13 @@ CLASS ltcl_htmldiff_test_2 IMPLEMENTATION.
 
   METHOD support_img_tags_insertion.
 
-    DATA: lv_act TYPE string,
-          lv_exp TYPE string.
-
-    lv_act = lcl_helper=>htmldiff(
+    DATA(lv_act) = lcl_helper=>htmldiff(
       iv_before   = 'a b c'
       iv_after    = 'a b <img src="some_url" /> c'
       iv_with_img = abap_true
       iv_css      = abap_true ).
 
-    lv_exp = 'a b <ins class="diffins"><img src="some_url" /> </ins>c'.
+    DATA(lv_exp) = 'a b <ins class="diffins"><img src="some_url" /> </ins>c'.
 
     cl_abap_unit_assert=>assert_equals(
       act = lv_act
@@ -394,16 +358,13 @@ CLASS ltcl_htmldiff_test_2 IMPLEMENTATION.
 
   METHOD support_img_tags_deletion.
 
-    DATA: lv_act TYPE string,
-          lv_exp TYPE string.
-
-    lv_act = lcl_helper=>htmldiff(
+    DATA(lv_act) = lcl_helper=>htmldiff(
       iv_before   = 'a b <img src="some_url" /> c'
       iv_after    = 'a b c'
       iv_with_img = abap_true
       iv_css      = abap_true ).
 
-    lv_exp = 'a b <del class="diffdel"><img src="some_url" /> </del>c'.
+    DATA(lv_exp) = 'a b <del class="diffdel"><img src="some_url" /> </del>c'.
 
     cl_abap_unit_assert=>assert_equals(
       act = lv_act
@@ -456,26 +417,20 @@ CLASS ltcl_calculate_operations IMPLEMENTATION.
 
   METHOD calculate_operations.
 
-    DATA:
-      lt_before TYPE zcl_differ_htmldiff=>ty_tokens,
-      lt_after  TYPE zcl_differ_htmldiff=>ty_tokens,
-      ls_op     TYPE zcl_differ_htmldiff=>ty_operation,
-      lt_ops    TYPE zcl_differ_htmldiff=>ty_operations.
-
-    SPLIT iv_before AT space INTO TABLE lt_before.
-    SPLIT iv_after  AT space INTO TABLE lt_after.
+    SPLIT iv_before AT space INTO TABLE DATA(lt_before).
+    SPLIT iv_after  AT space INTO TABLE DATA(lt_after).
 
     REPLACE ALL OCCURRENCES OF '_' IN TABLE lt_before WITH ` `.
     REPLACE ALL OCCURRENCES OF '_' IN TABLE lt_after  WITH ` `.
 
-    lt_ops = mo_htmldiff->calculate_operations( it_before_tokens = lt_before
-                                                it_after_tokens  = lt_after ).
+    DATA(lt_ops) = mo_htmldiff->calculate_operations( it_before_tokens = lt_before
+                                                      it_after_tokens  = lt_after ).
 
     cl_abap_unit_assert=>assert_equals(
       act = lines( lt_ops )
       exp = iv_count ).
 
-    READ TABLE lt_ops INTO ls_op INDEX iv_index.
+    READ TABLE lt_ops INTO DATA(ls_op) INDEX iv_index.
     cl_abap_unit_assert=>assert_subrc( ).
 
     cl_abap_unit_assert=>assert_equals(
@@ -720,8 +675,6 @@ CLASS ltcl_diff IMPLEMENTATION.
 
   METHOD test.
 
-    DATA lv_act TYPE string.
-
     " When both inputs are the same, should return the text
     cl_abap_unit_assert=>assert_equals(
       act = mo_htmldiff->htmldiff( iv_before = 'input text'
@@ -735,7 +688,7 @@ CLASS ltcl_diff IMPLEMENTATION.
       exp = 'input<ins> 2</ins>' ).
 
     " When an entire sentence is replaced, should replace the whole chunk
-    lv_act = mo_htmldiff->htmldiff( iv_before = 'this is what I had'
+    DATA(lv_act) = mo_htmldiff->htmldiff( iv_before = 'this is what I had'
                                     iv_after  = 'and now we have a new one' ).
 
     cl_abap_unit_assert=>assert_equals(
@@ -795,22 +748,15 @@ CLASS ltcl_find_matching_blocks IMPLEMENTATION.
 
   METHOD index_tokens.
 
-    DATA:
-      lt_find_these TYPE zcl_differ_htmldiff=>ty_tokens,
-      lt_in_these   TYPE zcl_differ_htmldiff=>ty_tokens,
-      lv_loc        TYPE zcl_differ_htmldiff=>ty_location,
-      ls_index      TYPE zcl_differ_htmldiff=>ty_index_row,
-      lt_index      TYPE zcl_differ_htmldiff=>ty_index_tab.
-
     " When the items exist in the search target
-    SPLIT 'a has' AT space INTO TABLE lt_find_these.
-    SPLIT 'a apple has a worm' AT space INTO TABLE lt_in_these.
+    SPLIT 'a has'              AT space INTO TABLE DATA(lt_find_these).
+    SPLIT 'a apple has a worm' AT space INTO TABLE DATA(lt_in_these).
 
-    lt_index = mo_htmldiff->create_index( it_find_these = lt_find_these
-                                          it_in_these   = lt_in_these ).
+    DATA(lt_index) = mo_htmldiff->create_index( it_find_these = lt_find_these
+                                                it_in_these   = lt_in_these ).
 
     " should find "a" twice
-    READ TABLE lt_index INTO ls_index WITH TABLE KEY token = 'a'.
+    READ TABLE lt_index INTO DATA(ls_index) WITH TABLE KEY token = 'a'.
     cl_abap_unit_assert=>assert_subrc( ).
 
     cl_abap_unit_assert=>assert_equals(
@@ -818,7 +764,7 @@ CLASS ltcl_find_matching_blocks IMPLEMENTATION.
       exp = 2 ).
 
     " should find "a" at 0
-    READ TABLE ls_index-locations INTO lv_loc INDEX 1.
+    READ TABLE ls_index-locations INTO DATA(lv_loc) INDEX 1.
     cl_abap_unit_assert=>assert_subrc( ).
 
     cl_abap_unit_assert=>assert_equals(
@@ -848,16 +794,11 @@ CLASS ltcl_find_matching_blocks IMPLEMENTATION.
 
   METHOD find_match.
 
-    DATA:
-      lt_before TYPE zcl_differ_htmldiff=>ty_tokens,
-      lt_after  TYPE zcl_differ_htmldiff=>ty_tokens,
-      lt_index  TYPE zcl_differ_htmldiff=>ty_index_tab.
+    SPLIT iv_before AT space INTO TABLE DATA(lt_before).
+    SPLIT iv_after  AT space INTO TABLE DATA(lt_after).
 
-    SPLIT iv_before AT space INTO TABLE lt_before.
-    SPLIT iv_after  AT space INTO TABLE lt_after.
-
-    lt_index = mo_htmldiff->create_index( it_find_these = lt_before
-                                          it_in_these   = lt_after ).
+    DATA(lt_index) = mo_htmldiff->create_index( it_find_these = lt_before
+                                                it_in_these   = lt_after ).
 
     rs_result = mo_htmldiff->find_match( it_before_tokens         = lt_before
                                          it_after_tokens          = lt_after
@@ -871,13 +812,11 @@ CLASS ltcl_find_matching_blocks IMPLEMENTATION.
 
   METHOD find_match_1.
 
-    DATA:
-      ls_exp   TYPE zcl_differ_htmldiff=>ty_match,
-      ls_match TYPE zcl_differ_htmldiff=>ty_match.
+    DATA ls_exp TYPE zcl_differ_htmldiff=>ty_match.
 
     " When there is a match, should match the match
-    ls_match = find_match( iv_before = 'a dog bites'
-                           iv_after  = 'a dog bites a man' ).
+    DATA(ls_match) = find_match( iv_before = 'a dog bites'
+                                 iv_after  = 'a dog bites a man' ).
 
     ls_exp-start_in_before = 0.
     ls_exp-start_in_after  = 0.
@@ -893,13 +832,11 @@ CLASS ltcl_find_matching_blocks IMPLEMENTATION.
 
   METHOD find_match_2.
 
-    DATA:
-      ls_exp   TYPE zcl_differ_htmldiff=>ty_match,
-      ls_match TYPE zcl_differ_htmldiff=>ty_match.
+    DATA ls_exp TYPE zcl_differ_htmldiff=>ty_match.
 
     " When the match is surrounded, should match with appropriate indexing
-    ls_match = find_match( iv_before = 'dog bites'
-                           iv_after  = 'the dog bites a man' ).
+    DATA(ls_match) = find_match( iv_before = 'dog bites'
+                                 iv_after  = 'the dog bites a man' ).
 
     ls_exp-start_in_before = 0.
     ls_exp-start_in_after  = 1.
@@ -915,13 +852,11 @@ CLASS ltcl_find_matching_blocks IMPLEMENTATION.
 
   METHOD find_match_3.
 
-    DATA:
-      ls_exp   TYPE zcl_differ_htmldiff=>ty_match,
-      ls_match TYPE zcl_differ_htmldiff=>ty_match.
+    DATA ls_exp TYPE zcl_differ_htmldiff=>ty_match.
 
     " When these is no match, should return nothing
-    ls_match = find_match( iv_before = 'the rat squeaks'
-                           iv_after  = 'a dog bites a man' ).
+    DATA(ls_match) = find_match( iv_before = 'the rat squeaks'
+                                 iv_after  = 'a dog bites a man' ).
 
     cl_abap_unit_assert=>assert_equals(
       act = ls_match
@@ -931,16 +866,11 @@ CLASS ltcl_find_matching_blocks IMPLEMENTATION.
 
   METHOD find_matching_blocks.
 
-    DATA:
-      lt_before TYPE zcl_differ_htmldiff=>ty_tokens,
-      lt_after  TYPE zcl_differ_htmldiff=>ty_tokens,
-      lt_index  TYPE zcl_differ_htmldiff=>ty_index_tab.
+    SPLIT iv_before AT space INTO TABLE DATA(lt_before).
+    SPLIT iv_after  AT space INTO TABLE DATA(lt_after).
 
-    SPLIT iv_before AT space INTO TABLE lt_before.
-    SPLIT iv_after  AT space INTO TABLE lt_after.
-
-    lt_index = mo_htmldiff->create_index( it_find_these = lt_before
-                                          it_in_these   = lt_after ).
+    DATA(lt_index) = mo_htmldiff->create_index( it_find_these = lt_before
+                                                it_in_these   = lt_after ).
 
     rt_result = mo_htmldiff->find_matching_blocks( it_before_tokens = lt_before
                                                    it_after_tokens  = lt_after ).
@@ -949,11 +879,9 @@ CLASS ltcl_find_matching_blocks IMPLEMENTATION.
 
   METHOD find_matching_blocks_1.
 
-    DATA lt_matches TYPE zcl_differ_htmldiff=>ty_matches.
-
     " When called with a single match, should return a match
-    lt_matches = find_matching_blocks( iv_before = 'a dog bites'
-                                       iv_after  = 'when a dog bites it hurts' ).
+    DATA(lt_matches) = find_matching_blocks( iv_before = 'a dog bites'
+                                             iv_after  = 'when a dog bites it hurts' ).
 
     cl_abap_unit_assert=>assert_equals(
       act = lines( lt_matches )
@@ -963,21 +891,18 @@ CLASS ltcl_find_matching_blocks IMPLEMENTATION.
 
   METHOD find_matching_blocks_2.
 
-    DATA:
-      ls_exp     TYPE zcl_differ_htmldiff=>ty_match,
-      ls_match   TYPE zcl_differ_htmldiff=>ty_match,
-      lt_matches TYPE zcl_differ_htmldiff=>ty_matches.
+    DATA ls_exp TYPE zcl_differ_htmldiff=>ty_match.
 
     " When called with multiple matches, should return 3 matches
-    lt_matches = find_matching_blocks( iv_before = 'the dog bit a man'
-                                       iv_after  = 'the large brown dog bit a tall man' ).
+    DATA(lt_matches) = find_matching_blocks( iv_before = 'the dog bit a man'
+                                             iv_after  = 'the large brown dog bit a tall man' ).
 
     cl_abap_unit_assert=>assert_equals(
       act = lines( lt_matches )
       exp = 3 ).
 
     " should match "the"
-    READ TABLE lt_matches INTO ls_match INDEX 1.
+    READ TABLE lt_matches INTO DATA(ls_match) INDEX 1.
     cl_abap_unit_assert=>assert_subrc( ).
 
     ls_exp-start_in_before = 0.
@@ -1050,13 +975,10 @@ CLASS ltcl_html_to_token IMPLEMENTATION.
 
   METHOD test.
 
-    DATA:
-      lv_token  TYPE zcl_differ_htmldiff=>ty_token,
-      lt_tokens TYPE zcl_differ_htmldiff=>ty_tokens,
-      lt_exp    TYPE zcl_differ_htmldiff=>ty_tokens.
+    DATA lt_exp TYPE zcl_differ_htmldiff=>ty_tokens.
 
     " when called with text, should return 7
-    lt_tokens = mo_htmldiff->html_to_tokens( 'this is a test' ).
+    DATA(lt_tokens) = mo_htmldiff->html_to_tokens( 'this is a test' ).
 
     cl_abap_unit_assert=>assert_equals(
       act = lines( lt_tokens )
@@ -1076,7 +998,7 @@ CLASS ltcl_html_to_token IMPLEMENTATION.
       act = lines( lt_tokens )
       exp = 3 ).
 
-    READ TABLE lt_tokens INTO lv_token INDEX 2.
+    READ TABLE lt_tokens INTO DATA(lv_token) INDEX 2.
     cl_abap_unit_assert=>assert_subrc( ).
 
     cl_abap_unit_assert=>assert_equals(
@@ -1155,19 +1077,14 @@ CLASS ltcl_render_operations IMPLEMENTATION.
 
   METHOD render_operations.
 
-    DATA:
-      lt_before TYPE zcl_differ_htmldiff=>ty_tokens,
-      lt_after  TYPE zcl_differ_htmldiff=>ty_tokens,
-      lt_ops    TYPE zcl_differ_htmldiff=>ty_operations.
-
-    SPLIT iv_before AT space INTO TABLE lt_before.
-    SPLIT iv_after  AT space INTO TABLE lt_after.
+    SPLIT iv_before AT space INTO TABLE DATA(lt_before).
+    SPLIT iv_after  AT space INTO TABLE DATA(lt_after).
 
     REPLACE ALL OCCURRENCES OF '_' IN TABLE lt_before WITH ` `.
     REPLACE ALL OCCURRENCES OF '_' IN TABLE lt_after  WITH ` `.
 
-    lt_ops = mo_htmldiff->calculate_operations( it_before_tokens = lt_before
-                                                it_after_tokens  = lt_after ).
+    DATA(lt_ops) = mo_htmldiff->calculate_operations( it_before_tokens = lt_before
+                                                      it_after_tokens  = lt_after ).
 
     rv_result = mo_htmldiff->render_operations( it_before_tokens = lt_before
                                                 it_after_tokens  = lt_after
@@ -1177,10 +1094,8 @@ CLASS ltcl_render_operations IMPLEMENTATION.
 
   METHOD test_equal.
 
-    DATA lv_act TYPE string.
-
-    lv_act = render_operations( iv_before = 'this _ is _ a _ test'
-                                iv_after  = 'this _ is _ a _ test' ).
+    DATA(lv_act) = render_operations( iv_before = 'this _ is _ a _ test'
+                                      iv_after  = 'this _ is _ a _ test' ).
 
     cl_abap_unit_assert=>assert_equals(
       act = lv_act
@@ -1191,10 +1106,8 @@ CLASS ltcl_render_operations IMPLEMENTATION.
 
   METHOD test_insert.
 
-    DATA lv_act TYPE string.
-
-    lv_act = render_operations( iv_before = 'this _ is'
-                                iv_after  = 'this _ is _ a _ test' ).
+    DATA(lv_act) = render_operations( iv_before = 'this _ is'
+                                      iv_after  = 'this _ is _ a _ test' ).
 
     cl_abap_unit_assert=>assert_equals(
       act = lv_act
@@ -1205,10 +1118,8 @@ CLASS ltcl_render_operations IMPLEMENTATION.
 
   METHOD test_delete.
 
-    DATA lv_act TYPE string.
-
-    lv_act = render_operations( iv_before = 'this _ is _ a _ test _ of _ stuff'
-                                iv_after  = 'this _ is _ a _ test' ).
+    DATA(lv_act) = render_operations( iv_before = 'this _ is _ a _ test _ of _ stuff'
+                                      iv_after  = 'this _ is _ a _ test' ).
 
     cl_abap_unit_assert=>assert_equals(
       act = lv_act
@@ -1219,10 +1130,8 @@ CLASS ltcl_render_operations IMPLEMENTATION.
 
   METHOD test_replace.
 
-    DATA lv_act TYPE string.
-
-    lv_act = render_operations( iv_before = 'this _ is _ a _ break'
-                                iv_after  = 'this _ is _ a _ test' ).
+    DATA(lv_act) = render_operations( iv_before = 'this _ is _ a _ break'
+                                      iv_after  = 'this _ is _ a _ test' ).
 
     cl_abap_unit_assert=>assert_equals(
       act = lv_act
@@ -1233,10 +1142,8 @@ CLASS ltcl_render_operations IMPLEMENTATION.
 
   METHOD dealing_with_tags.
 
-    DATA lv_act TYPE string.
-
-    lv_act = render_operations( iv_before = '<p> a </p>'
-                                iv_after  = '<p> a _ b </p> <p> c </p>' ).
+    DATA(lv_act) = render_operations( iv_before = '<p> a </p>'
+                                      iv_after  = '<p> a _ b </p> <p> c </p>' ).
 
     cl_abap_unit_assert=>assert_equals(
       act = lv_act
@@ -1247,10 +1154,8 @@ CLASS ltcl_render_operations IMPLEMENTATION.
 
   METHOD change_at_beginning_of_tag.
 
-    DATA lv_act TYPE string.
-
-    lv_act = render_operations( iv_before = '<p> this _ is _ awesome </p>'
-                                iv_after  = '<p> I _ is _ awesome </p>' ).
+    DATA(lv_act) = render_operations( iv_before = '<p> this _ is _ awesome </p>'
+                                      iv_after  = '<p> I _ is _ awesome </p>' ).
 
     cl_abap_unit_assert=>assert_equals(
       act = lv_act

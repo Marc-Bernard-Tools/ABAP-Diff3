@@ -596,7 +596,7 @@ CLASS zcl_differ_htmldiff IMPLEMENTATION.
           INSERT ls_match_length_at INTO TABLE lt_match_length_at.
         ENDIF.
 
-        data(lv_new_match_length) = ls_match_length_at-val + 1.
+        DATA(lv_new_match_length) = ls_match_length_at-val + 1.
 
         ls_new_match_length_at-key = lv_index_in_after.
         ls_new_match_length_at-val = lv_new_match_length.
@@ -908,15 +908,13 @@ CLASS zcl_differ_htmldiff IMPLEMENTATION.
 
   METHOD recurs_find_matching_blocks.
 
-    DATA ls_match TYPE ty_match.
-
-    ls_match = find_match( it_before_tokens         = it_before_tokens
-                           it_after_tokens          = it_after_tokens
-                           it_index_before_in_after = it_index_before_in_after
-                           iv_start_in_before       = iv_start_in_before
-                           iv_end_in_before         = iv_end_in_before
-                           iv_start_in_after        = iv_start_in_after
-                           iv_end_in_after          = iv_end_in_after ).
+    DATA(ls_match) = find_match( it_before_tokens         = it_before_tokens
+                                 it_after_tokens          = it_after_tokens
+                                 it_index_before_in_after = it_index_before_in_after
+                                 iv_start_in_before       = iv_start_in_before
+                                 iv_end_in_before         = iv_end_in_before
+                                 iv_start_in_after        = iv_start_in_after
+                                 iv_end_in_after          = iv_end_in_after ).
 
     IF ls_match IS NOT INITIAL.
       IF iv_start_in_before < ls_match-start_in_before AND iv_start_in_after < ls_match-start_in_after.
