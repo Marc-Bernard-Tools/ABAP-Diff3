@@ -199,7 +199,7 @@
 		"double_space": {
 			"afterColon": true,
 			"endParen": true,
-			"exclude": [],
+			"exclude": [".*"],
 			"keywords": true,
 			"severity": "Error",
 			"startParen": true
