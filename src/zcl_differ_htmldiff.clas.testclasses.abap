@@ -42,10 +42,9 @@ CLASS lcl_helper IMPLEMENTATION.
   METHOD htmldiff.
     DATA li_htmldiff TYPE REF TO zif_differ_htmldiff.
 
-    CREATE OBJECT li_htmldiff TYPE zcl_differ_htmldiff
-      EXPORTING
-        iv_css_classes     = iv_css
-        iv_support_chinese = iv_chinese.
+    li_htmldiff = NEW zcl_differ_htmldiff(
+      iv_css_classes     = iv_css
+      iv_support_chinese = iv_chinese ).
 
     rv_result = li_htmldiff->htmldiff(
       iv_before   = iv_before
@@ -56,7 +55,7 @@ CLASS lcl_helper IMPLEMENTATION.
   METHOD textdiff.
     DATA li_htmldiff TYPE REF TO zif_differ_htmldiff.
 
-    CREATE OBJECT li_htmldiff TYPE zcl_differ_htmldiff.
+    li_htmldiff = NEW zcl_differ_htmldiff( ).
 
     rv_result = li_htmldiff->textdiff(
       iv_before = iv_before
@@ -412,7 +411,7 @@ ENDCLASS.
 CLASS ltcl_calculate_operations IMPLEMENTATION.
 
   METHOD setup.
-    CREATE OBJECT mo_htmldiff.
+    mo_htmldiff = NEW #( ).
   ENDMETHOD.
 
   METHOD calculate_operations.
@@ -659,7 +658,7 @@ CLASS ltcl_diff DEFINITION FOR TESTING
 
   PRIVATE SECTION.
 
-    DATA mo_htmldiff TYPE REF TO zif_differ_htmldiff.
+    DATA mi_htmldiff TYPE REF TO zif_differ_htmldiff.
 
     METHODS:
       setup,
@@ -670,25 +669,25 @@ ENDCLASS.
 CLASS ltcl_diff IMPLEMENTATION.
 
   METHOD setup.
-    CREATE OBJECT mo_htmldiff TYPE zcl_differ_htmldiff.
+    mi_htmldiff = NEW zcl_differ_htmldiff( ).
   ENDMETHOD.
 
   METHOD test.
 
     " When both inputs are the same, should return the text
     cl_abap_unit_assert=>assert_equals(
-      act = mo_htmldiff->htmldiff( iv_before = 'input text'
+      act = mi_htmldiff->htmldiff( iv_before = 'input text'
                                    iv_after  = 'input text' )
       exp = 'input text' ).
 
     " When a letter is added, should mark the new letter
     cl_abap_unit_assert=>assert_equals(
-      act = mo_htmldiff->htmldiff( iv_before = 'input'
+      act = mi_htmldiff->htmldiff( iv_before = 'input'
                                    iv_after  = 'input 2' )
       exp = 'input<ins> 2</ins>' ).
 
     " When an entire sentence is replaced, should replace the whole chunk
-    DATA(lv_act) = mo_htmldiff->htmldiff( iv_before = 'this is what I had'
+    DATA(lv_act) = mi_htmldiff->htmldiff( iv_before = 'this is what I had'
                                     iv_after  = 'and now we have a new one' ).
 
     cl_abap_unit_assert=>assert_equals(
@@ -743,7 +742,7 @@ ENDCLASS.
 CLASS ltcl_find_matching_blocks IMPLEMENTATION.
 
   METHOD setup.
-    CREATE OBJECT mo_htmldiff.
+    mo_htmldiff = NEW #( ).
   ENDMETHOD.
 
   METHOD index_tokens.
@@ -869,9 +868,6 @@ CLASS ltcl_find_matching_blocks IMPLEMENTATION.
     SPLIT iv_before AT space INTO TABLE DATA(lt_before).
     SPLIT iv_after  AT space INTO TABLE DATA(lt_after).
 
-    DATA(lt_index) = mo_htmldiff->create_index( it_find_these = lt_before
-                                                it_in_these   = lt_after ).
-
     rt_result = mo_htmldiff->find_matching_blocks( it_before_tokens = lt_before
                                                    it_after_tokens  = lt_after ).
 
@@ -969,7 +965,7 @@ ENDCLASS.
 CLASS ltcl_html_to_token IMPLEMENTATION.
 
   METHOD setup.
-    CREATE OBJECT mo_htmldiff.
+    mo_htmldiff = NEW #( ).
     mo_htmldiff->_inject( abap_true ).
   ENDMETHOD.
 
@@ -1071,7 +1067,7 @@ ENDCLASS.
 CLASS ltcl_render_operations IMPLEMENTATION.
 
   METHOD setup.
-    CREATE OBJECT mo_htmldiff.
+    mo_htmldiff = NEW #( ).
     mo_htmldiff->_inject( abap_true ).
   ENDMETHOD.
 

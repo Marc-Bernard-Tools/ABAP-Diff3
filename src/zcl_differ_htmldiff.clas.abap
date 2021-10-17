@@ -745,7 +745,7 @@ CLASS zcl_differ_htmldiff IMPLEMENTATION.
 
   METHOD isnt_tag.
 
-    rv_result = boolc( is_tag( iv_token ) = abap_false ).
+    rv_result = xsdbool( is_tag( iv_token ) = abap_false ).
 
   ENDMETHOD.
 
@@ -754,7 +754,7 @@ CLASS zcl_differ_htmldiff IMPLEMENTATION.
 
     FIND REGEX '[\w\#@;]' IN iv_input.
 
-    rv_result = boolc( sy-subrc = 0 ).
+    rv_result = xsdbool( sy-subrc = 0 ).
 
   ENDMETHOD.
 
@@ -780,7 +780,7 @@ CLASS zcl_differ_htmldiff IMPLEMENTATION.
   METHOD is_quote.
 
     " https://www.w3schools.com/charsets/ref_utf_basic_latin.asp
-    rv_result = boolc(
+    rv_result = xsdbool(
       iv_input = '&quot;' OR iv_input = '&#34;' OR " QUOTATION MARK
       iv_input = '&#39;'  OR iv_input = '&#96;' OR " APOSTROPHE & GRAVE ACCENT
       iv_input = '&lt;'   OR iv_input = '&#60;' OR " LESS-THAN SIGN
@@ -805,7 +805,7 @@ CLASS zcl_differ_htmldiff IMPLEMENTATION.
                                      iv_start  = is_op-start_in_before
                                      iv_end    = _get_end( is_op-end_in_before ) ) ).
 
-    rv_result = boolc( lv_string = ` ` ). " single space
+    rv_result = xsdbool( lv_string = ` ` ). " single space
 
   ENDMETHOD.
 
@@ -818,14 +818,14 @@ CLASS zcl_differ_htmldiff IMPLEMENTATION.
       FIND REGEX '<(?!img)[^>]+>' IN iv_token.
     ENDIF.
 
-    rv_result = boolc( sy-subrc = 0 ).
+    rv_result = xsdbool( sy-subrc = 0 ).
 
   ENDMETHOD.
 
 
   METHOD is_tag_begin.
 
-    rv_result = boolc( iv_token(1) = c_tag-begin AND mv_with_tags = abap_true ).
+    rv_result = xsdbool( iv_token(1) = c_tag-begin AND mv_with_tags = abap_true ).
 
   ENDMETHOD.
 
@@ -842,7 +842,7 @@ CLASS zcl_differ_htmldiff IMPLEMENTATION.
     "/^\s+$/
     DATA(lv_whitespace) = ` ` && cl_abap_char_utilities=>horizontal_tab && cl_abap_char_utilities=>cr_lf.
 
-    rv_result = boolc( iv_input CO lv_whitespace ).
+    rv_result = xsdbool( iv_input CO lv_whitespace ).
 
   ENDMETHOD.
 
