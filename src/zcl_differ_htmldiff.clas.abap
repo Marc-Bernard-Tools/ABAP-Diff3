@@ -1,9 +1,9 @@
-CLASS zcl_htmldiff DEFINITION
+CLASS zcl_differ_htmldiff DEFINITION
   PUBLIC
   CREATE PUBLIC.
 
 ************************************************************************
-* ABAP Diff for Text and HTML
+* ABAP Differ - HTML Diff
 *
 * https://github.com/Marc-Bernard-Tools/ABAP-Differ
 *
@@ -16,7 +16,7 @@ CLASS zcl_htmldiff DEFINITION
 ************************************************************************
   PUBLIC SECTION.
 
-    INTERFACES zif_htmldiff.
+    INTERFACES zif_differ_htmldiff.
 
     METHODS constructor
       IMPORTING
@@ -321,7 +321,7 @@ ENDCLASS.
 
 
 
-CLASS zcl_htmldiff IMPLEMENTATION.
+CLASS zcl_differ_htmldiff IMPLEMENTATION.
 
 
   METHOD calculate_operations.
@@ -1091,7 +1091,7 @@ CLASS zcl_htmldiff IMPLEMENTATION.
   ENDMETHOD.
 
 
-  METHOD zif_htmldiff~htmldiff.
+  METHOD zif_differ_htmldiff~htmldiff.
 
     DATA:
       lt_before_tokens TYPE ty_tokens,
@@ -1119,7 +1119,7 @@ CLASS zcl_htmldiff IMPLEMENTATION.
   ENDMETHOD.
 
 
-  METHOD zif_htmldiff~textdiff.
+  METHOD zif_differ_htmldiff~textdiff.
 
     DATA:
       lt_before_tokens TYPE ty_tokens,

@@ -3,9 +3,9 @@
  <asx:abap xmlns:asx="http://www.sap.com/abapxml" version="1.0">
   <asx:values>
    <VSEOINTERF>
-    <CLSNAME>ZIF_DIFF3</CLSNAME>
+    <CLSNAME>ZIF_DIFFER_DIFF3</CLSNAME>
     <LANGU>E</LANGU>
-    <DESCRIPT>ABAP Diff3 Interface</DESCRIPT>
+    <DESCRIPT>ABAP Differ - Diff3 Interface</DESCRIPT>
     <EXPOSURE>2</EXPOSURE>
     <STATE>1</STATE>
     <UNICODE>X</UNICODE>

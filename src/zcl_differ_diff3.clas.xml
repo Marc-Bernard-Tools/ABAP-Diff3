@@ -3,9 +3,9 @@
  <asx:abap xmlns:asx="http://www.sap.com/abapxml" version="1.0">
   <asx:values>
    <VSEOCLASS>
-    <CLSNAME>ZCL_DIFF_SOURCES</CLSNAME>
+    <CLSNAME>ZCL_DIFFER_DIFF3</CLSNAME>
     <LANGU>E</LANGU>
-    <DESCRIPT>ABAP Diff for Source Code</DESCRIPT>
+    <DESCRIPT>ABAP Differ - Diff3</DESCRIPT>
     <STATE>1</STATE>
     <CLSCCINCL>X</CLSCCINCL>
     <FIXPT>X</FIXPT>

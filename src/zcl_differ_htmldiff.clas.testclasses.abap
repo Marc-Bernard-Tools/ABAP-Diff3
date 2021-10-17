@@ -40,25 +40,25 @@ CLASS lcl_helper IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD htmldiff.
-    DATA lo_differ TYPE REF TO zif_htmldiff.
+    DATA li_htmldiff TYPE REF TO zif_differ_htmldiff.
 
-    CREATE OBJECT lo_differ TYPE zcl_htmldiff
+    CREATE OBJECT li_htmldiff TYPE zcl_differ_htmldiff
       EXPORTING
         iv_css_classes     = iv_css
         iv_support_chinese = iv_chinese.
 
-    rv_result = lo_differ->htmldiff(
+    rv_result = li_htmldiff->htmldiff(
       iv_before   = iv_before
       iv_after    = iv_after
       iv_with_img = iv_with_img ).
   ENDMETHOD.
 
   METHOD textdiff.
-    DATA lo_differ TYPE REF TO zif_htmldiff.
+    DATA li_htmldiff TYPE REF TO zif_differ_htmldiff.
 
-    CREATE OBJECT lo_differ TYPE zcl_htmldiff.
+    CREATE OBJECT li_htmldiff TYPE zcl_differ_htmldiff.
 
-    rv_result = lo_differ->textdiff(
+    rv_result = li_htmldiff->textdiff(
       iv_before = iv_before
       iv_after  = iv_after ).
   ENDMETHOD.
@@ -419,7 +419,7 @@ ENDCLASS.
 ************************************************************************
 
 CLASS ltcl_calculate_operations DEFINITION DEFERRED.
-CLASS zcl_htmldiff DEFINITION LOCAL FRIENDS ltcl_calculate_operations.
+CLASS zcl_differ_htmldiff DEFINITION LOCAL FRIENDS ltcl_calculate_operations.
 
 CLASS ltcl_calculate_operations DEFINITION FOR TESTING
   DURATION SHORT
@@ -427,7 +427,7 @@ CLASS ltcl_calculate_operations DEFINITION FOR TESTING
 
   PRIVATE SECTION.
 
-    DATA mo_differ TYPE REF TO zcl_htmldiff.
+    DATA mo_htmldiff TYPE REF TO zcl_differ_htmldiff.
 
     METHODS:
       setup,
@@ -438,7 +438,7 @@ CLASS ltcl_calculate_operations DEFINITION FOR TESTING
           !iv_after  TYPE string
           !iv_count  TYPE i
           !iv_index  TYPE i
-          !is_exp    TYPE zcl_htmldiff=>ty_operation,
+          !is_exp    TYPE zcl_differ_htmldiff=>ty_operation,
 
       action_middle FOR TESTING,
       action_beginning FOR TESTING,
@@ -451,16 +451,16 @@ ENDCLASS.
 CLASS ltcl_calculate_operations IMPLEMENTATION.
 
   METHOD setup.
-    CREATE OBJECT mo_differ.
+    CREATE OBJECT mo_htmldiff.
   ENDMETHOD.
 
   METHOD calculate_operations.
 
     DATA:
-      lt_before TYPE zcl_htmldiff=>ty_tokens,
-      lt_after  TYPE zcl_htmldiff=>ty_tokens,
-      ls_op     TYPE zcl_htmldiff=>ty_operation,
-      lt_ops    TYPE zcl_htmldiff=>ty_operations.
+      lt_before TYPE zcl_differ_htmldiff=>ty_tokens,
+      lt_after  TYPE zcl_differ_htmldiff=>ty_tokens,
+      ls_op     TYPE zcl_differ_htmldiff=>ty_operation,
+      lt_ops    TYPE zcl_differ_htmldiff=>ty_operations.
 
     SPLIT iv_before AT space INTO TABLE lt_before.
     SPLIT iv_after  AT space INTO TABLE lt_after.
@@ -468,8 +468,8 @@ CLASS ltcl_calculate_operations IMPLEMENTATION.
     REPLACE ALL OCCURRENCES OF '_' IN TABLE lt_before WITH ` `.
     REPLACE ALL OCCURRENCES OF '_' IN TABLE lt_after  WITH ` `.
 
-    lt_ops = mo_differ->calculate_operations( it_before_tokens = lt_before
-                                              it_after_tokens  = lt_after ).
+    lt_ops = mo_htmldiff->calculate_operations( it_before_tokens = lt_before
+                                                it_after_tokens  = lt_after ).
 
     cl_abap_unit_assert=>assert_equals(
       act = lines( lt_ops )
@@ -486,7 +486,7 @@ CLASS ltcl_calculate_operations IMPLEMENTATION.
 
   METHOD action_middle.
 
-    DATA ls_exp TYPE zcl_htmldiff=>ty_operation.
+    DATA ls_exp TYPE zcl_differ_htmldiff=>ty_operation.
 
     ls_exp-action          = 'replace'.
     ls_exp-start_in_before = 1.
@@ -552,7 +552,7 @@ CLASS ltcl_calculate_operations IMPLEMENTATION.
 
   METHOD action_beginning.
 
-    DATA ls_exp TYPE zcl_htmldiff=>ty_operation.
+    DATA ls_exp TYPE zcl_differ_htmldiff=>ty_operation.
 
     ls_exp-action          = 'replace'.
     ls_exp-start_in_before = 0.
@@ -594,7 +594,7 @@ CLASS ltcl_calculate_operations IMPLEMENTATION.
 
   METHOD action_end.
 
-    DATA ls_exp TYPE zcl_htmldiff=>ty_operation.
+    DATA ls_exp TYPE zcl_differ_htmldiff=>ty_operation.
 
     ls_exp-action          = 'replace'.
     ls_exp-start_in_before = 3.
@@ -636,7 +636,7 @@ CLASS ltcl_calculate_operations IMPLEMENTATION.
 
   METHOD action_combo.
 
-    DATA ls_exp TYPE zcl_htmldiff=>ty_operation.
+    DATA ls_exp TYPE zcl_differ_htmldiff=>ty_operation.
 
     " There are a bunch of replaces, but, because whitespace is
     " tokenized, they are broken up with equals. We want to combine
@@ -704,7 +704,7 @@ CLASS ltcl_diff DEFINITION FOR TESTING
 
   PRIVATE SECTION.
 
-    DATA mo_differ TYPE REF TO zif_htmldiff.
+    DATA mo_htmldiff TYPE REF TO zif_differ_htmldiff.
 
     METHODS:
       setup,
@@ -715,7 +715,7 @@ ENDCLASS.
 CLASS ltcl_diff IMPLEMENTATION.
 
   METHOD setup.
-    CREATE OBJECT mo_differ TYPE zcl_htmldiff.
+    CREATE OBJECT mo_htmldiff TYPE zcl_differ_htmldiff.
   ENDMETHOD.
 
   METHOD test.
@@ -724,19 +724,19 @@ CLASS ltcl_diff IMPLEMENTATION.
 
     " When both inputs are the same, should return the text
     cl_abap_unit_assert=>assert_equals(
-      act = mo_differ->htmldiff( iv_before = 'input text'
-                                 iv_after  = 'input text' )
+      act = mo_htmldiff->htmldiff( iv_before = 'input text'
+                                   iv_after  = 'input text' )
       exp = 'input text' ).
 
     " When a letter is added, should mark the new letter
     cl_abap_unit_assert=>assert_equals(
-      act = mo_differ->htmldiff( iv_before = 'input'
-                                 iv_after  = 'input 2' )
+      act = mo_htmldiff->htmldiff( iv_before = 'input'
+                                   iv_after  = 'input 2' )
       exp = 'input<ins> 2</ins>' ).
 
     " When an entire sentence is replaced, should replace the whole chunk
-    lv_act = mo_differ->htmldiff( iv_before = 'this is what I had'
-                                  iv_after  = 'and now we have a new one' ).
+    lv_act = mo_htmldiff->htmldiff( iv_before = 'this is what I had'
+                                    iv_after  = 'and now we have a new one' ).
 
     cl_abap_unit_assert=>assert_equals(
       act = lv_act
@@ -749,7 +749,7 @@ ENDCLASS.
 ******
 
 CLASS ltcl_find_matching_blocks DEFINITION DEFERRED.
-CLASS zcl_htmldiff DEFINITION LOCAL FRIENDS ltcl_find_matching_blocks.
+CLASS zcl_differ_htmldiff DEFINITION LOCAL FRIENDS ltcl_find_matching_blocks.
 
 CLASS ltcl_find_matching_blocks DEFINITION FOR TESTING
   DURATION SHORT
@@ -757,7 +757,7 @@ CLASS ltcl_find_matching_blocks DEFINITION FOR TESTING
 
   PRIVATE SECTION.
 
-    DATA mo_differ TYPE REF TO zcl_htmldiff.
+    DATA mo_htmldiff TYPE REF TO zcl_differ_htmldiff.
 
     METHODS:
       setup,
@@ -769,7 +769,7 @@ CLASS ltcl_find_matching_blocks DEFINITION FOR TESTING
           !iv_before       TYPE string
           !iv_after        TYPE string
         RETURNING
-          VALUE(rs_result) TYPE zcl_htmldiff=>ty_match,
+          VALUE(rs_result) TYPE zcl_differ_htmldiff=>ty_match,
 
       find_match_1 FOR TESTING,
       find_match_2 FOR TESTING,
@@ -780,7 +780,7 @@ CLASS ltcl_find_matching_blocks DEFINITION FOR TESTING
           !iv_before       TYPE string
           !iv_after        TYPE string
         RETURNING
-          VALUE(rt_result) TYPE zcl_htmldiff=>ty_matches,
+          VALUE(rt_result) TYPE zcl_differ_htmldiff=>ty_matches,
 
       find_matching_blocks_1 FOR TESTING,
       find_matching_blocks_2 FOR TESTING.
@@ -790,24 +790,24 @@ ENDCLASS.
 CLASS ltcl_find_matching_blocks IMPLEMENTATION.
 
   METHOD setup.
-    CREATE OBJECT mo_differ.
+    CREATE OBJECT mo_htmldiff.
   ENDMETHOD.
 
   METHOD index_tokens.
 
     DATA:
-      lt_find_these TYPE zcl_htmldiff=>ty_tokens,
-      lt_in_these   TYPE zcl_htmldiff=>ty_tokens,
-      lv_loc        TYPE zcl_htmldiff=>ty_location,
-      ls_index      TYPE zcl_htmldiff=>ty_index_row,
-      lt_index      TYPE zcl_htmldiff=>ty_index_tab.
+      lt_find_these TYPE zcl_differ_htmldiff=>ty_tokens,
+      lt_in_these   TYPE zcl_differ_htmldiff=>ty_tokens,
+      lv_loc        TYPE zcl_differ_htmldiff=>ty_location,
+      ls_index      TYPE zcl_differ_htmldiff=>ty_index_row,
+      lt_index      TYPE zcl_differ_htmldiff=>ty_index_tab.
 
     " When the items exist in the search target
     SPLIT 'a has' AT space INTO TABLE lt_find_these.
     SPLIT 'a apple has a worm' AT space INTO TABLE lt_in_these.
 
-    lt_index = mo_differ->create_index( it_find_these = lt_find_these
-                                        it_in_these   = lt_in_these ).
+    lt_index = mo_htmldiff->create_index( it_find_these = lt_find_these
+                                          it_in_these   = lt_in_these ).
 
     " should find "a" twice
     READ TABLE lt_index INTO ls_index WITH TABLE KEY token = 'a'.
@@ -849,31 +849,31 @@ CLASS ltcl_find_matching_blocks IMPLEMENTATION.
   METHOD find_match.
 
     DATA:
-      lt_before TYPE zcl_htmldiff=>ty_tokens,
-      lt_after  TYPE zcl_htmldiff=>ty_tokens,
-      lt_index  TYPE zcl_htmldiff=>ty_index_tab.
+      lt_before TYPE zcl_differ_htmldiff=>ty_tokens,
+      lt_after  TYPE zcl_differ_htmldiff=>ty_tokens,
+      lt_index  TYPE zcl_differ_htmldiff=>ty_index_tab.
 
     SPLIT iv_before AT space INTO TABLE lt_before.
     SPLIT iv_after  AT space INTO TABLE lt_after.
 
-    lt_index = mo_differ->create_index( it_find_these = lt_before
-                                        it_in_these   = lt_after ).
+    lt_index = mo_htmldiff->create_index( it_find_these = lt_before
+                                          it_in_these   = lt_after ).
 
-    rs_result = mo_differ->find_match( it_before_tokens         = lt_before
-                                       it_after_tokens          = lt_after
-                                       it_index_before_in_after = lt_index
-                                       iv_start_in_before       = 0
-                                       iv_end_in_before         = lines( lt_before )
-                                       iv_start_in_after        = 0
-                                       iv_end_in_after          = lines( lt_after ) ).
+    rs_result = mo_htmldiff->find_match( it_before_tokens         = lt_before
+                                         it_after_tokens          = lt_after
+                                         it_index_before_in_after = lt_index
+                                         iv_start_in_before       = 0
+                                         iv_end_in_before         = lines( lt_before )
+                                         iv_start_in_after        = 0
+                                         iv_end_in_after          = lines( lt_after ) ).
 
   ENDMETHOD.
 
   METHOD find_match_1.
 
     DATA:
-      ls_exp   TYPE zcl_htmldiff=>ty_match,
-      ls_match TYPE zcl_htmldiff=>ty_match.
+      ls_exp   TYPE zcl_differ_htmldiff=>ty_match,
+      ls_match TYPE zcl_differ_htmldiff=>ty_match.
 
     " When there is a match, should match the match
     ls_match = find_match( iv_before = 'a dog bites'
@@ -894,8 +894,8 @@ CLASS ltcl_find_matching_blocks IMPLEMENTATION.
   METHOD find_match_2.
 
     DATA:
-      ls_exp   TYPE zcl_htmldiff=>ty_match,
-      ls_match TYPE zcl_htmldiff=>ty_match.
+      ls_exp   TYPE zcl_differ_htmldiff=>ty_match,
+      ls_match TYPE zcl_differ_htmldiff=>ty_match.
 
     " When the match is surrounded, should match with appropriate indexing
     ls_match = find_match( iv_before = 'dog bites'
@@ -916,8 +916,8 @@ CLASS ltcl_find_matching_blocks IMPLEMENTATION.
   METHOD find_match_3.
 
     DATA:
-      ls_exp   TYPE zcl_htmldiff=>ty_match,
-      ls_match TYPE zcl_htmldiff=>ty_match.
+      ls_exp   TYPE zcl_differ_htmldiff=>ty_match,
+      ls_match TYPE zcl_differ_htmldiff=>ty_match.
 
     " When these is no match, should return nothing
     ls_match = find_match( iv_before = 'the rat squeaks'
@@ -932,24 +932,24 @@ CLASS ltcl_find_matching_blocks IMPLEMENTATION.
   METHOD find_matching_blocks.
 
     DATA:
-      lt_before TYPE zcl_htmldiff=>ty_tokens,
-      lt_after  TYPE zcl_htmldiff=>ty_tokens,
-      lt_index  TYPE zcl_htmldiff=>ty_index_tab.
+      lt_before TYPE zcl_differ_htmldiff=>ty_tokens,
+      lt_after  TYPE zcl_differ_htmldiff=>ty_tokens,
+      lt_index  TYPE zcl_differ_htmldiff=>ty_index_tab.
 
     SPLIT iv_before AT space INTO TABLE lt_before.
     SPLIT iv_after  AT space INTO TABLE lt_after.
 
-    lt_index = mo_differ->create_index( it_find_these = lt_before
-                                        it_in_these   = lt_after ).
+    lt_index = mo_htmldiff->create_index( it_find_these = lt_before
+                                          it_in_these   = lt_after ).
 
-    rt_result = mo_differ->find_matching_blocks( it_before_tokens = lt_before
-                                                 it_after_tokens  = lt_after ).
+    rt_result = mo_htmldiff->find_matching_blocks( it_before_tokens = lt_before
+                                                   it_after_tokens  = lt_after ).
 
   ENDMETHOD.
 
   METHOD find_matching_blocks_1.
 
-    DATA lt_matches TYPE zcl_htmldiff=>ty_matches.
+    DATA lt_matches TYPE zcl_differ_htmldiff=>ty_matches.
 
     " When called with a single match, should return a match
     lt_matches = find_matching_blocks( iv_before = 'a dog bites'
@@ -964,9 +964,9 @@ CLASS ltcl_find_matching_blocks IMPLEMENTATION.
   METHOD find_matching_blocks_2.
 
     DATA:
-      ls_exp     TYPE zcl_htmldiff=>ty_match,
-      ls_match   TYPE zcl_htmldiff=>ty_match,
-      lt_matches TYPE zcl_htmldiff=>ty_matches.
+      ls_exp     TYPE zcl_differ_htmldiff=>ty_match,
+      ls_match   TYPE zcl_differ_htmldiff=>ty_match,
+      lt_matches TYPE zcl_differ_htmldiff=>ty_matches.
 
     " When called with multiple matches, should return 3 matches
     lt_matches = find_matching_blocks( iv_before = 'the dog bit a man'
@@ -1025,7 +1025,7 @@ ENDCLASS.
 ******
 
 CLASS ltcl_html_to_token DEFINITION DEFERRED.
-CLASS zcl_htmldiff DEFINITION LOCAL FRIENDS ltcl_html_to_token.
+CLASS zcl_differ_htmldiff DEFINITION LOCAL FRIENDS ltcl_html_to_token.
 
 CLASS ltcl_html_to_token DEFINITION FOR TESTING
   DURATION SHORT
@@ -1033,7 +1033,7 @@ CLASS ltcl_html_to_token DEFINITION FOR TESTING
 
   PRIVATE SECTION.
 
-    DATA mo_differ TYPE REF TO zcl_htmldiff.
+    DATA mo_htmldiff TYPE REF TO zcl_differ_htmldiff.
 
     METHODS:
       setup,
@@ -1044,33 +1044,33 @@ ENDCLASS.
 CLASS ltcl_html_to_token IMPLEMENTATION.
 
   METHOD setup.
-    CREATE OBJECT mo_differ.
-    mo_differ->_inject( abap_true ).
+    CREATE OBJECT mo_htmldiff.
+    mo_htmldiff->_inject( abap_true ).
   ENDMETHOD.
 
   METHOD test.
 
     DATA:
-      lv_token  TYPE zcl_htmldiff=>ty_token,
-      lt_tokens TYPE zcl_htmldiff=>ty_tokens,
-      lt_exp    TYPE zcl_htmldiff=>ty_tokens.
+      lv_token  TYPE zcl_differ_htmldiff=>ty_token,
+      lt_tokens TYPE zcl_differ_htmldiff=>ty_tokens,
+      lt_exp    TYPE zcl_differ_htmldiff=>ty_tokens.
 
     " when called with text, should return 7
-    lt_tokens = mo_differ->html_to_tokens( 'this is a test' ).
+    lt_tokens = mo_htmldiff->html_to_tokens( 'this is a test' ).
 
     cl_abap_unit_assert=>assert_equals(
       act = lines( lt_tokens )
       exp = 7 ).
 
     " when called with html, should return 11
-    lt_tokens = mo_differ->html_to_tokens( '<p>this is a <strong>test</strong></p>' ).
+    lt_tokens = mo_htmldiff->html_to_tokens( '<p>this is a <strong>test</strong></p>' ).
 
     cl_abap_unit_assert=>assert_equals(
       act = lines( lt_tokens )
       exp = 11 ).
 
     " should identify contiguous whitespace as a single token
-    lt_tokens = mo_differ->html_to_tokens( `a   b` ).
+    lt_tokens = mo_htmldiff->html_to_tokens( `a   b` ).
 
     cl_abap_unit_assert=>assert_equals(
       act = lines( lt_tokens )
@@ -1084,7 +1084,7 @@ CLASS ltcl_html_to_token IMPLEMENTATION.
       exp = `   ` ).
 
     " should identify a single space as a single token
-    lt_tokens = mo_differ->html_to_tokens( ` a b ` ).
+    lt_tokens = mo_htmldiff->html_to_tokens( ` a b ` ).
 
     cl_abap_unit_assert=>assert_equals(
       act = lines( lt_tokens )
@@ -1098,7 +1098,7 @@ CLASS ltcl_html_to_token IMPLEMENTATION.
       exp = ` ` ).
 
     " should identify self closing tags as tokens
-    lt_tokens = mo_differ->html_to_tokens( '<p>hello</br>goodbye</p>' ).
+    lt_tokens = mo_htmldiff->html_to_tokens( '<p>hello</br>goodbye</p>' ).
 
     APPEND '<p>' TO lt_exp.
     APPEND 'hello' TO lt_exp.
@@ -1117,7 +1117,7 @@ ENDCLASS.
 ******
 
 CLASS ltcl_render_operations DEFINITION DEFERRED.
-CLASS zcl_htmldiff DEFINITION LOCAL FRIENDS ltcl_render_operations.
+CLASS zcl_differ_htmldiff DEFINITION LOCAL FRIENDS ltcl_render_operations.
 
 CLASS ltcl_render_operations DEFINITION FOR TESTING
   DURATION SHORT
@@ -1125,7 +1125,7 @@ CLASS ltcl_render_operations DEFINITION FOR TESTING
 
   PRIVATE SECTION.
 
-    DATA mo_differ TYPE REF TO zcl_htmldiff.
+    DATA mo_htmldiff TYPE REF TO zcl_differ_htmldiff.
 
     METHODS:
       setup,
@@ -1149,16 +1149,16 @@ ENDCLASS.
 CLASS ltcl_render_operations IMPLEMENTATION.
 
   METHOD setup.
-    CREATE OBJECT mo_differ.
-    mo_differ->_inject( abap_true ).
+    CREATE OBJECT mo_htmldiff.
+    mo_htmldiff->_inject( abap_true ).
   ENDMETHOD.
 
   METHOD render_operations.
 
     DATA:
-      lt_before TYPE zcl_htmldiff=>ty_tokens,
-      lt_after  TYPE zcl_htmldiff=>ty_tokens,
-      lt_ops    TYPE zcl_htmldiff=>ty_operations.
+      lt_before TYPE zcl_differ_htmldiff=>ty_tokens,
+      lt_after  TYPE zcl_differ_htmldiff=>ty_tokens,
+      lt_ops    TYPE zcl_differ_htmldiff=>ty_operations.
 
     SPLIT iv_before AT space INTO TABLE lt_before.
     SPLIT iv_after  AT space INTO TABLE lt_after.
@@ -1166,12 +1166,12 @@ CLASS ltcl_render_operations IMPLEMENTATION.
     REPLACE ALL OCCURRENCES OF '_' IN TABLE lt_before WITH ` `.
     REPLACE ALL OCCURRENCES OF '_' IN TABLE lt_after  WITH ` `.
 
-    lt_ops = mo_differ->calculate_operations( it_before_tokens = lt_before
-                                              it_after_tokens  = lt_after ).
+    lt_ops = mo_htmldiff->calculate_operations( it_before_tokens = lt_before
+                                                it_after_tokens  = lt_after ).
 
-    rv_result = mo_differ->render_operations( it_before_tokens = lt_before
-                                              it_after_tokens  = lt_after
-                                              it_operations    = lt_ops ).
+    rv_result = mo_htmldiff->render_operations( it_before_tokens = lt_before
+                                                it_after_tokens  = lt_after
+                                                it_operations    = lt_ops ).
 
   ENDMETHOD.
 
