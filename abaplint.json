@@ -33,8 +33,7 @@
 			"allowed": [
 				"CLAS",
 				"DEVC",
-				"INTF",
-				"PROG"
+				"INTF"
 			],
 			"exclude": [],
 			"severity": "Error"
