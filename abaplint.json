@@ -728,6 +728,6 @@
 		"errorNamespace": "^(LCL_|LIF_|Y|Z)",
 		"globalConstants": [],
 		"globalMacros": [],
-		"version": "v740sp02"
+		"version": "v740sp08"
 	}
 }
