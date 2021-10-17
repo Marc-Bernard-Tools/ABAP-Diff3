@@ -40,6 +40,7 @@ CLASS lcl_helper IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD htmldiff.
+
     DATA li_htmldiff TYPE REF TO zif_differ_htmldiff.
 
     li_htmldiff = NEW zcl_differ_htmldiff(
@@ -50,9 +51,11 @@ CLASS lcl_helper IMPLEMENTATION.
       iv_before   = iv_before
       iv_after    = iv_after
       iv_with_img = iv_with_img ).
+
   ENDMETHOD.
 
   METHOD textdiff.
+
     DATA li_htmldiff TYPE REF TO zif_differ_htmldiff.
 
     li_htmldiff = NEW zcl_differ_htmldiff( ).
@@ -60,6 +63,7 @@ CLASS lcl_helper IMPLEMENTATION.
     rv_result = li_htmldiff->textdiff(
       iv_before = iv_before
       iv_after  = iv_after ).
+
   ENDMETHOD.
 
 ENDCLASS.
@@ -78,7 +82,8 @@ CLASS ltcl_textdiff_test DEFINITION FOR TESTING
       insert_a_letter_and_a_space FOR TESTING,
       remove_a_letter_and_a_space FOR TESTING,
       change_a_letter FOR TESTING,
-      with_tags FOR TESTING.
+      change_between_tags FOR TESTING,
+      change_inside_tag FOR TESTING.
 
 ENDCLASS.
 
@@ -126,13 +131,27 @@ CLASS ltcl_textdiff_test IMPLEMENTATION.
 
   ENDMETHOD.
 
-  METHOD with_tags.
+  METHOD change_between_tags.
 
     DATA(lv_act) = lcl_helper=>textdiff(
       iv_before = 'a <strong>b</strong> c'
       iv_after  = 'a <strong>d</strong> c' ).
 
     DATA(lv_exp) = 'a <strong><del>b</del><ins>d</ins></strong> c'.
+
+    cl_abap_unit_assert=>assert_equals(
+      act = lv_act
+      exp = lv_exp ).
+
+  ENDMETHOD.
+
+  METHOD change_inside_tag.
+
+    DATA(lv_act) = lcl_helper=>textdiff(
+      iv_before = 'a <i class="icon"></i> c'
+      iv_after  = 'a <i class="text"></i> c' ).
+
+    DATA(lv_exp) = 'a <i class="<del>icon</del><ins>text</ins>"></i> c'.
 
     cl_abap_unit_assert=>assert_equals(
       act = lv_act
@@ -159,7 +178,9 @@ CLASS ltcl_htmldiff_test_1 DEFINITION FOR TESTING
     METHODS:
       setup,
       test_ignore_image FOR TESTING,
-      test_with_image FOR TESTING.
+      test_with_image FOR TESTING,
+      change_between_tags FOR TESTING,
+      change_inside_tag FOR TESTING.
 
 ENDCLASS.
 
@@ -228,6 +249,36 @@ CLASS ltcl_htmldiff_test_1 IMPLEMENTATION.
       && '    </ul>\n'
       && '    <del><img src="previous.jpg"></del><ins><img src="next.jpg"></ins>\n'
       && '    <span>This is some <del>interesting</del><ins>new</ins> text.</span>\n' ).
+
+    cl_abap_unit_assert=>assert_equals(
+      act = lv_act
+      exp = lv_exp ).
+
+  ENDMETHOD.
+
+  METHOD change_between_tags.
+
+    DATA(lv_act) = lcl_helper=>htmldiff(
+      iv_before = 'a <strong>b</strong> c'
+      iv_after  = 'a <strong>d</strong> c' ).
+
+    DATA(lv_exp) = 'a <strong><del>b</del><ins>d</ins></strong> c'.
+
+    cl_abap_unit_assert=>assert_equals(
+      act = lv_act
+      exp = lv_exp ).
+
+  ENDMETHOD.
+
+  METHOD change_inside_tag.
+
+    " Difference inside an HTML tag will be include with before and after version of complete tag
+    " Odd, but that's how original htmldiff.js works
+    DATA(lv_act) = lcl_helper=>htmldiff(
+      iv_before = 'a <i class="icon"></i> c'
+      iv_after  = 'a <i class="text"></i> c' ).
+
+    DATA(lv_exp) = 'a <i class="icon"><i class="text"></i> c'.
 
     cl_abap_unit_assert=>assert_equals(
       act = lv_act

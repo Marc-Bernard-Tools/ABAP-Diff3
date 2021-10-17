@@ -53,8 +53,11 @@ CLASS zcl_differ_htmldiff DEFINITION
       ty_index_tab TYPE HASHED TABLE OF ty_index_row WITH UNIQUE KEY token.
 
     TYPES:
+      ty_action TYPE string.
+
+    TYPES:
       BEGIN OF ty_operation,
-        action          TYPE string,
+        action          TYPE ty_action,
         start_in_before TYPE i,
         end_in_before   TYPE i,
         start_in_after  TYPE i,
@@ -65,13 +68,13 @@ CLASS zcl_differ_htmldiff DEFINITION
 
     CONSTANTS:
       BEGIN OF c_action,
-        none    TYPE string VALUE 'none',
-        equal   TYPE string VALUE 'equal',
-        insert  TYPE string VALUE 'insert',
-        delete  TYPE string VALUE 'delete',
-        insmod  TYPE string VALUE 'insmod',
-        delmod  TYPE string VALUE 'delmod',
-        replace TYPE string VALUE 'replace',
+        none    TYPE ty_action VALUE 'none',
+        equal   TYPE ty_action VALUE 'equal',
+        insert  TYPE ty_action VALUE 'insert',
+        delete  TYPE ty_action VALUE 'delete',
+        insmod  TYPE ty_action VALUE 'insmod',
+        delmod  TYPE ty_action VALUE 'delmod',
+        replace TYPE ty_action VALUE 'replace',
       END OF c_action.
 
     METHODS diff
@@ -233,7 +236,6 @@ CLASS zcl_differ_htmldiff DEFINITION
         !iv_after        TYPE string
       RETURNING
         VALUE(rv_result) TYPE string.
-
   PRIVATE SECTION.
 
     CONSTANTS:
@@ -483,39 +485,23 @@ CLASS zcl_differ_htmldiff IMPLEMENTATION.
 
   METHOD create_index.
 
-    DATA:
-      ls_index TYPE ty_index_row,
-      lt_index TYPE ty_index_tab.
+    DATA ls_index TYPE ty_index_row.
 
     LOOP AT it_find_these ASSIGNING FIELD-SYMBOL(<lv_token>).
 
-      READ TABLE lt_index ASSIGNING FIELD-SYMBOL(<ls_index>) WITH TABLE KEY token = <lv_token>.
+      READ TABLE rt_result ASSIGNING FIELD-SYMBOL(<ls_index>) WITH TABLE KEY token = <lv_token>.
       IF sy-subrc <> 0.
         CLEAR ls_index.
         ls_index-token = <lv_token>.
-        INSERT ls_index INTO TABLE lt_index ASSIGNING <ls_index>.
+        INSERT ls_index INTO TABLE rt_result ASSIGNING <ls_index>.
       ENDIF.
 
-      DATA(lv_idx) = 1.
-      DO.
-        LOOP AT it_in_these INTO DATA(lv_token) FROM lv_idx WHERE table_line = <lv_token>.
-          lv_idx = sy-tabix.
-          EXIT.
-        ENDLOOP.
-        IF sy-subrc <> 0.
-          EXIT.
-        ENDIF.
-        lv_idx = lv_idx - 1.
+      LOOP AT it_in_these TRANSPORTING NO FIELDS WHERE table_line = <lv_token>.
+        DATA(lv_idx) = sy-tabix - 1.
         COLLECT lv_idx INTO <ls_index>-locations.
-        lv_idx = lv_idx + 2.
-        IF lv_idx > lines( it_in_these ).
-          EXIT.
-        ENDIF.
-      ENDDO.
+      ENDLOOP.
 
     ENDLOOP.
-
-    rt_result = lt_index.
 
   ENDMETHOD.
 
@@ -832,7 +818,7 @@ CLASS zcl_differ_htmldiff IMPLEMENTATION.
 
   METHOD is_tag_end.
 
-    rv_result = boolc( iv_token(1) = c_tag-end AND mv_with_tags = abap_true ).
+    rv_result = xsdbool( iv_token(1) = c_tag-end AND mv_with_tags = abap_true ).
 
   ENDMETHOD.
 
