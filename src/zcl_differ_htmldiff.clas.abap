@@ -839,10 +839,8 @@ CLASS zcl_differ_htmldiff IMPLEMENTATION.
 
   METHOD is_whitespace.
 
-    DATA lv_whitespace TYPE string.
-
     "/^\s+$/
-    lv_whitespace = ` ` && cl_abap_char_utilities=>horizontal_tab && cl_abap_char_utilities=>cr_lf.
+    DATA(lv_whitespace) = ` ` && cl_abap_char_utilities=>horizontal_tab && cl_abap_char_utilities=>cr_lf.
 
     rv_result = boolc( iv_input CO lv_whitespace ).
 
@@ -851,16 +849,11 @@ CLASS zcl_differ_htmldiff IMPLEMENTATION.
 
   METHOD operation.
 
-    DATA:
-      lt_val    TYPE ty_tokens,
-      ls_op_del TYPE ty_operation,
-      ls_op_ins TYPE ty_operation.
-
     CASE is_op-action.
       WHEN c_action-equal.
-        lt_val = _slice( it_tokens = it_before_tokens
-                         iv_start  = is_op-start_in_before
-                         iv_end    = _get_end( is_op-end_in_before ) ).
+        DATA(lt_val) = _slice( it_tokens = it_before_tokens
+                               iv_start  = is_op-start_in_before
+                               iv_end    = _get_end( is_op-end_in_before ) ).
         rv_result = _join( lt_val ).
 
       WHEN c_action-insert OR c_action-insmod.
@@ -892,7 +885,8 @@ CLASS zcl_differ_htmldiff IMPLEMENTATION.
         ENDIF.
 
       WHEN c_action-replace.
-        ls_op_del = ls_op_ins = is_op.
+        DATA(ls_op_del) = is_op.
+        DATA(ls_op_ins) = is_op.
         IF mv_css_classes = abap_true.
           ls_op_del-action = c_action-delmod.
           ls_op_ins-action = c_action-insmod.
@@ -963,19 +957,13 @@ CLASS zcl_differ_htmldiff IMPLEMENTATION.
 
   METHOD render_operations.
 
-    DATA:
-      ls_op        TYPE ty_operation,
-      lv_rendering TYPE string.
+    LOOP AT it_operations INTO DATA(ls_op).
 
-    LOOP AT it_operations INTO ls_op.
-
-      lv_rendering = lv_rendering && operation( is_op            = ls_op
-                                                it_before_tokens = it_before_tokens
-                                                it_after_tokens  = it_after_tokens ).
+      rv_result = rv_result && operation( is_op            = ls_op
+                                          it_before_tokens = it_before_tokens
+                                          it_after_tokens  = it_after_tokens ).
 
     ENDLOOP.
-
-    rv_result = lv_rendering.
 
   ENDMETHOD.
 
@@ -1005,27 +993,21 @@ CLASS zcl_differ_htmldiff IMPLEMENTATION.
 
   METHOD wrap.
 
-    DATA:
-      lv_length    TYPE i,
-      lv_position  TYPE i,
-      lt_non_tags  TYPE ty_tokens,
-      lt_tags      TYPE ty_tokens,
-      lv_rendering TYPE string.
-
-    lv_length = lines( it_content ).
+    DATA(lv_length)   = lines( it_content ).
+    DATA(lv_position) = 0.
 
     DO.
       IF lv_position >= lv_length.
         EXIT.
       ENDIF.
 
-      lt_non_tags = consecutive_where( iv_start   = lv_position
-                                       it_content = it_content
-                                       is_tag     = abap_false ).
+      DATA(lt_non_tags) = consecutive_where( iv_start   = lv_position
+                                             it_content = it_content
+                                             is_tag     = abap_false ).
       lv_position = lv_position + lines( lt_non_tags ).
 
       IF lines( lt_non_tags ) <> 0.
-        lv_rendering = lv_rendering &&
+        rv_result = rv_result &&
           |<{ iv_tag(3) }{ _get_class( iv_tag ) }>| && _join( lt_non_tags ) && |</{ iv_tag(3) }>|.
       ENDIF.
 
@@ -1033,27 +1015,20 @@ CLASS zcl_differ_htmldiff IMPLEMENTATION.
         EXIT.
       ENDIF.
 
-      lt_tags = consecutive_where( iv_start   = lv_position
-                                   it_content = it_content
-                                   is_tag     = abap_true ).
+      DATA(lt_tags) = consecutive_where( iv_start   = lv_position
+                                         it_content = it_content
+                                         is_tag     = abap_true ).
       lv_position = lv_position + lines( lt_tags ).
 
       IF lines( lt_tags ) <> 0.
-        lv_rendering = lv_rendering && _join( lt_tags ).
+        rv_result = rv_result && _join( lt_tags ).
       ENDIF.
     ENDDO.
-
-    rv_result = lv_rendering.
 
   ENDMETHOD.
 
 
   METHOD zif_differ_htmldiff~htmldiff.
-
-    DATA:
-      lt_before_tokens TYPE ty_tokens,
-      lt_after_tokens  TYPE ty_tokens,
-      lt_ops           TYPE ty_operations.
 
     mv_with_img  = iv_with_img.
     mv_with_tags = abap_true.
@@ -1062,10 +1037,10 @@ CLASS zcl_differ_htmldiff IMPLEMENTATION.
       rv_result = render_simple( iv_before  = iv_before
                                  iv_after   = iv_after ).
     ELSE.
-      lt_before_tokens = html_to_tokens( iv_before ).
-      lt_after_tokens  = html_to_tokens( iv_after ).
+      DATA(lt_before_tokens) = html_to_tokens( iv_before ).
+      DATA(lt_after_tokens)  = html_to_tokens( iv_after ).
 
-      lt_ops = calculate_operations( it_before_tokens = lt_before_tokens
+      DATA(lt_ops) = calculate_operations( it_before_tokens = lt_before_tokens
                                      it_after_tokens  = lt_after_tokens ).
 
       rv_result = render_operations( it_before_tokens = lt_before_tokens
@@ -1078,11 +1053,6 @@ CLASS zcl_differ_htmldiff IMPLEMENTATION.
 
   METHOD zif_differ_htmldiff~textdiff.
 
-    DATA:
-      lt_before_tokens TYPE ty_tokens,
-      lt_after_tokens  TYPE ty_tokens,
-      lt_ops           TYPE ty_operations.
-
     mv_with_img  = abap_false.
     mv_with_tags = abap_false.
 
@@ -1090,11 +1060,11 @@ CLASS zcl_differ_htmldiff IMPLEMENTATION.
       rv_result = render_simple( iv_before  = iv_before
                                  iv_after   = iv_after ).
     ELSE.
-      lt_before_tokens = html_to_tokens( iv_before ).
-      lt_after_tokens  = html_to_tokens( iv_after ).
+      DATA(lt_before_tokens) = html_to_tokens( iv_before ).
+      DATA(lt_after_tokens)  = html_to_tokens( iv_after ).
 
-      lt_ops = calculate_operations( it_before_tokens = lt_before_tokens
-                                     it_after_tokens  = lt_after_tokens ).
+      DATA(lt_ops) = calculate_operations( it_before_tokens = lt_before_tokens
+                                           it_after_tokens  = lt_after_tokens ).
 
       rv_result = render_operations( it_before_tokens = lt_before_tokens
                                      it_after_tokens  = lt_after_tokens
@@ -1106,12 +1076,10 @@ CLASS zcl_differ_htmldiff IMPLEMENTATION.
 
   METHOD _get_class.
 
-    DATA lv_class TYPE string.
-
     IF mv_css_classes = abap_true.
       CASE iv_tag.
         WHEN c_tag-ins.
-          lv_class = c_tag_class-insert.
+          DATA(lv_class) = c_tag_class-insert.
         WHEN c_tag-del.
           lv_class = c_tag_class-delete.
         WHEN c_tag-insmod OR c_tag-delmod.
@@ -1142,9 +1110,7 @@ CLASS zcl_differ_htmldiff IMPLEMENTATION.
 
   METHOD _join.
 
-    DATA lv_token TYPE ty_token.
-
-    LOOP AT it_tokens INTO lv_token.
+    LOOP AT it_tokens INTO DATA(lv_token).
 
       IF sy-tabix > 1.
         rv_result = rv_result && iv_separator.
@@ -1181,10 +1147,8 @@ CLASS zcl_differ_htmldiff IMPLEMENTATION.
 
   METHOD _slice.
 
-    DATA lv_token TYPE ty_token.
-
     " select from start to end (end not included!)
-    LOOP AT it_tokens INTO lv_token FROM iv_start + 1 TO iv_end.
+    LOOP AT it_tokens INTO DATA(lv_token) FROM iv_start + 1 TO iv_end.
 
       APPEND lv_token TO rt_result.
 
