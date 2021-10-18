@@ -452,5 +452,57 @@ CLASS ltcl_abap_code IMPLEMENTATION.
       it_buffer1 = mt_old
       it_buffer2 = mt_new ).
 
+    cl_abap_unit_assert=>assert_equals(
+      act = lt_result[ 1 ]-buffer1-key
+      exp = 3 ).
+    cl_abap_unit_assert=>assert_equals(
+      act = lt_result[ 1 ]-buffer1-len
+      exp = 0 ).
+    cl_abap_unit_assert=>assert_equals(
+      act = lt_result[ 1 ]-buffer2-key
+      exp = 3 ).
+    cl_abap_unit_assert=>assert_equals(
+      act = lt_result[ 1 ]-buffer2-len
+      exp = 1 ).
+
+    cl_abap_unit_assert=>assert_equals(
+      act = lt_result[ 2 ]-buffer1-key
+      exp = 5 ).
+    cl_abap_unit_assert=>assert_equals(
+      act = lt_result[ 2 ]-buffer1-len
+      exp = 1 ).
+    cl_abap_unit_assert=>assert_equals(
+      act = lt_result[ 2 ]-buffer2-key
+      exp = 6 ).
+    cl_abap_unit_assert=>assert_equals(
+      act = lt_result[ 2 ]-buffer2-len
+      exp = 1 ).
+
+    cl_abap_unit_assert=>assert_equals(
+      act = lt_result[ 3 ]-buffer1-key
+      exp = 8 ).
+    cl_abap_unit_assert=>assert_equals(
+      act = lt_result[ 3 ]-buffer1-len
+      exp = 1 ).
+    cl_abap_unit_assert=>assert_equals(
+      act = lt_result[ 3 ]-buffer2-key
+      exp = 9 ).
+    cl_abap_unit_assert=>assert_equals(
+      act = lt_result[ 3 ]-buffer2-len
+      exp = 0 ).
+
+    cl_abap_unit_assert=>assert_equals(
+      act = lt_result[ 4 ]-buffer1-key
+      exp = 18 ).
+    cl_abap_unit_assert=>assert_equals(
+      act = lt_result[ 4 ]-buffer1-len
+      exp = 1 ).
+    cl_abap_unit_assert=>assert_equals(
+      act = lt_result[ 4 ]-buffer2-key
+      exp = 18 ).
+    cl_abap_unit_assert=>assert_equals(
+      act = lt_result[ 4 ]-buffer2-len
+      exp = 1 ).
+
   ENDMETHOD.
 ENDCLASS.

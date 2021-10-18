@@ -24,35 +24,52 @@ INTERFACE zif_differ_diff3
     END OF ty_number_number.
 
   TYPES:
-    BEGIN OF ty_ilcsresult,
+    BEGIN OF ty_lcsresult,
       key          TYPE i,
       buffer1index TYPE ty_number,
       buffer2index TYPE ty_number,
       chain        TYPE i, " ref to ilcsresult-key
-    END OF ty_ilcsresult.
+    END OF ty_lcsresult.
   TYPES:
-    ty_ilcsresult_t TYPE SORTED TABLE OF ty_ilcsresult WITH UNIQUE KEY key.
+    ty_lcsresult_t TYPE SORTED TABLE OF ty_lcsresult WITH UNIQUE KEY key.
 
   TYPES:
-    BEGIN OF ty_icommresult,
+    BEGIN OF ty_commresult,
       common TYPE string_table,
       BEGIN OF diff,
         buffer1 TYPE string_table,
         buffer2 TYPE string_table,
       END OF diff,
-    END OF ty_icommresult.
+    END OF ty_commresult.
   TYPES:
-    ty_icommresult_t TYPE STANDARD TABLE OF ty_icommresult WITH DEFAULT KEY.
+    ty_commresult_t TYPE STANDARD TABLE OF ty_commresult WITH DEFAULT KEY.
 
   TYPES:
-    BEGIN OF ty_idiffindicesresult,
+    BEGIN OF ty_diffindicesresult,
       buffer1        TYPE ty_number_number,
       buffer1content TYPE string_table,
       buffer2        TYPE ty_number_number,
       buffer2content TYPE string_table,
-    END OF ty_idiffindicesresult.
+    END OF ty_diffindicesresult.
   TYPES:
-    ty_idiffindicesresult_t TYPE STANDARD TABLE OF ty_idiffindicesresult WITH DEFAULT KEY.
+    ty_diffindicesresult_t TYPE STANDARD TABLE OF ty_diffindicesresult WITH DEFAULT KEY.
+
+  TYPES:
+    BEGIN OF ty_chunk,
+      offset TYPE ty_number,
+      length TYPE ty_number,
+      chunk  TYPE string_table,
+    END OF ty_chunk.
+  TYPES:
+    ty_chunk_t TYPE STANDARD TABLE OF ty_chunk WITH DEFAULT KEY.
+
+  TYPES:
+    BEGIN OF ty_patchres,
+      buffer1 TYPE ty_chunk,
+      buffer2 TYPE ty_chunk,
+    END OF ty_patchres.
+  TYPES:
+    ty_patchres_t TYPE STANDARD TABLE OF ty_patchres WITH DEFAULT KEY.
 
   "! Expects two arrays, finds longest common sequence
   METHODS lcs
@@ -60,7 +77,7 @@ INTERFACE zif_differ_diff3
       !it_buffer1      TYPE string_table
       !it_buffer2      TYPE string_table
     RETURNING
-      VALUE(rt_result) TYPE ty_ilcsresult_t.
+      VALUE(rt_result) TYPE ty_lcsresult_t.
 
   "! We apply the LCS to build a 'comm'-style picture of the
   "! differences between buffer1 and buffer2.
@@ -69,7 +86,7 @@ INTERFACE zif_differ_diff3
       !it_buffer1      TYPE string_table
       !it_buffer2      TYPE string_table
     RETURNING
-      VALUE(rt_result) TYPE ty_icommresult_t.
+      VALUE(rt_result) TYPE ty_commresult_t.
 
   "! We apply the LCS to give a simple representation of the
   "! offsets and lengths of mismatched chunks in the input
@@ -79,6 +96,22 @@ INTERFACE zif_differ_diff3
       !it_buffer1      TYPE string_table
       !it_buffer2      TYPE string_table
     RETURNING
-      VALUE(rt_result) TYPE ty_idiffindicesresult_t.
+      VALUE(rt_result) TYPE ty_diffindicesresult_t.
+
+  "! We apply the LCS to build a JSON representation of a
+  "! diff(1)-style patch.
+  METHODS diff_patch
+    IMPORTING
+      !it_buffer1      TYPE string_table
+      !it_buffer2      TYPE string_table
+    RETURNING
+      VALUE(rt_result) TYPE ty_patchres_t.
+
+  METHODS patch
+    IMPORTING
+      !it_buffer       TYPE string_table
+      !it_patchres     TYPE ty_patchres_t
+    RETURNING
+      VALUE(rt_result) TYPE string_table.
 
 ENDINTERFACE.

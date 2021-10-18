@@ -19,9 +19,17 @@ CLASS zcl_differ_diff3 DEFINITION
 
     CLASS-METHODS convert_to_abap_indices
       CHANGING
-        !ct_diff_indices TYPE zif_differ_diff3=>ty_idiffindicesresult_t OPTIONAL.
+        !ct_diff_indices TYPE zif_differ_diff3=>ty_diffindicesresult_t OPTIONAL.
 
   PROTECTED SECTION.
+
+    METHODS chunk_description
+      IMPORTING
+        !it_buffer       TYPE string_table
+        !iv_offset       TYPE zif_differ_diff3=>ty_number
+        !iv_length       TYPE zif_differ_diff3=>ty_number
+      RETURNING
+        VALUE(rs_result) TYPE zif_differ_diff3=>ty_chunk .
   PRIVATE SECTION.
 
     METHODS _reverse
@@ -44,6 +52,18 @@ ENDCLASS.
 CLASS zcl_differ_diff3 IMPLEMENTATION.
 
 
+  METHOD chunk_description.
+
+    rs_result-offset = iv_offset.
+    rs_result-length = iv_length.
+
+    DO iv_length TIMES.
+      APPEND it_buffer[ iv_offset + sy-index ] TO rs_result-chunk.
+    ENDDO.
+
+  ENDMETHOD.
+
+
   METHOD convert_to_abap_indices.
 
     LOOP AT ct_diff_indices ASSIGNING FIELD-SYMBOL(<ls_diff_indices>).
@@ -60,11 +80,11 @@ CLASS zcl_differ_diff3 IMPLEMENTATION.
 
     DATA:
       ls_res       LIKE LINE OF rt_result,
-      ls_different TYPE zif_differ_diff3=>ty_icommresult-diff,
-      lt_common    TYPE zif_differ_diff3=>ty_icommresult-common.
+      ls_different TYPE zif_differ_diff3=>ty_commresult-diff,
+      lt_common    TYPE zif_differ_diff3=>ty_commresult-common.
 
     DATA(lt_lcs) = zif_differ_diff3~lcs( it_buffer1 = it_buffer1
-                                  it_buffer2 = it_buffer2 ).
+                                         it_buffer2 = it_buffer2 ).
 
     DATA(lv_tail1) = lines( it_buffer1 ).
     DATA(lv_tail2) = lines( it_buffer2 ).
@@ -131,7 +151,7 @@ CLASS zcl_differ_diff3 IMPLEMENTATION.
     DATA ls_result LIKE LINE OF rt_result.
 
     DATA(lt_lcs) = zif_differ_diff3~lcs( it_buffer1 = it_buffer1
-                                  it_buffer2 = it_buffer2 ).
+                                         it_buffer2 = it_buffer2 ).
 
     DATA(lv_tail1) = lines( it_buffer1 ).
     DATA(lv_tail2) = lines( it_buffer2 ).
@@ -168,6 +188,46 @@ CLASS zcl_differ_diff3 IMPLEMENTATION.
   ENDMETHOD.
 
 
+  METHOD zif_differ_diff3~diff_patch.
+    " We apply the LCS to build a JSON representation of a
+    " diff(1)-style patch.
+
+    DATA ls_result LIKE LINE OF rt_result.
+
+    DATA(lt_lcs) = zif_differ_diff3~lcs( it_buffer1 = it_buffer1
+                                         it_buffer2 = it_buffer2 ).
+
+    DATA(lv_tail1) = lines( it_buffer1 ).
+    DATA(lv_tail2) = lines( it_buffer2 ).
+
+    DATA(ls_candidate) = lt_lcs[ key = lines( lt_lcs ) - 1 ].
+    DO.
+      IF ls_candidate-chain = -1.
+        EXIT.
+      ENDIF.
+
+      DATA(lv_mismatchlength1) = lv_tail1 - ls_candidate-buffer1index - 1.
+      DATA(lv_mismatchlength2) = lv_tail2 - ls_candidate-buffer2index - 1.
+      lv_tail1 = ls_candidate-buffer1index.
+      lv_tail2 = ls_candidate-buffer2index.
+
+      IF lv_mismatchlength1 > 0 OR lv_mismatchlength2 > 0.
+        CLEAR ls_result.
+        ls_result-buffer1 = chunk_description( it_buffer = it_buffer1
+                                               iv_offset = lv_tail1 + 1
+                                               iv_length = lv_mismatchlength1 ).
+        ls_result-buffer2 = chunk_description( it_buffer = it_buffer2
+                                               iv_offset = lv_tail2 + 1
+                                               iv_length = lv_mismatchlength2 ).
+        INSERT ls_result INTO rt_result INDEX 1.
+      ENDIF.
+
+      ls_candidate = lt_lcs[ key = ls_candidate-chain ].
+    ENDDO.
+
+  ENDMETHOD.
+
+
   METHOD zif_differ_diff3~lcs.
     " Text diff algorithm following Hunt and McIlroy 1976.
     " J. W. Hunt and M. D. McIlroy, An algorithm for differential buffer
@@ -186,9 +246,9 @@ CLASS zcl_differ_diff3 IMPLEMENTATION.
     DATA:
       ls_equivalenceclass   TYPE ty_equivalenceclass,
       lt_equivalenceclasses TYPE HASHED TABLE OF ty_equivalenceclass WITH UNIQUE KEY key,
-      ls_nullresult         TYPE zif_differ_diff3=>ty_ilcsresult,
-      lt_candidates         TYPE zif_differ_diff3=>ty_ilcsresult_t,
-      ls_newcandidate       TYPE zif_differ_diff3=>ty_ilcsresult.
+      ls_nullresult         TYPE zif_differ_diff3=>ty_lcsresult,
+      lt_candidates         TYPE zif_differ_diff3=>ty_lcsresult_t,
+      ls_newcandidate       TYPE zif_differ_diff3=>ty_lcsresult.
 
     DATA(lv_j) = 0.
     LOOP AT it_buffer2 ASSIGNING FIELD-SYMBOL(<lv_buffer2>).
@@ -273,6 +333,33 @@ CLASS zcl_differ_diff3 IMPLEMENTATION.
     " linked-list through chain of candidates[ lines( candidates ) - 1 ].
 
     rt_result = lt_candidates.
+
+  ENDMETHOD.
+
+
+  METHOD zif_differ_diff3~patch.
+    " Applies a patch to a buffer.
+    " Given buffer1 and buffer2, `patch(buffer1, diffPatch(buffer1, buffer2))` should give buffer2.
+
+    DATA(lv_curroffset) = 0.
+
+    LOOP AT it_patchres ASSIGNING FIELD-SYMBOL(<ls_patch>).
+      WHILE lv_curroffset < <ls_patch>-buffer1-offset.
+        APPEND it_buffer[ lv_curroffset + 1 ] TO rt_result.
+        lv_curroffset = lv_curroffset + 1.
+      ENDWHILE.
+
+      DO <ls_patch>-buffer2-length TIMES.
+        APPEND <ls_patch>-buffer2-chunk[ sy-index ] TO rt_result.
+      ENDDO.
+
+      lv_curroffset = lv_curroffset + <ls_patch>-buffer1-length.
+    ENDLOOP.
+
+    WHILE lv_curroffset < lines( it_buffer ).
+      APPEND it_buffer[ lv_curroffset + 1 ] TO rt_result.
+      lv_curroffset = lv_curroffset + 1.
+    ENDWHILE.
 
   ENDMETHOD.
 
