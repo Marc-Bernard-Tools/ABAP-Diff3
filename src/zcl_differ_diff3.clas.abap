@@ -19,7 +19,7 @@ CLASS zcl_differ_diff3 DEFINITION
 
     CLASS-METHODS convert_to_abap_indices
       CHANGING
-        !ct_diff_indices TYPE zif_differ_diff3=>ty_diffindicesresult_t OPTIONAL.
+        !ct_diff_indices TYPE zif_differ_diff3=>ty_diff_indices_result_t OPTIONAL.
 
   PROTECTED SECTION.
 
@@ -74,14 +74,20 @@ CLASS zcl_differ_diff3 IMPLEMENTATION.
   ENDMETHOD.
 
 
+  METHOD zif_differ_diff3~diff3_merge_regions.
+
+
+  ENDMETHOD.
+
+
   METHOD zif_differ_diff3~diff_comm.
     " We apply the LCS to build a 'comm'-style picture of the
     " differences between buffer1 and buffer2.
 
     DATA:
       ls_res       LIKE LINE OF rt_result,
-      ls_different TYPE zif_differ_diff3=>ty_commresult-diff,
-      lt_common    TYPE zif_differ_diff3=>ty_commresult-common.
+      ls_different TYPE zif_differ_diff3=>ty_comm_result-diff,
+      lt_common    TYPE zif_differ_diff3=>ty_comm_result-common.
 
     DATA(lt_lcs) = zif_differ_diff3~lcs( it_buffer1 = it_buffer1
                                          it_buffer2 = it_buffer2 ).
@@ -246,9 +252,9 @@ CLASS zcl_differ_diff3 IMPLEMENTATION.
     DATA:
       ls_equivalenceclass   TYPE ty_equivalenceclass,
       lt_equivalenceclasses TYPE HASHED TABLE OF ty_equivalenceclass WITH UNIQUE KEY key,
-      ls_nullresult         TYPE zif_differ_diff3=>ty_lcsresult,
-      lt_candidates         TYPE zif_differ_diff3=>ty_lcsresult_t,
-      ls_newcandidate       TYPE zif_differ_diff3=>ty_lcsresult.
+      ls_nullresult         TYPE zif_differ_diff3=>ty_lcs_result,
+      lt_candidates         TYPE zif_differ_diff3=>ty_lcs_result_t,
+      ls_newcandidate       TYPE zif_differ_diff3=>ty_lcs_result.
 
     DATA(lv_j) = 0.
     LOOP AT it_buffer2 ASSIGNING FIELD-SYMBOL(<lv_buffer2>).
