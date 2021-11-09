@@ -494,12 +494,11 @@ CLASS zcl_differ_htmldiff IMPLEMENTATION.
 
   METHOD create.
 
-    CREATE OBJECT ri_result TYPE zcl_differ_htmldiff
-      EXPORTING
-        iv_inserts         = iv_inserts
-        iv_deletes         = iv_deletes
-        iv_css_classes     = iv_css_classes
-        iv_support_chinese = iv_support_chinese.
+    ri_result = NEW zcl_differ_htmldiff(
+      iv_inserts         = iv_inserts
+      iv_deletes         = iv_deletes
+      iv_css_classes     = iv_css_classes
+      iv_support_chinese = iv_support_chinese ).
 
   ENDMETHOD.
 
