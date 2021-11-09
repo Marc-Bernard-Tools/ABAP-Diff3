@@ -25,6 +25,15 @@ CLASS zcl_differ_htmldiff DEFINITION
         !iv_css_classes     TYPE abap_bool DEFAULT abap_false
         !iv_support_chinese TYPE abap_bool DEFAULT abap_false.
 
+    CLASS-METHODS create
+      IMPORTING
+        !iv_inserts         TYPE abap_bool DEFAULT abap_true
+        !iv_deletes         TYPE abap_bool DEFAULT abap_true
+        !iv_css_classes     TYPE abap_bool DEFAULT abap_false
+        !iv_support_chinese TYPE abap_bool DEFAULT abap_false
+      RETURNING
+        VALUE(ri_result)    TYPE REF TO zif_differ_htmldiff.
+
   PROTECTED SECTION.
 
     TYPES:
@@ -82,7 +91,7 @@ CLASS zcl_differ_htmldiff DEFINITION
         !iv_before       TYPE string
         !iv_after        TYPE string
       RETURNING
-        VALUE(rt_result) TYPE ty_operations.
+        VALUE(rt_result) TYPE ty_operations ##CALLED.
 
     METHODS is_character
       IMPORTING
@@ -479,6 +488,18 @@ CLASS zcl_differ_htmldiff IMPLEMENTATION.
     mv_deletes         = iv_deletes.
     mv_css_classes     = iv_css_classes.
     mv_support_chinese = iv_support_chinese.
+
+  ENDMETHOD.
+
+
+  METHOD create.
+
+    CREATE OBJECT ri_result TYPE zcl_differ_htmldiff
+      EXPORTING
+        iv_inserts         = iv_inserts
+        iv_deletes         = iv_deletes
+        iv_css_classes     = iv_css_classes
+        iv_support_chinese = iv_support_chinese.
 
   ENDMETHOD.
 

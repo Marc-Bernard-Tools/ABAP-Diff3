@@ -41,9 +41,7 @@ CLASS lcl_helper IMPLEMENTATION.
 
   METHOD htmldiff.
 
-    DATA li_htmldiff TYPE REF TO zif_differ_htmldiff.
-
-    li_htmldiff = NEW zcl_differ_htmldiff(
+    DATA(li_htmldiff) = zcl_differ_htmldiff=>create(
       iv_css_classes     = iv_css
       iv_support_chinese = iv_chinese ).
 
@@ -56,9 +54,7 @@ CLASS lcl_helper IMPLEMENTATION.
 
   METHOD textdiff.
 
-    DATA li_htmldiff TYPE REF TO zif_differ_htmldiff.
-
-    li_htmldiff = NEW zcl_differ_htmldiff( ).
+    DATA(li_htmldiff) = zcl_differ_htmldiff=>create( ).
 
     rv_result = li_htmldiff->textdiff(
       iv_before = iv_before
