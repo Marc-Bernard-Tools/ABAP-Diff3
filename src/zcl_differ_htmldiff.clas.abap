@@ -619,7 +619,7 @@ CLASS zcl_differ_htmldiff IMPLEMENTATION.
 
   METHOD find_matching_blocks.
 
-    DATA lt_matching_blocks TYPE ty_matches.
+    DATA(lt_matching_blocks) = VALUE ty_matches( ).
 
     DATA(lt_index_of_before_in_after) = create_index( it_find_these = it_before_tokens
                                                       it_in_these   = it_after_tokens ).
