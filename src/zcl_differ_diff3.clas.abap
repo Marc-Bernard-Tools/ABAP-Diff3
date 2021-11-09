@@ -60,6 +60,18 @@ CLASS zcl_differ_diff3 DEFINITION
       CHANGING
         cv_curr_offset TYPE zif_differ_diff3=>ty_number
         ct_results     TYPE zif_differ_diff3=>ty_region_t.
+
+    METHODS flush_ok
+      CHANGING
+        !ct_buffer TYPE string_table
+        !ct_result TYPE zif_differ_diff3=>ty_merge_region_t.
+
+    METHODS get_labels
+      IMPORTING
+        !is_labels       TYPE zif_differ_diff3=>ty_labels
+      RETURNING
+        VALUE(rs_labels) TYPE zif_differ_diff3=>ty_labels.
+
   PRIVATE SECTION.
 
     METHODS _reverse
@@ -144,6 +156,40 @@ CLASS zcl_differ_diff3 IMPLEMENTATION.
   ENDMETHOD.
 
 
+  METHOD flush_ok.
+
+    DATA ls_result LIKE LINE OF ct_result.
+
+    IF ct_buffer IS NOT INITIAL.
+      INSERT LINES OF ct_buffer INTO TABLE ls_result-ok.
+      INSERT ls_result INTO TABLE ct_result.
+      CLEAR ct_buffer.
+    ENDIF.
+
+  ENDMETHOD.
+
+
+  METHOD get_labels.
+
+    rs_labels = VALUE #(
+      a = `<<<<<<<`
+      o = `|||||||`
+      x = `=======`
+      b = `>>>>>>>` ).
+
+    IF is_labels-a IS NOT INITIAL.
+      rs_labels-a = rs_labels-a && | { is_labels-a }|.
+    ENDIF.
+    IF is_labels-o IS NOT INITIAL.
+      rs_labels-o = rs_labels-o && | { is_labels-o }|.
+    ENDIF.
+    IF is_labels-b IS NOT INITIAL.
+      rs_labels-b = rs_labels-b && | { is_labels-b }|.
+    ENDIF.
+
+  ENDMETHOD.
+
+
   METHOD zif_differ_diff3~diff3_merge.
     " Applies the output of diff3MergeRegions to actually
     " construct the merged buffer; the returned result alternates
@@ -167,11 +213,12 @@ CLASS zcl_differ_diff3 IMPLEMENTATION.
           <ls_region>-unstable_region-a_content = <ls_region>-unstable_region-b_content.
           INSERT LINES OF <ls_region>-unstable_region-a_content INTO TABLE lt_ok_buffer.
         ELSE.
-          IF lt_ok_buffer IS NOT INITIAL.
-            INSERT LINES OF lt_ok_buffer INTO TABLE ls_result-ok.
-            INSERT ls_result INTO TABLE rt_result.
-            CLEAR lt_ok_buffer.
-          ENDIF.
+          flush_ok(
+            CHANGING
+              ct_buffer = lt_ok_buffer
+              ct_result = rt_result ).
+
+          CLEAR ls_result.
           ls_result-conflict = VALUE #(
             a       = <ls_region>-unstable_region-a_content
             a_index = <ls_region>-unstable_region-a_start
@@ -184,10 +231,10 @@ CLASS zcl_differ_diff3 IMPLEMENTATION.
       ENDIF.
     ENDLOOP.
 
-    IF lt_ok_buffer IS NOT INITIAL.
-      INSERT LINES OF lt_ok_buffer INTO TABLE ls_result-ok.
-      INSERT ls_result INTO TABLE rt_result.
-    ENDIF.
+    flush_ok(
+      CHANGING
+        ct_buffer = lt_ok_buffer
+        ct_result = rt_result ).
 
   ENDMETHOD.
 
@@ -334,12 +381,13 @@ CLASS zcl_differ_diff3 IMPLEMENTATION.
 
           IF ls_hunk-ab = 'a'.
             ASSIGN ls_bounds-a TO FIELD-SYMBOL(<ls_b>).
+            ASSERT sy-subrc = 0.
           ELSE.
             ASSIGN ls_bounds-b TO <ls_b>.
+            ASSERT sy-subrc = 0.
           ENDIF.
-          ASSERT sy-subrc = 0.
 
-          <ls_b> = VALUE #(
+          DATA(ls_b) = VALUE ty_bound(
             n0 = nmin(
               val1 = lv_ab_start
               val2 = <ls_b>-n0 )
@@ -352,6 +400,7 @@ CLASS zcl_differ_diff3 IMPLEMENTATION.
             n3 = nmax(
               val1 = lv_o_end
               val2 = <ls_b>-n3 ) ).
+          <ls_b> = ls_b.
         ENDWHILE.
 
         DATA(lv_a_start) = ls_bounds-a-n0 + lv_region_start - ls_bounds-a-n2.
@@ -677,9 +726,7 @@ CLASS zcl_differ_diff3 IMPLEMENTATION.
 
   METHOD zif_differ_diff3~merge.
 
-    DATA(lv_a_section) = |<<<<<<<{ is_labels-a }|.
-    DATA(lv_x_section) = |=======|.
-    DATA(lv_b_section) = |>>>>>>>{ is_labels-b }|.
+    DATA(ls_labels) = get_labels( is_labels ).
 
     DATA(lt_regions) = zif_differ_diff3~diff3_merge(
       it_a                       = it_a
@@ -689,14 +736,14 @@ CLASS zcl_differ_diff3 IMPLEMENTATION.
 
     LOOP AT lt_regions ASSIGNING FIELD-SYMBOL(<ls_region>).
       IF <ls_region>-ok IS NOT INITIAL.
-        rs_result-result = <ls_region>-ok.
+        INSERT LINES OF <ls_region>-ok INTO TABLE rs_result-result.
       ELSEIF <ls_region>-conflict IS NOT INITIAL.
         rs_result-conflict = abap_true.
-        INSERT lv_a_section INTO TABLE rs_result-result.
+        INSERT ls_labels-a INTO TABLE rs_result-result.
         INSERT LINES OF <ls_region>-conflict-a INTO TABLE rs_result-result.
-        INSERT lv_x_section INTO TABLE rs_result-result.
+        INSERT ls_labels-x INTO TABLE rs_result-result.
         INSERT LINES OF <ls_region>-conflict-b INTO TABLE rs_result-result.
-        INSERT lv_b_section INTO TABLE rs_result-result.
+        INSERT ls_labels-b INTO TABLE rs_result-result.
       ENDIF.
     ENDLOOP.
 
@@ -705,10 +752,7 @@ CLASS zcl_differ_diff3 IMPLEMENTATION.
 
   METHOD zif_differ_diff3~merge_diff3.
 
-    DATA(lv_a_section) = |<<<<<<<{ is_labels-a }|.
-    DATA(lv_o_section) = |\|\|\|\|\|\|\|{ is_labels-o }|.
-    DATA(lv_x_section) = |=======|.
-    DATA(lv_b_section) = |>>>>>>>{ is_labels-b }|.
+    DATA(ls_labels) = get_labels( is_labels ).
 
     DATA(lt_regions) = zif_differ_diff3~diff3_merge(
       it_a                       = it_a
@@ -718,16 +762,16 @@ CLASS zcl_differ_diff3 IMPLEMENTATION.
 
     LOOP AT lt_regions ASSIGNING FIELD-SYMBOL(<ls_region>).
       IF <ls_region>-ok IS NOT INITIAL.
-        rs_result-result = <ls_region>-ok.
+        INSERT LINES OF <ls_region>-ok INTO TABLE rs_result-result.
       ELSEIF <ls_region>-conflict IS NOT INITIAL.
         rs_result-conflict = abap_true.
-        INSERT lv_a_section INTO TABLE rs_result-result.
+        INSERT ls_labels-a INTO TABLE rs_result-result.
         INSERT LINES OF <ls_region>-conflict-a INTO TABLE rs_result-result.
-        INSERT lv_o_section INTO TABLE rs_result-result.
+        INSERT ls_labels-o INTO TABLE rs_result-result.
         INSERT LINES OF <ls_region>-conflict-o INTO TABLE rs_result-result.
-        INSERT lv_x_section INTO TABLE rs_result-result.
+        INSERT ls_labels-x INTO TABLE rs_result-result.
         INSERT LINES OF <ls_region>-conflict-b INTO TABLE rs_result-result.
-        INSERT lv_b_section INTO TABLE rs_result-result.
+        INSERT ls_labels-b INTO TABLE rs_result-result.
       ENDIF.
     ENDLOOP.
 
@@ -736,9 +780,7 @@ CLASS zcl_differ_diff3 IMPLEMENTATION.
 
   METHOD zif_differ_diff3~merge_dig_in.
 
-    DATA(lv_a_section) = |<<<<<<<{ is_labels-a }|.
-    DATA(lv_x_section) = |=======|.
-    DATA(lv_b_section) = |>>>>>>>{ is_labels-b }|.
+    DATA(ls_labels) = get_labels( is_labels ).
 
     DATA(lt_regions) = zif_differ_diff3~diff3_merge(
       it_a                       = it_a
@@ -748,7 +790,7 @@ CLASS zcl_differ_diff3 IMPLEMENTATION.
 
     LOOP AT lt_regions ASSIGNING FIELD-SYMBOL(<ls_region>).
       IF <ls_region>-ok IS NOT INITIAL.
-        rs_result-result = <ls_region>-ok.
+        INSERT LINES OF <ls_region>-ok INTO TABLE rs_result-result.
       ELSE.
         DATA(lt_c) = zif_differ_diff3~diff_comm(
           it_buffer1 = <ls_region>-conflict-a
@@ -756,14 +798,14 @@ CLASS zcl_differ_diff3 IMPLEMENTATION.
 
         LOOP AT lt_c ASSIGNING FIELD-SYMBOL(<ls_c>).
           IF <ls_c>-common IS NOT INITIAL.
-            rs_result-result = <ls_c>-common.
+            INSERT LINES OF <ls_c>-common INTO TABLE rs_result-result.
           ELSE.
             rs_result-conflict = abap_true.
-            INSERT lv_a_section INTO TABLE rs_result-result.
+            INSERT ls_labels-a INTO TABLE rs_result-result.
             INSERT LINES OF <ls_c>-diff-buffer1 INTO TABLE rs_result-result.
-            INSERT lv_x_section INTO TABLE rs_result-result.
+            INSERT ls_labels-x INTO TABLE rs_result-result.
             INSERT LINES OF <ls_c>-diff-buffer2 INTO TABLE rs_result-result.
-            INSERT lv_b_section INTO TABLE rs_result-result.
+            INSERT ls_labels-b INTO TABLE rs_result-result.
           ENDIF.
         ENDLOOP.
       ENDIF.

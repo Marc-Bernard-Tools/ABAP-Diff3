@@ -761,7 +761,7 @@ CLASS ltcl_diff_patch IMPLEMENTATION.
 ENDCLASS.
 
 **********************************************************************
-* https://github.com/bhousel/node-diff3/blob/main/test/diff3MergeRegiions.test.js
+* https://github.com/bhousel/node-diff3/blob/main/test/diff3MergeRegions.test.js
 **********************************************************************
 CLASS ltcl_diff3_merge_regions DEFINITION FOR TESTING
   DURATION SHORT
@@ -936,7 +936,7 @@ CLASS ltcl_diff3_merge_regions IMPLEMENTATION.
       exp = 4 ).
     cl_abap_unit_assert=>assert_equals(
       act = lt_result[ 7 ]-stable_region-buffer_length
-      exp = 2 ).
+      exp = 1 ).
     cl_abap_unit_assert=>assert_equals(
       act = lcl_helper=>concat( lt_result[ 7 ]-stable_region-buffer_content )
       exp = '99' ).
@@ -980,10 +980,10 @@ CLASS ltcl_diff3_merge IMPLEMENTATION.
     mt_a = lcl_helper=>split( 'AA a b c ZZ new 00 a a M 99' ).
     mt_b = lcl_helper=>split( 'AA a d c ZZ 11 M z z 99' ).
 
-*    DATA(lt_result) = mi_diff3->diff3_merge(
-*      it_a = mt_a
-*      it_o = mt_o
-*      it_b = mt_b ).
+    DATA(lt_result) = mi_diff3->diff3_merge(
+      it_a = mt_a
+      it_o = mt_o
+      it_b = mt_b ).
 
 * AA
 * <<<<<<< a
@@ -1012,40 +1012,40 @@ CLASS ltcl_diff3_merge IMPLEMENTATION.
 * z
 * 99
 
-*    cl_abap_unit_assert=>assert_equals(
-*      act = lcl_helper=>concat( lt_result[ 1 ]-ok )
-*      exp = 'AA' ).
-*    cl_abap_unit_assert=>assert_initial( lt_result[ 1 ]-conflict ).
-*
-*    cl_abap_unit_assert=>assert_initial( lt_result[ 2 ]-ok ).
-*    cl_abap_unit_assert=>assert_initial( lt_result[ 2 ]-conflict-o ).
-*    cl_abap_unit_assert=>assert_equals(
-*      act = lcl_helper=>concat( lt_result[ 2 ]-conflict-a )
-*      exp = 'a b c' ).
-*    cl_abap_unit_assert=>assert_equals(
-*      act = lcl_helper=>concat( lt_result[ 2 ]-conflict-b )
-*      exp = 'a d c' ).
-*
-*    cl_abap_unit_assert=>assert_equals(
-*      act = lcl_helper=>concat( lt_result[ 3 ]-ok )
-*      exp = 'ZZ' ).
-*    cl_abap_unit_assert=>assert_initial( lt_result[ 3 ]-conflict ).
-*
-*    cl_abap_unit_assert=>assert_initial( lt_result[ 4 ]-ok ).
-*    cl_abap_unit_assert=>assert_equals(
-*      act = lcl_helper=>concat( lt_result[ 4 ]-conflict-o )
-*      exp = '00' ).
-*    cl_abap_unit_assert=>assert_equals(
-*      act = lcl_helper=>concat( lt_result[ 4 ]-conflict-a )
-*      exp = 'new 00 a a' ).
-*    cl_abap_unit_assert=>assert_equals(
-*      act = lcl_helper=>concat( lt_result[ 4 ]-conflict-b )
-*      exp = '11' ).
-*
-*    cl_abap_unit_assert=>assert_equals(
-*      act = lcl_helper=>concat( lt_result[ 5 ]-ok )
-*      exp = 'M z z 99' ).
-*    cl_abap_unit_assert=>assert_initial( lt_result[ 5 ]-conflict ).
+    cl_abap_unit_assert=>assert_equals(
+      act = lcl_helper=>concat( lt_result[ 1 ]-ok )
+      exp = 'AA' ).
+    cl_abap_unit_assert=>assert_initial( lt_result[ 1 ]-conflict ).
+
+    cl_abap_unit_assert=>assert_initial( lt_result[ 2 ]-ok ).
+    cl_abap_unit_assert=>assert_initial( lt_result[ 2 ]-conflict-o ).
+    cl_abap_unit_assert=>assert_equals(
+      act = lcl_helper=>concat( lt_result[ 2 ]-conflict-a )
+      exp = 'a b c' ).
+    cl_abap_unit_assert=>assert_equals(
+      act = lcl_helper=>concat( lt_result[ 2 ]-conflict-b )
+      exp = 'a d c' ).
+
+    cl_abap_unit_assert=>assert_equals(
+      act = lcl_helper=>concat( lt_result[ 3 ]-ok )
+      exp = 'ZZ' ).
+    cl_abap_unit_assert=>assert_initial( lt_result[ 3 ]-conflict ).
+
+    cl_abap_unit_assert=>assert_initial( lt_result[ 4 ]-ok ).
+    cl_abap_unit_assert=>assert_equals(
+      act = lcl_helper=>concat( lt_result[ 4 ]-conflict-o )
+      exp = '00' ).
+    cl_abap_unit_assert=>assert_equals(
+      act = lcl_helper=>concat( lt_result[ 4 ]-conflict-a )
+      exp = 'new 00 a a' ).
+    cl_abap_unit_assert=>assert_equals(
+      act = lcl_helper=>concat( lt_result[ 4 ]-conflict-b )
+      exp = '11' ).
+
+    cl_abap_unit_assert=>assert_equals(
+      act = lcl_helper=>concat( lt_result[ 5 ]-ok )
+      exp = 'M z z 99' ).
+    cl_abap_unit_assert=>assert_initial( lt_result[ 5 ]-conflict ).
 
   ENDMETHOD.
 
@@ -1056,15 +1056,15 @@ CLASS ltcl_diff3_merge IMPLEMENTATION.
     mt_a = lcl_helper=>split( 'AA a b c ZZ' ).
     mt_b = lcl_helper=>split( 'AA a b c ZZ' ).
 
-*    DATA(lt_result) = mi_diff3->diff3_merge(
-*      it_a = mt_a
-*      it_o = mt_o
-*      it_b = mt_b ).
-*
-*    cl_abap_unit_assert=>assert_equals(
-*      act = lcl_helper=>concat( lt_result[ 1 ]-ok )
-*      exp = 'AA a b c ZZ' ).
-*    cl_abap_unit_assert=>assert_initial( lt_result[ 1 ]-conflict ).
+    DATA(lt_result) = mi_diff3->diff3_merge(
+      it_a = mt_a
+      it_o = mt_o
+      it_b = mt_b ).
+
+    cl_abap_unit_assert=>assert_equals(
+      act = lcl_helper=>concat( lt_result[ 1 ]-ok )
+      exp = 'AA a b c ZZ' ).
+    cl_abap_unit_assert=>assert_initial( lt_result[ 1 ]-conflict ).
 
   ENDMETHOD.
 
@@ -1075,32 +1075,264 @@ CLASS ltcl_diff3_merge IMPLEMENTATION.
     mt_a = lcl_helper=>split( 'AA a b c ZZ' ).
     mt_b = lcl_helper=>split( 'AA a b c ZZ' ).
 
-*    DATA(lt_result) = mi_diff3->diff3_merge(
-*      it_a = mt_a
-*      it_o = mt_o
-*      it_b = mt_b
-*      iv_exclude_false_conflicts = abap_false ).
-*
-*    cl_abap_unit_assert=>assert_equals(
-*      act = lcl_helper=>concat( lt_result[ 1 ]-ok )
-*      exp = 'AA' ).
-*    cl_abap_unit_assert=>assert_initial( lt_result[ 1 ]-conflict ).
-*
-*    cl_abap_unit_assert=>assert_initial( lt_result[ 2 ]-ok ).
-*    cl_abap_unit_assert=>assert_initial( lt_result[ 2 ]-conflict-o ).
-*    cl_abap_unit_assert=>assert_equals(
-*      act = lcl_helper=>concat( lt_result[ 2 ]-conflict-a )
-*      exp = 'a b c' ).
-*    cl_abap_unit_assert=>assert_equals(
-*      act = lcl_helper=>concat( lt_result[ 2 ]-conflict-b )
-*      exp = 'a b c' ).
-*
-*    cl_abap_unit_assert=>assert_equals(
-*      act = lcl_helper=>concat( lt_result[ 3 ]-ok )
-*      exp = 'ZZ' ).
-*    cl_abap_unit_assert=>assert_initial( lt_result[ 3 ]-conflict ).
+    DATA(lt_result) = mi_diff3->diff3_merge(
+      it_a = mt_a
+      it_o = mt_o
+      it_b = mt_b
+      iv_exclude_false_conflicts = abap_false ).
+
+    cl_abap_unit_assert=>assert_equals(
+      act = lcl_helper=>concat( lt_result[ 1 ]-ok )
+      exp = 'AA' ).
+    cl_abap_unit_assert=>assert_initial( lt_result[ 1 ]-conflict ).
+
+    cl_abap_unit_assert=>assert_initial( lt_result[ 2 ]-ok ).
+    cl_abap_unit_assert=>assert_initial( lt_result[ 2 ]-conflict-o ).
+    cl_abap_unit_assert=>assert_equals(
+      act = lcl_helper=>concat( lt_result[ 2 ]-conflict-a )
+      exp = 'a b c' ).
+    cl_abap_unit_assert=>assert_equals(
+      act = lcl_helper=>concat( lt_result[ 2 ]-conflict-b )
+      exp = 'a b c' ).
+
+    cl_abap_unit_assert=>assert_equals(
+      act = lcl_helper=>concat( lt_result[ 3 ]-ok )
+      exp = 'ZZ' ).
+    cl_abap_unit_assert=>assert_initial( lt_result[ 3 ]-conflict ).
+
+  ENDMETHOD.
+ENDCLASS.
+
+**********************************************************************
+* https://github.com/bhousel/node-diff3/blob/main/test/merge.test.js
+**********************************************************************
+CLASS ltcl_merge DEFINITION FOR TESTING
+  DURATION SHORT
+  RISK LEVEL HARMLESS.
+
+  PRIVATE SECTION.
+
+    DATA:
+      mi_diff3 TYPE REF TO zif_differ_diff3,
+      mt_o     TYPE string_table,
+      mt_a     TYPE string_table,
+      mt_b     TYPE string_table.
+
+    METHODS:
+      setup,
+      test_conflict FOR TESTING,
+      test_result FOR TESTING.
+
+ENDCLASS.
+
+CLASS ltcl_merge IMPLEMENTATION.
+
+  METHOD setup.
+    mi_diff3 = NEW zcl_differ_diff3( ).
+  ENDMETHOD.
+
+  METHOD test_conflict.
+
+    " performs diff3 merge on arrays
+    mt_o = lcl_helper=>split( 'AA' ).
+    mt_a = lcl_helper=>split( 'AA' ).
+    mt_b = lcl_helper=>split( 'AA' ).
+
+    DATA(ls_result) = mi_diff3->merge(
+      it_a = mt_a
+      it_o = mt_o
+      it_b = mt_b ).
+
+    cl_abap_unit_assert=>assert_equals(
+      act = ls_result-conflict
+      exp = abap_false ).
+    cl_abap_unit_assert=>assert_equals(
+      act = lcl_helper=>concat( ls_result-result )
+      exp = 'AA' ).
 
   ENDMETHOD.
 
+  METHOD test_result.
 
+    " returns a diff3-style merge result
+    mt_o = lcl_helper=>split( 'AA ZZ 00 M 99' ).
+    mt_a = lcl_helper=>split( 'AA a b c ZZ new 00 a a M 99' ).
+    mt_b = lcl_helper=>split( 'AA a d c ZZ 11 M z z 99' ).
+
+    DATA(ls_result) = mi_diff3->merge(
+      it_a = mt_a
+      it_o = mt_o
+      it_b = mt_b ).
+
+    DATA(lt_exp) = lcl_helper=>split(
+      'AA\n<<<<<<<\na\nb\nc\n=======\na\nd\nc\n' &&
+      '>>>>>>>\nZZ\n<<<<<<<\nnew\n00\na\na\n' &&
+      '=======\n11\n>>>>>>>\nM\nz\nz\n99' ).
+
+    cl_abap_unit_assert=>assert_equals(
+      act = ls_result-conflict
+      exp = abap_true ).
+    cl_abap_unit_assert=>assert_equals(
+      act = ls_result-result
+      exp = lt_exp ).
+
+  ENDMETHOD.
+ENDCLASS.
+
+**********************************************************************
+* https://github.com/bhousel/node-diff3/blob/main/test/mergeDiff3.test.js
+**********************************************************************
+CLASS ltcl_merge_diff3 DEFINITION FOR TESTING
+  DURATION SHORT
+  RISK LEVEL HARMLESS.
+
+  PRIVATE SECTION.
+
+    DATA:
+      mi_diff3 TYPE REF TO zif_differ_diff3,
+      mt_o     TYPE string_table,
+      mt_a     TYPE string_table,
+      mt_b     TYPE string_table.
+
+    METHODS:
+      setup,
+      test_conflict FOR TESTING,
+      test_result FOR TESTING.
+
+ENDCLASS.
+
+CLASS ltcl_merge_diff3 IMPLEMENTATION.
+
+  METHOD setup.
+    mi_diff3 = NEW zcl_differ_diff3( ).
+  ENDMETHOD.
+
+  METHOD test_conflict.
+
+    " performs diff3 merge on arrays
+    mt_o = lcl_helper=>split( 'AA' ).
+    mt_a = lcl_helper=>split( 'AA' ).
+    mt_b = lcl_helper=>split( 'AA' ).
+
+    DATA(ls_result) = mi_diff3->merge_diff3(
+      it_a = mt_a
+      it_o = mt_o
+      it_b = mt_b ).
+
+    cl_abap_unit_assert=>assert_equals(
+      act = ls_result-conflict
+      exp = abap_false ).
+    cl_abap_unit_assert=>assert_equals(
+      act = lcl_helper=>concat( ls_result-result )
+      exp = 'AA' ).
+
+  ENDMETHOD.
+
+  METHOD test_result.
+
+    " returns a diff3-style merge result
+    mt_o = lcl_helper=>split( 'AA ZZ 00 M 99' ).
+    mt_a = lcl_helper=>split( 'AA a b c ZZ new 00 a a M 99' ).
+    mt_b = lcl_helper=>split( 'AA a d c ZZ 11 M z z 99' ).
+
+    DATA(ls_labels) = VALUE zif_differ_diff3=>ty_labels(
+      a = 'a'
+      b = 'b'
+      o = 'o' ).
+
+    DATA(ls_result) = mi_diff3->merge_diff3(
+      it_a = mt_a
+      it_o = mt_o
+      it_b = mt_b
+      is_labels = ls_labels ).
+
+    DATA(lt_exp) = lcl_helper=>split(
+      'AA\n<<<<<<< a\na\nb\nc\n||||||| o\n=======\na\nd\nc\n' &&
+      '>>>>>>> b\nZZ\n<<<<<<< a\nnew\n00\na\na\n' &&
+      '||||||| o\n00\n=======\n11\n>>>>>>> b\nM\nz\nz\n99' ).
+
+    cl_abap_unit_assert=>assert_equals(
+      act = ls_result-conflict
+      exp = abap_true ).
+    cl_abap_unit_assert=>assert_equals(
+      act = ls_result-result
+      exp = lt_exp ).
+
+  ENDMETHOD.
+ENDCLASS.
+
+**********************************************************************
+* https://github.com/bhousel/node-diff3/blob/main/test/mergeDigIn.test.js
+**********************************************************************
+CLASS ltcl_merge_dig_in DEFINITION FOR TESTING
+  DURATION SHORT
+  RISK LEVEL HARMLESS.
+
+  PRIVATE SECTION.
+
+    DATA:
+      mi_diff3 TYPE REF TO zif_differ_diff3,
+      mt_o     TYPE string_table,
+      mt_a     TYPE string_table,
+      mt_b     TYPE string_table.
+
+    METHODS:
+      setup,
+      test_conflict FOR TESTING,
+      test_result FOR TESTING.
+
+ENDCLASS.
+
+CLASS ltcl_merge_dig_in IMPLEMENTATION.
+
+  METHOD setup.
+    mi_diff3 = NEW zcl_differ_diff3( ).
+  ENDMETHOD.
+
+  METHOD test_conflict.
+
+    " performs diff3 merge on arrays
+    mt_o = lcl_helper=>split( 'AA' ).
+    mt_a = lcl_helper=>split( 'AA' ).
+    mt_b = lcl_helper=>split( 'AA' ).
+
+    DATA(ls_result) = mi_diff3->merge_dig_in(
+      it_a = mt_a
+      it_o = mt_o
+      it_b = mt_b ).
+
+    cl_abap_unit_assert=>assert_equals(
+      act = ls_result-conflict
+      exp = abap_false ).
+    cl_abap_unit_assert=>assert_equals(
+      act = lcl_helper=>concat( ls_result-result )
+      exp = 'AA' ).
+
+  ENDMETHOD.
+
+  METHOD test_result.
+
+    " returns a diff3-style merge result
+    mt_o = lcl_helper=>split( 'AA ZZ 00 M 99' ).
+    mt_a = lcl_helper=>split( 'AA a b c ZZ new 00 a a M 99' ).
+    mt_b = lcl_helper=>split( 'AA a d c ZZ 11 M z z 99' ).
+
+    DATA(ls_result) = mi_diff3->merge_dig_in(
+      it_a = mt_a
+      it_o = mt_o
+      it_b = mt_b ).
+
+    DATA(lt_exp) = lcl_helper=>split(
+      'AA\na\n<<<<<<<\nb\n=======\nd\n' &&
+      '>>>>>>>\nc\nZZ\n<<<<<<<\nnew\n00\na\na\n' &&
+      '=======\n11\n>>>>>>>\nM\nz\nz\n99' ).
+
+    cl_abap_unit_assert=>assert_equals(
+      act = ls_result-conflict
+      exp = abap_true ).
+    cl_abap_unit_assert=>assert_equals(
+      act = ls_result-result
+      exp = lt_exp ).
+
+  ENDMETHOD.
 ENDCLASS.

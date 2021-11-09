@@ -125,6 +125,7 @@ INTERFACE zif_differ_diff3
     BEGIN OF ty_labels,
       a TYPE string,
       o TYPE string,
+      x TYPE string,
       b TYPE string,
     END OF ty_labels.
 
@@ -212,40 +213,40 @@ INTERFACE zif_differ_diff3
   "! A "false conflict" is where `a` and `b` both change the same from `o`
   METHODS diff3_merge
     IMPORTING
-      !it_a                       TYPE string_table OPTIONAL
-      !it_o                       TYPE string_table OPTIONAL
-      !it_b                       TYPE string_table OPTIONAL
+      !it_a                       TYPE string_table
+      !it_o                       TYPE string_table
+      !it_b                       TYPE string_table
       !iv_exclude_false_conflicts TYPE abap_bool DEFAULT abap_true
     RETURNING
       VALUE(rt_result)            TYPE ty_merge_region_t.
 
   METHODS merge
     IMPORTING
-      !it_a                       TYPE string_table OPTIONAL
-      !it_o                       TYPE string_table OPTIONAL
-      !it_b                       TYPE string_table OPTIONAL
+      !it_a                       TYPE string_table
+      !it_o                       TYPE string_table
+      !it_b                       TYPE string_table
       !iv_exclude_false_conflicts TYPE abap_bool DEFAULT abap_true
-      !is_labels                  TYPE ty_labels
+      !is_labels                  TYPE ty_labels OPTIONAL
     RETURNING
       VALUE(rs_result)            TYPE ty_merge_result.
 
   METHODS merge_diff3
     IMPORTING
-      !it_a                       TYPE string_table OPTIONAL
-      !it_o                       TYPE string_table OPTIONAL
-      !it_b                       TYPE string_table OPTIONAL
+      !it_a                       TYPE string_table
+      !it_o                       TYPE string_table
+      !it_b                       TYPE string_table
       !iv_exclude_false_conflicts TYPE abap_bool DEFAULT abap_true
-      !is_labels                  TYPE ty_labels
+      !is_labels                  TYPE ty_labels OPTIONAL
     RETURNING
       VALUE(rs_result)            TYPE ty_merge_result.
 
   METHODS merge_dig_in
     IMPORTING
-      !it_a                       TYPE string_table OPTIONAL
-      !it_o                       TYPE string_table OPTIONAL
-      !it_b                       TYPE string_table OPTIONAL
+      !it_a                       TYPE string_table
+      !it_o                       TYPE string_table
+      !it_b                       TYPE string_table
       !iv_exclude_false_conflicts TYPE abap_bool DEFAULT abap_true
-      !is_labels                  TYPE ty_labels
+      !is_labels                  TYPE ty_labels OPTIONAL
     RETURNING
       VALUE(rs_result)            TYPE ty_merge_result.
 
