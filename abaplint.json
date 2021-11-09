@@ -294,7 +294,7 @@
 			"severity": "Error"
 		},
 		"identical_contents": {
-			"exclude": [],
+			"exclude": [".*"],
 			"severity": "Error"
 		},
 		"identical_form_names": {
