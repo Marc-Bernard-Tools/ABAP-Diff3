@@ -7,6 +7,7 @@ INTERFACE zif_differ_diff3
 * https://github.com/Marc-Bernard-Tools/ABAP-Differ
 *
 * This is a port of JavaScript (https://github.com/bhousel/node-diff3, MIT license)
+* https://github.com/bhousel/node-diff3/blob/main/index.d.ts as of 2021-05-04
 *
 * Copyright 2021 Marc Bernard <https://marcbernardtools.com/>
 * SPDX-License-Identifier: MIT
@@ -71,23 +72,23 @@ INTERFACE zif_differ_diff3
 
   TYPES:
     BEGIN OF ty_stable_region,
-      buffer        TYPE c LENGTH 1,
-      bufferstart   TYPE ty_number,
-      bufferlength  TYPE ty_number,
-      buffercontent TYPE string_table,
+      buffer         TYPE c LENGTH 1,
+      buffer_start   TYPE ty_number,
+      buffer_length  TYPE ty_number,
+      buffer_content TYPE string_table,
     END OF ty_stable_region.
 
   TYPES:
     BEGIN OF ty_unstable_region,
-      astart   TYPE ty_number,
-      alength  TYPE ty_number,
-      acontent TYPE string_table,
-      bstart   TYPE ty_number,
-      blength  TYPE ty_number,
-      bcontent TYPE string_table,
-      ostart   TYPE ty_number,
-      olength  TYPE ty_number,
-      ocontent TYPE string_table,
+      a_start   TYPE ty_number,
+      a_length  TYPE ty_number,
+      a_content TYPE string_table,
+      b_start   TYPE ty_number,
+      b_length  TYPE ty_number,
+      b_content TYPE string_table,
+      o_start   TYPE ty_number,
+      o_length  TYPE ty_number,
+      o_content TYPE string_table,
     END OF ty_unstable_region.
 
   TYPES:
@@ -103,20 +104,29 @@ INTERFACE zif_differ_diff3
     BEGIN OF ty_merge_region,
       ok TYPE string_table,
       BEGIN OF conflict,
-        a      TYPE string_table,
-        aindex TYPE ty_number,
-        o      TYPE string_table,
-        oindex TYPE ty_number,
-        b      TYPE string_table,
-        bindex TYPE ty_number,
+        a       TYPE string_table,
+        a_index TYPE ty_number,
+        o       TYPE string_table,
+        o_index TYPE ty_number,
+        b       TYPE string_table,
+        b_index TYPE ty_number,
       END OF conflict,
     END OF ty_merge_region.
+  TYPES:
+    ty_merge_region_t TYPE STANDARD TABLE OF ty_merge_region WITH DEFAULT KEY.
 
   TYPES:
     BEGIN OF ty_merge_result,
       conflict TYPE abap_bool,
-      result   TYPE string,
+      result   TYPE string_table,
     END OF ty_merge_result.
+
+  TYPES:
+    BEGIN OF ty_labels,
+      a TYPE string,
+      o TYPE string,
+      b TYPE string,
+    END OF ty_labels.
 
   "! Expects two arrays, finds longest common sequence
   METHODS lcs
@@ -161,6 +171,22 @@ INTERFACE zif_differ_diff3
     RETURNING
       VALUE(rt_result) TYPE string_table.
 
+  "! Takes the output of diffPatch(), and removes extra information from it.
+  "! It can still be used by patch(), below, but can no longer be inverted.
+  METHODS strip_patch
+    IMPORTING
+      !it_patchres     TYPE ty_patch_result_t
+    RETURNING
+      VALUE(rt_result) TYPE ty_patch_result_t.
+
+  "! Takes the output of diffPatch(), and inverts the sense of it, so that it
+  "! can be applied to buffer2 to give buffer1 rather than the other way around.
+  METHODS invert_patch
+    IMPORTING
+      !it_patchres     TYPE ty_patch_result_t
+    RETURNING
+      VALUE(rt_result) TYPE ty_patch_result_t.
+
   "! Given three buffers, A, O, and B, where both A and B are
   "! independently derived from O, returns a fairly complicated
   "! internal representation of merge decisions it's taken. The
@@ -179,5 +205,48 @@ INTERFACE zif_differ_diff3
       !it_b            TYPE string_table
     RETURNING
       VALUE(rt_result) TYPE ty_region_t.
+
+  "! Applies the output of diff3MergeRegions to actually
+  "! construct the merged buffer; the returned result alternates
+  "! between 'ok' and 'conflict' blocks.
+  "! A "false conflict" is where `a` and `b` both change the same from `o`
+  METHODS diff3_merge
+    IMPORTING
+      !it_a                       TYPE string_table OPTIONAL
+      !it_o                       TYPE string_table OPTIONAL
+      !it_b                       TYPE string_table OPTIONAL
+      !iv_exclude_false_conflicts TYPE abap_bool DEFAULT abap_true
+    RETURNING
+      VALUE(rt_result)            TYPE ty_merge_region_t.
+
+  METHODS merge
+    IMPORTING
+      !it_a                       TYPE string_table OPTIONAL
+      !it_o                       TYPE string_table OPTIONAL
+      !it_b                       TYPE string_table OPTIONAL
+      !iv_exclude_false_conflicts TYPE abap_bool DEFAULT abap_true
+      !is_labels                  TYPE ty_labels
+    RETURNING
+      VALUE(rs_result)            TYPE ty_merge_result.
+
+  METHODS merge_diff3
+    IMPORTING
+      !it_a                       TYPE string_table OPTIONAL
+      !it_o                       TYPE string_table OPTIONAL
+      !it_b                       TYPE string_table OPTIONAL
+      !iv_exclude_false_conflicts TYPE abap_bool DEFAULT abap_true
+      !is_labels                  TYPE ty_labels
+    RETURNING
+      VALUE(rs_result)            TYPE ty_merge_result.
+
+  METHODS merge_dig_in
+    IMPORTING
+      !it_a                       TYPE string_table OPTIONAL
+      !it_o                       TYPE string_table OPTIONAL
+      !it_b                       TYPE string_table OPTIONAL
+      !iv_exclude_false_conflicts TYPE abap_bool DEFAULT abap_true
+      !is_labels                  TYPE ty_labels
+    RETURNING
+      VALUE(rs_result)            TYPE ty_merge_result.
 
 ENDINTERFACE.
