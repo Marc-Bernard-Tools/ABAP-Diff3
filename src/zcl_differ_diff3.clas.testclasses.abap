@@ -1,7 +1,6 @@
 ************************************************************************
 * Helper Class
 ************************************************************************
-
 CLASS lcl_helper DEFINITION.
 
   PUBLIC SECTION.
@@ -312,199 +311,6 @@ CLASS ltcl_diff_indices IMPLEMENTATION.
 
   ENDMETHOD.
 
-ENDCLASS.
-
-**********************************************************************
-* Diff ABAP Code
-**********************************************************************
-CLASS ltcl_abap_code DEFINITION FOR TESTING
-  DURATION SHORT
-  RISK LEVEL HARMLESS.
-
-  PRIVATE SECTION.
-
-    DATA:
-      mt_old   TYPE string_table,
-      mt_new   TYPE string_table,
-      mi_diff3 TYPE REF TO zif_differ_diff3.
-
-    METHODS:
-      setup,
-      diff_comm FOR TESTING,
-      diff_indices FOR TESTING.
-
-ENDCLASS.
-
-CLASS ltcl_abap_code IMPLEMENTATION.
-
-  METHOD setup.
-
-    mi_diff3 = NEW zcl_differ_diff3( ).
-
-    DATA(lv_old) = `REPORT z_differ_test_prog.\n`
-      && `\n`
-      && `* next line was added\n`
-      && `\n`
-      && `* next line was changed\n`
-      && `MESSAGE 'changed line' TYPE 'I'.\n`
-      && `\n`
-      && `* next line was removed\n`
-      && `MESSAGE 'removed line' TYPE 'I'.\n`
-      && `\n`
-      && `* Some comment\n`
-      && `" Another comment\n`
-      && `DATA variable TYPE string.\n`
-      && `\n`
-      && `variable = 'some text'. " in-line comment\n`
-      && `variable = |some text|.\n`
-      && `variable = |some { variable } text|.\n`
-      && `\n`
-      && `* eof *\n`.
-
-    DATA(lv_new) = `REPORT z_differ_test_prog.\n`
-      && `\n`
-      && `* next line was added\n`
-      && `MESSAGE 'added line' TYPE 'I'.\n`
-      && `\n`
-      && `* next line was changed\n`
-      && `MESSAGE 'changed line' TYPE 'W'.\n`
-      && `\n`
-      && `* next line was removed\n`
-      && `\n`
-      && `* Some comment\n`
-      && `" Another comment\n`
-      && `DATA variable TYPE string.\n`
-      && `\n`
-      && `variable = 'some text'. " in-line comment\n`
-      && `variable = |some text|.\n`
-      && `variable = |some { variable } text|.\n`
-      && `\n`
-      && `* eof **\n`.
-
-    mt_old = lcl_helper=>split( lv_old ).
-    mt_new = lcl_helper=>split( lv_new ).
-
-  ENDMETHOD.
-
-  METHOD diff_comm.
-
-    DATA(lt_result) = mi_diff3->diff_comm(
-      it_buffer1 = mt_old
-      it_buffer2 = mt_new ).
-
-    cl_abap_unit_assert=>assert_equals(
-      act = lines( lt_result[ 1 ]-common )
-      exp = 3 ).
-    cl_abap_unit_assert=>assert_initial( lt_result[ 1 ]-diff ).
-
-    cl_abap_unit_assert=>assert_initial( lt_result[ 2 ]-common ).
-    cl_abap_unit_assert=>assert_equals(
-      act = lines( lt_result[ 2 ]-diff-buffer1 )
-      exp = 0 ).
-    cl_abap_unit_assert=>assert_equals(
-      act = lines( lt_result[ 2 ]-diff-buffer2 )
-      exp = 1 ).
-
-    cl_abap_unit_assert=>assert_equals(
-      act = lines( lt_result[ 3 ]-common )
-      exp = 2 ).
-    cl_abap_unit_assert=>assert_initial( lt_result[ 3 ]-diff ).
-
-    cl_abap_unit_assert=>assert_initial( lt_result[ 4 ]-common ).
-    cl_abap_unit_assert=>assert_equals(
-      act = lines( lt_result[ 4 ]-diff-buffer1 )
-      exp = 1 ).
-    cl_abap_unit_assert=>assert_equals(
-      act = lines( lt_result[ 4 ]-diff-buffer2 )
-      exp = 1 ).
-
-    cl_abap_unit_assert=>assert_equals(
-      act = lines( lt_result[ 5 ]-common )
-      exp = 2 ).
-    cl_abap_unit_assert=>assert_initial( lt_result[ 5 ]-diff ).
-
-    cl_abap_unit_assert=>assert_initial( lt_result[ 6 ]-common ).
-    cl_abap_unit_assert=>assert_equals(
-      act = lines( lt_result[ 6 ]-diff-buffer1 )
-      exp = 1 ).
-    cl_abap_unit_assert=>assert_equals(
-      act = lines( lt_result[ 6 ]-diff-buffer2 )
-      exp = 0 ).
-
-    cl_abap_unit_assert=>assert_equals(
-      act = lines( lt_result[ 7 ]-common )
-      exp = 9 ).
-    cl_abap_unit_assert=>assert_initial( lt_result[ 7 ]-diff ).
-
-    cl_abap_unit_assert=>assert_initial( lt_result[ 8 ]-common ).
-    cl_abap_unit_assert=>assert_equals(
-      act = lines( lt_result[ 8 ]-diff-buffer1 )
-      exp = 1 ).
-    cl_abap_unit_assert=>assert_equals(
-      act = lines( lt_result[ 8 ]-diff-buffer2 )
-      exp = 1 ).
-
-  ENDMETHOD.
-
-  METHOD diff_indices.
-
-    DATA(lt_result) = mi_diff3->diff_indices(
-      it_buffer1 = mt_old
-      it_buffer2 = mt_new ).
-
-    cl_abap_unit_assert=>assert_equals(
-      act = lt_result[ 1 ]-buffer1-key
-      exp = 3 ).
-    cl_abap_unit_assert=>assert_equals(
-      act = lt_result[ 1 ]-buffer1-len
-      exp = 0 ).
-    cl_abap_unit_assert=>assert_equals(
-      act = lt_result[ 1 ]-buffer2-key
-      exp = 3 ).
-    cl_abap_unit_assert=>assert_equals(
-      act = lt_result[ 1 ]-buffer2-len
-      exp = 1 ).
-
-    cl_abap_unit_assert=>assert_equals(
-      act = lt_result[ 2 ]-buffer1-key
-      exp = 5 ).
-    cl_abap_unit_assert=>assert_equals(
-      act = lt_result[ 2 ]-buffer1-len
-      exp = 1 ).
-    cl_abap_unit_assert=>assert_equals(
-      act = lt_result[ 2 ]-buffer2-key
-      exp = 6 ).
-    cl_abap_unit_assert=>assert_equals(
-      act = lt_result[ 2 ]-buffer2-len
-      exp = 1 ).
-
-    cl_abap_unit_assert=>assert_equals(
-      act = lt_result[ 3 ]-buffer1-key
-      exp = 8 ).
-    cl_abap_unit_assert=>assert_equals(
-      act = lt_result[ 3 ]-buffer1-len
-      exp = 1 ).
-    cl_abap_unit_assert=>assert_equals(
-      act = lt_result[ 3 ]-buffer2-key
-      exp = 9 ).
-    cl_abap_unit_assert=>assert_equals(
-      act = lt_result[ 3 ]-buffer2-len
-      exp = 0 ).
-
-    cl_abap_unit_assert=>assert_equals(
-      act = lt_result[ 4 ]-buffer1-key
-      exp = 18 ).
-    cl_abap_unit_assert=>assert_equals(
-      act = lt_result[ 4 ]-buffer1-len
-      exp = 1 ).
-    cl_abap_unit_assert=>assert_equals(
-      act = lt_result[ 4 ]-buffer2-key
-      exp = 18 ).
-    cl_abap_unit_assert=>assert_equals(
-      act = lt_result[ 4 ]-buffer2-len
-      exp = 1 ).
-
-  ENDMETHOD.
 ENDCLASS.
 
 **********************************************************************
@@ -1333,6 +1139,199 @@ CLASS ltcl_merge_dig_in IMPLEMENTATION.
     cl_abap_unit_assert=>assert_equals(
       act = ls_result-result
       exp = lt_exp ).
+
+  ENDMETHOD.
+ENDCLASS.
+
+**********************************************************************
+* Diff ABAP Code
+**********************************************************************
+CLASS ltcl_abap_code DEFINITION FOR TESTING
+  DURATION SHORT
+  RISK LEVEL HARMLESS.
+
+  PRIVATE SECTION.
+
+    DATA:
+      mt_old   TYPE string_table,
+      mt_new   TYPE string_table,
+      mi_diff3 TYPE REF TO zif_differ_diff3.
+
+    METHODS:
+      setup,
+      diff_comm FOR TESTING,
+      diff_indices FOR TESTING.
+
+ENDCLASS.
+
+CLASS ltcl_abap_code IMPLEMENTATION.
+
+  METHOD setup.
+
+    mi_diff3 = NEW zcl_differ_diff3( ).
+
+    DATA(lv_old) = `REPORT z_differ_test_prog.\n`
+      && `\n`
+      && `* next line was added\n`
+      && `\n`
+      && `* next line was changed\n`
+      && `MESSAGE 'changed line' TYPE 'I'.\n`
+      && `\n`
+      && `* next line was removed\n`
+      && `MESSAGE 'removed line' TYPE 'I'.\n`
+      && `\n`
+      && `* Some comment\n`
+      && `" Another comment\n`
+      && `DATA variable TYPE string.\n`
+      && `\n`
+      && `variable = 'some text'. " in-line comment\n`
+      && `variable = |some text|.\n`
+      && `variable = |some { variable } text|.\n`
+      && `\n`
+      && `* eof *\n`.
+
+    DATA(lv_new) = `REPORT z_differ_test_prog.\n`
+      && `\n`
+      && `* next line was added\n`
+      && `MESSAGE 'added line' TYPE 'I'.\n`
+      && `\n`
+      && `* next line was changed\n`
+      && `MESSAGE 'changed line' TYPE 'W'.\n`
+      && `\n`
+      && `* next line was removed\n`
+      && `\n`
+      && `* Some comment\n`
+      && `" Another comment\n`
+      && `DATA variable TYPE string.\n`
+      && `\n`
+      && `variable = 'some text'. " in-line comment\n`
+      && `variable = |some text|.\n`
+      && `variable = |some { variable } text|.\n`
+      && `\n`
+      && `* eof **\n`.
+
+    mt_old = lcl_helper=>split( lv_old ).
+    mt_new = lcl_helper=>split( lv_new ).
+
+  ENDMETHOD.
+
+  METHOD diff_comm.
+
+    DATA(lt_result) = mi_diff3->diff_comm(
+      it_buffer1 = mt_old
+      it_buffer2 = mt_new ).
+
+    cl_abap_unit_assert=>assert_equals(
+      act = lines( lt_result[ 1 ]-common )
+      exp = 3 ).
+    cl_abap_unit_assert=>assert_initial( lt_result[ 1 ]-diff ).
+
+    cl_abap_unit_assert=>assert_initial( lt_result[ 2 ]-common ).
+    cl_abap_unit_assert=>assert_equals(
+      act = lines( lt_result[ 2 ]-diff-buffer1 )
+      exp = 0 ).
+    cl_abap_unit_assert=>assert_equals(
+      act = lines( lt_result[ 2 ]-diff-buffer2 )
+      exp = 1 ).
+
+    cl_abap_unit_assert=>assert_equals(
+      act = lines( lt_result[ 3 ]-common )
+      exp = 2 ).
+    cl_abap_unit_assert=>assert_initial( lt_result[ 3 ]-diff ).
+
+    cl_abap_unit_assert=>assert_initial( lt_result[ 4 ]-common ).
+    cl_abap_unit_assert=>assert_equals(
+      act = lines( lt_result[ 4 ]-diff-buffer1 )
+      exp = 1 ).
+    cl_abap_unit_assert=>assert_equals(
+      act = lines( lt_result[ 4 ]-diff-buffer2 )
+      exp = 1 ).
+
+    cl_abap_unit_assert=>assert_equals(
+      act = lines( lt_result[ 5 ]-common )
+      exp = 2 ).
+    cl_abap_unit_assert=>assert_initial( lt_result[ 5 ]-diff ).
+
+    cl_abap_unit_assert=>assert_initial( lt_result[ 6 ]-common ).
+    cl_abap_unit_assert=>assert_equals(
+      act = lines( lt_result[ 6 ]-diff-buffer1 )
+      exp = 1 ).
+    cl_abap_unit_assert=>assert_equals(
+      act = lines( lt_result[ 6 ]-diff-buffer2 )
+      exp = 0 ).
+
+    cl_abap_unit_assert=>assert_equals(
+      act = lines( lt_result[ 7 ]-common )
+      exp = 9 ).
+    cl_abap_unit_assert=>assert_initial( lt_result[ 7 ]-diff ).
+
+    cl_abap_unit_assert=>assert_initial( lt_result[ 8 ]-common ).
+    cl_abap_unit_assert=>assert_equals(
+      act = lines( lt_result[ 8 ]-diff-buffer1 )
+      exp = 1 ).
+    cl_abap_unit_assert=>assert_equals(
+      act = lines( lt_result[ 8 ]-diff-buffer2 )
+      exp = 1 ).
+
+  ENDMETHOD.
+
+  METHOD diff_indices.
+
+    DATA(lt_result) = mi_diff3->diff_indices(
+      it_buffer1 = mt_old
+      it_buffer2 = mt_new ).
+
+    cl_abap_unit_assert=>assert_equals(
+      act = lt_result[ 1 ]-buffer1-key
+      exp = 3 ).
+    cl_abap_unit_assert=>assert_equals(
+      act = lt_result[ 1 ]-buffer1-len
+      exp = 0 ).
+    cl_abap_unit_assert=>assert_equals(
+      act = lt_result[ 1 ]-buffer2-key
+      exp = 3 ).
+    cl_abap_unit_assert=>assert_equals(
+      act = lt_result[ 1 ]-buffer2-len
+      exp = 1 ).
+
+    cl_abap_unit_assert=>assert_equals(
+      act = lt_result[ 2 ]-buffer1-key
+      exp = 5 ).
+    cl_abap_unit_assert=>assert_equals(
+      act = lt_result[ 2 ]-buffer1-len
+      exp = 1 ).
+    cl_abap_unit_assert=>assert_equals(
+      act = lt_result[ 2 ]-buffer2-key
+      exp = 6 ).
+    cl_abap_unit_assert=>assert_equals(
+      act = lt_result[ 2 ]-buffer2-len
+      exp = 1 ).
+
+    cl_abap_unit_assert=>assert_equals(
+      act = lt_result[ 3 ]-buffer1-key
+      exp = 8 ).
+    cl_abap_unit_assert=>assert_equals(
+      act = lt_result[ 3 ]-buffer1-len
+      exp = 1 ).
+    cl_abap_unit_assert=>assert_equals(
+      act = lt_result[ 3 ]-buffer2-key
+      exp = 9 ).
+    cl_abap_unit_assert=>assert_equals(
+      act = lt_result[ 3 ]-buffer2-len
+      exp = 0 ).
+
+    cl_abap_unit_assert=>assert_equals(
+      act = lt_result[ 4 ]-buffer1-key
+      exp = 18 ).
+    cl_abap_unit_assert=>assert_equals(
+      act = lt_result[ 4 ]-buffer1-len
+      exp = 1 ).
+    cl_abap_unit_assert=>assert_equals(
+      act = lt_result[ 4 ]-buffer2-key
+      exp = 18 ).
+    cl_abap_unit_assert=>assert_equals(
+      act = lt_result[ 4 ]-buffer2-len
+      exp = 1 ).
 
   ENDMETHOD.
 ENDCLASS.

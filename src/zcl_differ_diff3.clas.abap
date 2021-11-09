@@ -38,6 +38,11 @@ CLASS zcl_differ_diff3 DEFINITION
     TYPES:
       ty_hunks TYPE STANDARD TABLE OF ty_hunk WITH DEFAULT KEY.
 
+    METHODS process_common
+      CHANGING
+        !ct_common TYPE string_table
+        !ct_result TYPE zif_differ_diff3=>ty_comm_result_t.
+
     METHODS chunk_description
       IMPORTING
         !it_buffer       TYPE string_table
@@ -71,7 +76,6 @@ CLASS zcl_differ_diff3 DEFINITION
         !is_labels       TYPE zif_differ_diff3=>ty_labels
       RETURNING
         VALUE(rs_labels) TYPE zif_differ_diff3=>ty_labels.
-
   PRIVATE SECTION.
 
     METHODS _reverse
@@ -185,6 +189,17 @@ CLASS zcl_differ_diff3 IMPLEMENTATION.
     ENDIF.
     IF is_labels-b IS NOT INITIAL.
       rs_labels-b = rs_labels-b && | { is_labels-b }|.
+    ENDIF.
+
+  ENDMETHOD.
+
+
+  METHOD process_common.
+
+    IF ct_common IS NOT INITIAL.
+      DATA(ls_res) = VALUE zif_differ_diff3=>ty_comm_result( common = _reverse( ct_common ) ).
+      INSERT ls_res INTO ct_result INDEX 1.
+      CLEAR ct_common.
     ENDIF.
 
   ENDMETHOD.
@@ -463,10 +478,6 @@ CLASS zcl_differ_diff3 IMPLEMENTATION.
 
     DATA(ls_candidate) = lt_lcs[ key = lines( lt_lcs ) - 1 ].
     DO.
-      IF ls_candidate-chain = -1.
-        EXIT.
-      ENDIF.
-
       CLEAR ls_different.
 
       DO.
@@ -486,12 +497,10 @@ CLASS zcl_differ_diff3 IMPLEMENTATION.
       ENDDO.
 
       IF lines( ls_different-buffer1 ) > 0 OR lines( ls_different-buffer2 ) > 0.
-        IF lines( lt_common ) > 0.
-          CLEAR ls_res.
-          ls_res-common = _reverse( lt_common ).
-          INSERT ls_res INTO rt_result INDEX 1.
-          CLEAR lt_common.
-        ENDIF.
+        process_common(
+          CHANGING
+            ct_common = lt_common
+            ct_result = rt_result ).
 
         CLEAR ls_res.
         ls_res-diff-buffer1 = _reverse( ls_different-buffer1 ).
@@ -503,14 +512,17 @@ CLASS zcl_differ_diff3 IMPLEMENTATION.
         INSERT it_buffer1[ lv_tail1 + 1 ] INTO TABLE lt_common.
       ENDIF.
 
+      IF ls_candidate-chain = -1.
+        EXIT.
+      ENDIF.
+
       ls_candidate = lt_lcs[ key = ls_candidate-chain ].
     ENDDO.
 
-    IF lines( lt_common ) > 0.
-      CLEAR ls_res.
-      ls_res-common = _reverse( lt_common ).
-      INSERT ls_res INTO rt_result INDEX 1.
-    ENDIF.
+    process_common(
+      CHANGING
+        ct_common = lt_common
+        ct_result = rt_result ).
 
   ENDMETHOD.
 
