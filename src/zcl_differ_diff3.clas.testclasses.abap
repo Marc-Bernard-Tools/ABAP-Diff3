@@ -57,7 +57,7 @@ ENDCLASS.
 CLASS ltcl_lcs IMPLEMENTATION.
 
   METHOD setup.
-    mi_diff3 = NEW zcl_differ_diff3( ).
+    mi_diff3 = zcl_differ_diff3=>create( ).
   ENDMETHOD.
 
   METHOD test.
@@ -163,7 +163,7 @@ ENDCLASS.
 CLASS ltcl_diff_comm IMPLEMENTATION.
 
   METHOD setup.
-    mi_diff3 = NEW zcl_differ_diff3( ).
+    mi_diff3 = zcl_differ_diff3=>create( ).
   ENDMETHOD.
 
   METHOD test.
@@ -242,7 +242,7 @@ ENDCLASS.
 CLASS ltcl_diff_indices IMPLEMENTATION.
 
   METHOD setup.
-    mi_diff3 = NEW zcl_differ_diff3( ).
+    mi_diff3 = zcl_differ_diff3=>create( ).
   ENDMETHOD.
 
   METHOD test.
@@ -339,7 +339,7 @@ ENDCLASS.
 CLASS ltcl_diff_patch IMPLEMENTATION.
 
   METHOD setup.
-    mi_diff3 = NEW zcl_differ_diff3( ).
+    mi_diff3 = zcl_differ_diff3=>create( ).
 
     mt_a = lcl_helper=>split( 'AA a b c ZZ new 00 a a M 99' ).
     mt_b = lcl_helper=>split( 'AA a d c ZZ 11 M z z 99' ).
@@ -590,7 +590,7 @@ ENDCLASS.
 CLASS ltcl_diff3_merge_regions IMPLEMENTATION.
 
   METHOD setup.
-    mi_diff3 = NEW zcl_differ_diff3( ).
+    mi_diff3 = zcl_differ_diff3=>create( ).
   ENDMETHOD.
 
   METHOD test.
@@ -776,7 +776,7 @@ ENDCLASS.
 CLASS ltcl_diff3_merge IMPLEMENTATION.
 
   METHOD setup.
-    mi_diff3 = NEW zcl_differ_diff3( ).
+    mi_diff3 = zcl_differ_diff3=>create( ).
   ENDMETHOD.
 
   METHOD test.
@@ -934,7 +934,7 @@ ENDCLASS.
 CLASS ltcl_merge IMPLEMENTATION.
 
   METHOD setup.
-    mi_diff3 = NEW zcl_differ_diff3( ).
+    mi_diff3 = zcl_differ_diff3=>create( ).
   ENDMETHOD.
 
   METHOD test_conflict.
@@ -1010,7 +1010,7 @@ ENDCLASS.
 CLASS ltcl_merge_diff3 IMPLEMENTATION.
 
   METHOD setup.
-    mi_diff3 = NEW zcl_differ_diff3( ).
+    mi_diff3 = zcl_differ_diff3=>create( ).
   ENDMETHOD.
 
   METHOD test_conflict.
@@ -1092,7 +1092,7 @@ ENDCLASS.
 CLASS ltcl_merge_dig_in IMPLEMENTATION.
 
   METHOD setup.
-    mi_diff3 = NEW zcl_differ_diff3( ).
+    mi_diff3 = zcl_differ_diff3=>create( ).
   ENDMETHOD.
 
   METHOD test_conflict.
@@ -1168,7 +1168,7 @@ CLASS ltcl_abap_code IMPLEMENTATION.
 
   METHOD setup.
 
-    mi_diff3 = NEW zcl_differ_diff3( ).
+    mi_diff3 = zcl_differ_diff3=>create( ).
 
     DATA(lv_old) = `REPORT z_differ_test_prog.\n`
       && `\n`

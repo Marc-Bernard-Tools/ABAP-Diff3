@@ -18,6 +18,10 @@ CLASS zcl_differ_diff3 DEFINITION
 
     INTERFACES zif_differ_diff3.
 
+    CLASS-METHODS create
+      RETURNING
+        VALUE(ri_result) TYPE REF TO zif_differ_diff3.
+
     CLASS-METHODS convert_to_abap_indices
       CHANGING
         !ct_diff_indices TYPE zif_differ_diff3=>ty_diff_indices_result_t OPTIONAL.
@@ -156,6 +160,13 @@ CLASS zcl_differ_diff3 IMPLEMENTATION.
       <ls_diff_indices>-buffer1-key = <ls_diff_indices>-buffer1-key + 1.
       <ls_diff_indices>-buffer2-key = <ls_diff_indices>-buffer2-key + 1.
     ENDLOOP.
+
+  ENDMETHOD.
+
+
+  METHOD create.
+
+    ri_result = NEW zcl_differ_diff3( ).
 
   ENDMETHOD.
 
