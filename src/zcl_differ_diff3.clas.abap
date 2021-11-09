@@ -107,7 +107,7 @@ CLASS zcl_differ_diff3 IMPLEMENTATION.
 
     IF iv_end_offset > cv_curr_offset.
       ls_result-stable = abap_true.
-      ls_result-stable_region = value #(
+      ls_result-stable_region = VALUE #(
         buffer         = 'o'
         buffer_start   = cv_curr_offset
         buffer_length  = iv_end_offset - cv_curr_offset
@@ -288,8 +288,10 @@ CLASS zcl_differ_diff3 IMPLEMENTATION.
         IF ls_hunk-ab_length > 0.
           IF ls_hunk-ab = 'a'.
             ASSIGN it_a TO FIELD-SYMBOL(<lt_buffer>).
+            ASSERT sy-subrc = 0.
           ELSE.
             ASSIGN it_b TO <lt_buffer>.
+            ASSERT sy-subrc = 0.
           ENDIF.
           CLEAR ls_result.
           ls_result-stable = abap_true.
@@ -335,6 +337,8 @@ CLASS zcl_differ_diff3 IMPLEMENTATION.
           ELSE.
             ASSIGN ls_bounds-b TO <ls_b>.
           ENDIF.
+          ASSERT sy-subrc = 0.
+
           <ls_b> = VALUE #(
             n0 = nmin(
               val1 = lv_ab_start
@@ -467,8 +471,6 @@ CLASS zcl_differ_diff3 IMPLEMENTATION.
     " offsets and lengths of mismatched chunks in the input
     " buffers. This is used by diff3MergeRegions.
 
-    DATA ls_result LIKE LINE OF rt_result.
-
     DATA(lt_lcs) = zif_differ_diff3~lcs(
       it_buffer1 = it_buffer1
       it_buffer2 = it_buffer2 ).
@@ -488,7 +490,7 @@ CLASS zcl_differ_diff3 IMPLEMENTATION.
       lv_tail2 = ls_candidate-buffer2index.
 
       IF lv_mismatch_length1 > 0 OR lv_mismatch_length2 > 0.
-        ls_result = VALUE #(
+        DATA(ls_result) = VALUE zif_differ_diff3=>ty_diff_indices_result(
           buffer1-key    = lv_tail1 + 1
           buffer1-len    = lv_mismatch_length1
           buffer1content = _slice(
@@ -582,9 +584,7 @@ CLASS zcl_differ_diff3 IMPLEMENTATION.
       END OF ty_equivalenceclass.
 
     DATA:
-      ls_equivalenceclass   TYPE ty_equivalenceclass,
       lt_equivalenceclasses TYPE HASHED TABLE OF ty_equivalenceclass WITH UNIQUE KEY key,
-      ls_nullresult         TYPE zif_differ_diff3=>ty_lcs_result,
       lt_candidates         TYPE zif_differ_diff3=>ty_lcs_result_t,
       ls_newcandidate       TYPE zif_differ_diff3=>ty_lcs_result.
 
@@ -593,14 +593,14 @@ CLASS zcl_differ_diff3 IMPLEMENTATION.
       READ TABLE lt_equivalenceclasses ASSIGNING FIELD-SYMBOL(<ls_equivalentclass>)
         WITH TABLE KEY key = <lv_buffer2>.
       IF sy-subrc <> 0.
-        ls_equivalenceclass = VALUE #( key = <lv_buffer2> ).
+        DATA(ls_equivalenceclass) = VALUE ty_equivalenceclass( key = <lv_buffer2> ).
         INSERT ls_equivalenceclass INTO TABLE lt_equivalenceclasses ASSIGNING <ls_equivalentclass>.
       ENDIF.
       INSERT lv_j INTO TABLE <ls_equivalentclass>-values.
       lv_j = lv_j + 1.
     ENDLOOP.
 
-    ls_nullresult = VALUE #(
+    DATA(ls_nullresult) = VALUE zif_differ_diff3=>ty_lcs_result(
       key          = 0
       buffer1index = -1
       buffer2index = -1

@@ -82,7 +82,7 @@ CLASS zcl_differ_htmldiff DEFINITION
         !iv_before       TYPE string
         !iv_after        TYPE string
       RETURNING
-        VALUE(rt_result) TYPE ty_operations.
+        VALUE(rt_result) TYPE ty_operations ##NEEDED.
 
     METHODS is_character
       IMPORTING

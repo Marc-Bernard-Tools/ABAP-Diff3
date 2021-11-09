@@ -629,8 +629,7 @@ CLASS ltcl_diff_patch IMPLEMENTATION.
       it_buffer1 = mt_a
       it_buffer2 = mt_b ).
 
-    DATA(lt_strip) = mi_diff3->strip_patch(
-      it_patchres = lt_patch ).
+    DATA(lt_strip) = mi_diff3->strip_patch( lt_patch ).
 
     cl_abap_unit_assert=>assert_equals(
       act = lt_strip[ 1 ]-buffer1-offset
@@ -689,8 +688,7 @@ CLASS ltcl_diff_patch IMPLEMENTATION.
       it_buffer1 = mt_a
       it_buffer2 = mt_b ).
 
-    DATA(lt_invert) = mi_diff3->invert_patch(
-      it_patchres = lt_patch ).
+    DATA(lt_invert) = mi_diff3->invert_patch( lt_patch ).
 
     cl_abap_unit_assert=>assert_equals(
       act = lt_invert[ 1 ]-buffer2-offset
