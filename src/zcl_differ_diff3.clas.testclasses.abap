@@ -45,25 +45,17 @@ CLASS ltcl_lcs DEFINITION FOR TESTING
 
   PRIVATE SECTION.
 
-    DATA:
-      mi_diff3 TYPE REF TO zif_differ_diff3.
-
     METHODS:
-      setup,
       test FOR TESTING.
 
 ENDCLASS.
 
 CLASS ltcl_lcs IMPLEMENTATION.
 
-  METHOD setup.
-    mi_diff3 = zcl_differ_diff3=>create( ).
-  ENDMETHOD.
-
   METHOD test.
 
     " returns the LCS of two arrays
-    DATA(lt_lcs) = mi_diff3->lcs(
+    DATA(lt_lcs) = zcl_differ_diff3=>create( )->lcs(
       it_buffer1 = lcl_helper=>split( 'AA a b c ZZ new 00 a a M 99' )
       it_buffer2 = lcl_helper=>split( 'AA a d c ZZ 11 M z z 99' ) ).
 
@@ -151,25 +143,17 @@ CLASS ltcl_diff_comm DEFINITION FOR TESTING
 
   PRIVATE SECTION.
 
-    DATA:
-      mi_diff3 TYPE REF TO zif_differ_diff3.
-
     METHODS:
-      setup,
       test FOR TESTING.
 
 ENDCLASS.
 
 CLASS ltcl_diff_comm IMPLEMENTATION.
 
-  METHOD setup.
-    mi_diff3 = zcl_differ_diff3=>create( ).
-  ENDMETHOD.
-
   METHOD test.
 
     " returns a comm-style diff of two arrays
-    DATA(lt_result) = mi_diff3->diff_comm(
+    DATA(lt_result) = zcl_differ_diff3=>create( )->diff_comm(
       it_buffer1 = lcl_helper=>split( 'AA a b c ZZ new 00 a a M 99' )
       it_buffer2 = lcl_helper=>split( 'AA a d c ZZ 11 M z z 99' ) ).
 
@@ -230,25 +214,17 @@ CLASS ltcl_diff_indices DEFINITION FOR TESTING
 
   PRIVATE SECTION.
 
-    DATA:
-      mi_diff3 TYPE REF TO zif_differ_diff3.
-
     METHODS:
-      setup,
       test FOR TESTING.
 
 ENDCLASS.
 
 CLASS ltcl_diff_indices IMPLEMENTATION.
 
-  METHOD setup.
-    mi_diff3 = zcl_differ_diff3=>create( ).
-  ENDMETHOD.
-
   METHOD test.
 
     " returns array indices for differing regions of two arrays
-    DATA(lt_result) = mi_diff3->diff_indices(
+    DATA(lt_result) = zcl_differ_diff3=>create( )->diff_indices(
       it_buffer1 = lcl_helper=>split( 'AA a b c ZZ new 00 a a M 99' )
       it_buffer2 = lcl_helper=>split( 'AA a d c ZZ 11 M z z 99' ) ).
 

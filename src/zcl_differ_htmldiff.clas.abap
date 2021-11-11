@@ -758,7 +758,8 @@ CLASS zcl_differ_htmldiff IMPLEMENTATION.
 
   METHOD is_character.
 
-    FIND REGEX '[\w\#@;]' IN iv_input.
+    " Alphanumeric characters (includes underscore)
+    FIND REGEX '[\w]' IN iv_input.
 
     rv_result = xsdbool( sy-subrc = 0 ).
 
@@ -1038,14 +1039,14 @@ CLASS zcl_differ_htmldiff IMPLEMENTATION.
     mv_with_tags = abap_true.
 
     IF iv_before = iv_after OR iv_after IS INITIAL OR iv_before IS INITIAL.
-      rv_result = render_simple( iv_before  = iv_before
-                                 iv_after   = iv_after ).
+      rv_result = render_simple( iv_before = iv_before
+                                 iv_after  = iv_after ).
     ELSE.
       DATA(lt_before_tokens) = html_to_tokens( iv_before ).
       DATA(lt_after_tokens)  = html_to_tokens( iv_after ).
 
       DATA(lt_ops) = calculate_operations( it_before_tokens = lt_before_tokens
-                                     it_after_tokens  = lt_after_tokens ).
+                                           it_after_tokens  = lt_after_tokens ).
 
       rv_result = render_operations( it_before_tokens = lt_before_tokens
                                      it_after_tokens  = lt_after_tokens
@@ -1061,8 +1062,8 @@ CLASS zcl_differ_htmldiff IMPLEMENTATION.
     mv_with_tags = abap_false.
 
     IF iv_before = iv_after OR iv_after IS INITIAL OR iv_before IS INITIAL.
-      rv_result = render_simple( iv_before  = iv_before
-                                 iv_after   = iv_after ).
+      rv_result = render_simple( iv_before = iv_before
+                                 iv_after  = iv_after ).
     ELSE.
       DATA(lt_before_tokens) = html_to_tokens( iv_before ).
       DATA(lt_after_tokens)  = html_to_tokens( iv_after ).
