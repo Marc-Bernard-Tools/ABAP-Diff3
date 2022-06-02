@@ -55,7 +55,7 @@ CLASS ltcl_lcs IMPLEMENTATION.
   METHOD test.
 
     " returns the LCS of two arrays
-    DATA(lt_lcs) = zcl_differ_diff3=>create( )->lcs(
+    DATA(lt_lcs) = zcl_diff3=>create( )->lcs(
       it_buffer1 = lcl_helper=>split( 'AA a b c ZZ new 00 a a M 99' )
       it_buffer2 = lcl_helper=>split( 'AA a d c ZZ 11 M z z 99' ) ).
 
@@ -153,7 +153,7 @@ CLASS ltcl_diff_comm IMPLEMENTATION.
   METHOD test.
 
     " returns a comm-style diff of two arrays
-    DATA(lt_result) = zcl_differ_diff3=>create( )->diff_comm(
+    DATA(lt_result) = zcl_diff3=>create( )->diff_comm(
       it_buffer1 = lcl_helper=>split( 'AA a b c ZZ new 00 a a M 99' )
       it_buffer2 = lcl_helper=>split( 'AA a d c ZZ 11 M z z 99' ) ).
 
@@ -224,7 +224,7 @@ CLASS ltcl_diff_indices IMPLEMENTATION.
   METHOD test.
 
     " returns array indices for differing regions of two arrays
-    DATA(lt_result) = zcl_differ_diff3=>create( )->diff_indices(
+    DATA(lt_result) = zcl_diff3=>create( )->diff_indices(
       it_buffer1 = lcl_helper=>split( 'AA a b c ZZ new 00 a a M 99' )
       it_buffer2 = lcl_helper=>split( 'AA a d c ZZ 11 M z z 99' ) ).
 
@@ -299,7 +299,7 @@ CLASS ltcl_diff_patch DEFINITION FOR TESTING
   PRIVATE SECTION.
 
     DATA:
-      mi_diff3 TYPE REF TO zif_differ_diff3,
+      mi_diff3 TYPE REF TO zif_diff3,
       mt_a     TYPE string_table,
       mt_b     TYPE string_table.
 
@@ -315,7 +315,7 @@ ENDCLASS.
 CLASS ltcl_diff_patch IMPLEMENTATION.
 
   METHOD setup.
-    mi_diff3 = zcl_differ_diff3=>create( ).
+    mi_diff3 = zcl_diff3=>create( ).
 
     mt_a = lcl_helper=>split( 'AA a b c ZZ new 00 a a M 99' ).
     mt_b = lcl_helper=>split( 'AA a d c ZZ 11 M z z 99' ).
@@ -552,7 +552,7 @@ CLASS ltcl_diff3_merge_regions DEFINITION FOR TESTING
   PRIVATE SECTION.
 
     DATA:
-      mi_diff3 TYPE REF TO zif_differ_diff3,
+      mi_diff3 TYPE REF TO zif_diff3,
       mt_o     TYPE string_table,
       mt_a     TYPE string_table,
       mt_b     TYPE string_table.
@@ -566,7 +566,7 @@ ENDCLASS.
 CLASS ltcl_diff3_merge_regions IMPLEMENTATION.
 
   METHOD setup.
-    mi_diff3 = zcl_differ_diff3=>create( ).
+    mi_diff3 = zcl_diff3=>create( ).
   ENDMETHOD.
 
   METHOD test.
@@ -736,7 +736,7 @@ CLASS ltcl_diff3_merge DEFINITION FOR TESTING
   PRIVATE SECTION.
 
     DATA:
-      mi_diff3 TYPE REF TO zif_differ_diff3,
+      mi_diff3 TYPE REF TO zif_diff3,
       mt_o     TYPE string_table,
       mt_a     TYPE string_table,
       mt_b     TYPE string_table.
@@ -752,7 +752,7 @@ ENDCLASS.
 CLASS ltcl_diff3_merge IMPLEMENTATION.
 
   METHOD setup.
-    mi_diff3 = zcl_differ_diff3=>create( ).
+    mi_diff3 = zcl_diff3=>create( ).
   ENDMETHOD.
 
   METHOD test.
@@ -895,7 +895,7 @@ CLASS ltcl_merge DEFINITION FOR TESTING
   PRIVATE SECTION.
 
     DATA:
-      mi_diff3 TYPE REF TO zif_differ_diff3,
+      mi_diff3 TYPE REF TO zif_diff3,
       mt_o     TYPE string_table,
       mt_a     TYPE string_table,
       mt_b     TYPE string_table.
@@ -910,7 +910,7 @@ ENDCLASS.
 CLASS ltcl_merge IMPLEMENTATION.
 
   METHOD setup.
-    mi_diff3 = zcl_differ_diff3=>create( ).
+    mi_diff3 = zcl_diff3=>create( ).
   ENDMETHOD.
 
   METHOD test_conflict.
@@ -971,7 +971,7 @@ CLASS ltcl_merge_diff3 DEFINITION FOR TESTING
   PRIVATE SECTION.
 
     DATA:
-      mi_diff3 TYPE REF TO zif_differ_diff3,
+      mi_diff3 TYPE REF TO zif_diff3,
       mt_o     TYPE string_table,
       mt_a     TYPE string_table,
       mt_b     TYPE string_table.
@@ -986,7 +986,7 @@ ENDCLASS.
 CLASS ltcl_merge_diff3 IMPLEMENTATION.
 
   METHOD setup.
-    mi_diff3 = zcl_differ_diff3=>create( ).
+    mi_diff3 = zcl_diff3=>create( ).
   ENDMETHOD.
 
   METHOD test_conflict.
@@ -1017,7 +1017,7 @@ CLASS ltcl_merge_diff3 IMPLEMENTATION.
     mt_a = lcl_helper=>split( 'AA a b c ZZ new 00 a a M 99' ).
     mt_b = lcl_helper=>split( 'AA a d c ZZ 11 M z z 99' ).
 
-    DATA(ls_labels) = VALUE zif_differ_diff3=>ty_labels(
+    DATA(ls_labels) = VALUE zif_diff3=>ty_labels(
       a = 'a'
       b = 'b'
       o = 'o' ).
@@ -1053,7 +1053,7 @@ CLASS ltcl_merge_dig_in DEFINITION FOR TESTING
   PRIVATE SECTION.
 
     DATA:
-      mi_diff3 TYPE REF TO zif_differ_diff3,
+      mi_diff3 TYPE REF TO zif_diff3,
       mt_o     TYPE string_table,
       mt_a     TYPE string_table,
       mt_b     TYPE string_table.
@@ -1068,7 +1068,7 @@ ENDCLASS.
 CLASS ltcl_merge_dig_in IMPLEMENTATION.
 
   METHOD setup.
-    mi_diff3 = zcl_differ_diff3=>create( ).
+    mi_diff3 = zcl_diff3=>create( ).
   ENDMETHOD.
 
   METHOD test_conflict.
@@ -1131,7 +1131,7 @@ CLASS ltcl_abap_code DEFINITION FOR TESTING
     DATA:
       mt_old   TYPE string_table,
       mt_new   TYPE string_table,
-      mi_diff3 TYPE REF TO zif_differ_diff3.
+      mi_diff3 TYPE REF TO zif_diff3.
 
     METHODS:
       setup,
@@ -1144,7 +1144,7 @@ CLASS ltcl_abap_code IMPLEMENTATION.
 
   METHOD setup.
 
-    mi_diff3 = zcl_differ_diff3=>create( ).
+    mi_diff3 = zcl_diff3=>create( ).
 
     DATA(lv_old) = `REPORT z_differ_test_prog.\n`
       && `\n`

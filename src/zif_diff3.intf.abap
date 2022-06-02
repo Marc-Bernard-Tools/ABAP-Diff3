@@ -1,15 +1,15 @@
-INTERFACE zif_differ_diff3
-  PUBLIC.
+INTERFACE zif_diff3 PUBLIC.
+
 
 ************************************************************************
-* ABAP Differ - Diff3 Interface
+* ABAP Diff3 Interface
 *
-* https://github.com/Marc-Bernard-Tools/ABAP-Differ
+* https://github.com/Marc-Bernard-Tools/ABAP-Diff3
 *
 * This is a port of JavaScript (https://github.com/bhousel/node-diff3, MIT license)
 * https://github.com/bhousel/node-diff3/blob/main/index.d.ts as of 2021-05-04
 *
-* Copyright 2021 Marc Bernard <https://marcbernardtools.com/>
+* Copyright 2022 Marc Bernard <https://marcbernardtools.com/>
 * SPDX-License-Identifier: MIT
 ************************************************************************
 
@@ -77,7 +77,6 @@ INTERFACE zif_differ_diff3
       buffer_length  TYPE ty_number,
       buffer_content TYPE string_table,
     END OF ty_stable_region.
-
   TYPES:
     BEGIN OF ty_unstable_region,
       a_start   TYPE ty_number,

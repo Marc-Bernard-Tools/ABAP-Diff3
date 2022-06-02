@@ -1,30 +1,31 @@
-CLASS zcl_differ_diff3 DEFINITION
+CLASS zcl_diff3 DEFINITION
   PUBLIC
   FINAL
   CREATE PUBLIC.
 
 ************************************************************************
-* ABAP Differ - Diff3
+* ABAP Diff3
 *
-* https://github.com/Marc-Bernard-Tools/ABAP-Differ
+* https://github.com/Marc-Bernard-Tools/ABAP-Diff3
 *
 * This is a port of JavaScript (https://github.com/bhousel/node-diff3, MIT license)
 * https://github.com/bhousel/node-diff3/blob/main/index.mjs as of 2021-09-24
 *
-* Copyright 2021 Marc Bernard <https://marcbernardtools.com/>
+* Copyright 2022 Marc Bernard <https://marcbernardtools.com/>
 * SPDX-License-Identifier: MIT
 ************************************************************************
+
   PUBLIC SECTION.
 
-    INTERFACES zif_differ_diff3.
+    INTERFACES zif_diff3.
 
     CLASS-METHODS create
       RETURNING
-        VALUE(ri_result) TYPE REF TO zif_differ_diff3.
+        VALUE(ri_result) TYPE REF TO zif_diff3.
 
     CLASS-METHODS convert_to_abap_indices
       CHANGING
-        !ct_diff_indices TYPE zif_differ_diff3=>ty_diff_indices_result_t OPTIONAL.
+        !ct_diff_indices TYPE zif_diff3=>ty_diff_indices_result_t OPTIONAL.
 
   PROTECTED SECTION.
 
@@ -34,10 +35,10 @@ CLASS zcl_differ_diff3 DEFINITION
     TYPES:
       BEGIN OF ty_hunk,
         ab        TYPE ty_ab,
-        o_start   TYPE zif_differ_diff3=>ty_number,
-        o_length  TYPE zif_differ_diff3=>ty_number,
-        ab_start  TYPE zif_differ_diff3=>ty_number,
-        ab_length TYPE zif_differ_diff3=>ty_number,
+        o_start   TYPE zif_diff3=>ty_number,
+        o_length  TYPE zif_diff3=>ty_number,
+        ab_start  TYPE zif_diff3=>ty_number,
+        ab_length TYPE zif_diff3=>ty_number,
       END OF ty_hunk.
     TYPES:
       ty_hunks TYPE STANDARD TABLE OF ty_hunk WITH DEFAULT KEY.
@@ -45,41 +46,42 @@ CLASS zcl_differ_diff3 DEFINITION
     METHODS process_common
       CHANGING
         !ct_common TYPE string_table
-        !ct_result TYPE zif_differ_diff3=>ty_comm_result_t.
+        !ct_result TYPE zif_diff3=>ty_comm_result_t.
 
     METHODS chunk_description
       IMPORTING
         !it_buffer       TYPE string_table
-        !iv_offset       TYPE zif_differ_diff3=>ty_number
-        !iv_length       TYPE zif_differ_diff3=>ty_number
+        !iv_offset       TYPE zif_diff3=>ty_number
+        !iv_length       TYPE zif_diff3=>ty_number
       RETURNING
-        VALUE(rs_result) TYPE zif_differ_diff3=>ty_chunk.
+        VALUE(rs_result) TYPE zif_diff3=>ty_chunk.
 
     METHODS add_hunk
       IMPORTING
-        !it_buffer TYPE zif_differ_diff3=>ty_diff_indices_result_t
+        !it_buffer TYPE zif_diff3=>ty_diff_indices_result_t
         !iv_ab     TYPE ty_ab
       CHANGING
-        ct_hunks   TYPE ty_hunks.
+        !ct_hunks  TYPE ty_hunks.
 
     METHODS advance_to
       IMPORTING
-        !iv_end_offset TYPE zif_differ_diff3=>ty_number
-        !it_o          TYPE string_table
+        !iv_end_offset  TYPE zif_diff3=>ty_number
+        !it_o           TYPE string_table
       CHANGING
-        cv_curr_offset TYPE zif_differ_diff3=>ty_number
-        ct_results     TYPE zif_differ_diff3=>ty_region_t.
+        !cv_curr_offset TYPE zif_diff3=>ty_number
+        !ct_results     TYPE zif_diff3=>ty_region_t.
 
     METHODS flush_ok
       CHANGING
         !ct_buffer TYPE string_table
-        !ct_result TYPE zif_differ_diff3=>ty_merge_region_t.
+        !ct_result TYPE zif_diff3=>ty_merge_region_t.
 
     METHODS get_labels
       IMPORTING
-        !is_labels       TYPE zif_differ_diff3=>ty_labels
+        !is_labels       TYPE zif_diff3=>ty_labels
       RETURNING
-        VALUE(rs_labels) TYPE zif_differ_diff3=>ty_labels.
+        VALUE(rs_labels) TYPE zif_diff3=>ty_labels.
+
   PRIVATE SECTION.
 
     METHODS _reverse
@@ -100,7 +102,7 @@ ENDCLASS.
 
 
 
-CLASS zcl_differ_diff3 IMPLEMENTATION.
+CLASS zcl_diff3 IMPLEMENTATION.
 
 
   METHOD add_hunk.
@@ -166,7 +168,7 @@ CLASS zcl_differ_diff3 IMPLEMENTATION.
 
   METHOD create.
 
-    ri_result = NEW zcl_differ_diff3( ).
+    ri_result = NEW zcl_diff3( ).
 
   ENDMETHOD.
 
@@ -208,7 +210,7 @@ CLASS zcl_differ_diff3 IMPLEMENTATION.
   METHOD process_common.
 
     IF ct_common IS NOT INITIAL.
-      DATA(ls_res) = VALUE zif_differ_diff3=>ty_comm_result( common = _reverse( ct_common ) ).
+      DATA(ls_res) = VALUE zif_diff3=>ty_comm_result( common = _reverse( ct_common ) ).
       INSERT ls_res INTO ct_result INDEX 1.
       CLEAR ct_common.
     ENDIF.
@@ -216,7 +218,7 @@ CLASS zcl_differ_diff3 IMPLEMENTATION.
   ENDMETHOD.
 
 
-  METHOD zif_differ_diff3~diff3_merge.
+  METHOD zif_diff3~diff3_merge.
     " Applies the output of diff3MergeRegions to actually
     " construct the merged buffer; the returned result alternates
     " between 'ok' and 'conflict' blocks.
@@ -225,7 +227,7 @@ CLASS zcl_differ_diff3 IMPLEMENTATION.
     DATA ls_result LIKE LINE OF rt_result.
     DATA lt_ok_buffer TYPE string_table.
 
-    DATA(lt_regions) = zif_differ_diff3~diff3_merge_regions(
+    DATA(lt_regions) = zif_diff3~diff3_merge_regions(
       it_a = it_a
       it_o = it_o
       it_b = it_b ).
@@ -265,7 +267,7 @@ CLASS zcl_differ_diff3 IMPLEMENTATION.
   ENDMETHOD.
 
 
-  METHOD zif_differ_diff3~diff3_merge_regions.
+  METHOD zif_diff3~diff3_merge_regions.
     " Given three buffers, A, O, and B, where both A and B are
     " independently derived from O, returns a fairly complicated
     " internal representation of merge decisions it's taken. The
@@ -280,10 +282,10 @@ CLASS zcl_differ_diff3 IMPLEMENTATION.
 
     TYPES:
       BEGIN OF ty_bound,
-        n0 TYPE zif_differ_diff3=>ty_number,
-        n1 TYPE zif_differ_diff3=>ty_number,
-        n2 TYPE zif_differ_diff3=>ty_number,
-        n3 TYPE zif_differ_diff3=>ty_number,
+        n0 TYPE zif_diff3=>ty_number,
+        n1 TYPE zif_diff3=>ty_number,
+        n2 TYPE zif_diff3=>ty_number,
+        n3 TYPE zif_diff3=>ty_number,
       END OF ty_bound.
 
     DATA:
@@ -299,7 +301,7 @@ CLASS zcl_differ_diff3 IMPLEMENTATION.
 
     add_hunk(
       EXPORTING
-        it_buffer = zif_differ_diff3~diff_indices(
+        it_buffer = zif_diff3~diff_indices(
                       it_buffer1 = it_o
                       it_buffer2 = it_a )
         iv_ab     = 'a'
@@ -308,7 +310,7 @@ CLASS zcl_differ_diff3 IMPLEMENTATION.
 
     add_hunk(
       EXPORTING
-        it_buffer = zif_differ_diff3~diff_indices(
+        it_buffer = zif_diff3~diff_indices(
                       it_buffer1 = it_o
                       it_buffer2 = it_b )
         iv_ab     = 'b'
@@ -472,16 +474,16 @@ CLASS zcl_differ_diff3 IMPLEMENTATION.
   ENDMETHOD.
 
 
-  METHOD zif_differ_diff3~diff_comm.
+  METHOD zif_diff3~diff_comm.
     " We apply the LCS to build a 'comm'-style picture of the
     " differences between buffer1 and buffer2.
 
     DATA:
       ls_res       LIKE LINE OF rt_result,
-      ls_different TYPE zif_differ_diff3=>ty_comm_result-diff,
-      lt_common    TYPE zif_differ_diff3=>ty_comm_result-common.
+      ls_different TYPE zif_diff3=>ty_comm_result-diff,
+      lt_common    TYPE zif_diff3=>ty_comm_result-common.
 
-    DATA(lt_lcs) = zif_differ_diff3~lcs( it_buffer1 = it_buffer1
+    DATA(lt_lcs) = zif_diff3~lcs( it_buffer1 = it_buffer1
                                          it_buffer2 = it_buffer2 ).
 
     DATA(lv_tail1) = lines( it_buffer1 ).
@@ -538,12 +540,12 @@ CLASS zcl_differ_diff3 IMPLEMENTATION.
   ENDMETHOD.
 
 
-  METHOD zif_differ_diff3~diff_indices.
+  METHOD zif_diff3~diff_indices.
     " We apply the LCS to give a simple representation of the
     " offsets and lengths of mismatched chunks in the input
     " buffers. This is used by diff3MergeRegions.
 
-    DATA(lt_lcs) = zif_differ_diff3~lcs(
+    DATA(lt_lcs) = zif_diff3~lcs(
       it_buffer1 = it_buffer1
       it_buffer2 = it_buffer2 ).
 
@@ -562,7 +564,7 @@ CLASS zcl_differ_diff3 IMPLEMENTATION.
       lv_tail2 = ls_candidate-buffer2index.
 
       IF lv_mismatch_length1 > 0 OR lv_mismatch_length2 > 0.
-        DATA(ls_result) = VALUE zif_differ_diff3=>ty_diff_indices_result(
+        DATA(ls_result) = VALUE zif_diff3=>ty_diff_indices_result(
           buffer1-key    = lv_tail1 + 1
           buffer1-len    = lv_mismatch_length1
           buffer1content = _slice(
@@ -584,13 +586,13 @@ CLASS zcl_differ_diff3 IMPLEMENTATION.
   ENDMETHOD.
 
 
-  METHOD zif_differ_diff3~diff_patch.
+  METHOD zif_diff3~diff_patch.
     " We apply the LCS to build a JSON representation of a
     " diff(1)-style patch.
 
     DATA ls_result LIKE LINE OF rt_result.
 
-    DATA(lt_lcs) = zif_differ_diff3~lcs( it_buffer1 = it_buffer1
+    DATA(lt_lcs) = zif_diff3~lcs( it_buffer1 = it_buffer1
                                          it_buffer2 = it_buffer2 ).
 
     DATA(lv_tail1) = lines( it_buffer1 ).
@@ -624,7 +626,7 @@ CLASS zcl_differ_diff3 IMPLEMENTATION.
   ENDMETHOD.
 
 
-  METHOD zif_differ_diff3~invert_patch.
+  METHOD zif_diff3~invert_patch.
     " Takes the output of diffPatch(), and inverts the sense of it, so that it
     " can be applied to buffer2 to give buffer1 rather than the other way around.
 
@@ -640,7 +642,7 @@ CLASS zcl_differ_diff3 IMPLEMENTATION.
   ENDMETHOD.
 
 
-  METHOD zif_differ_diff3~lcs.
+  METHOD zif_diff3~lcs.
     " Text diff algorithm following Hunt and McIlroy 1976.
     " J. W. Hunt and M. D. McIlroy, An algorithm for differential buffer
     " comparison, Bell Telephone Laboratories CSTR #41 (1976)
@@ -652,13 +654,13 @@ CLASS zcl_differ_diff3 IMPLEMENTATION.
     TYPES:
       BEGIN OF ty_equivalenceclass,
         key    TYPE string,
-        values TYPE zif_differ_diff3=>ty_numbers,
+        values TYPE zif_diff3=>ty_numbers,
       END OF ty_equivalenceclass.
 
     DATA:
       lt_equivalenceclasses TYPE HASHED TABLE OF ty_equivalenceclass WITH UNIQUE KEY key,
-      lt_candidates         TYPE zif_differ_diff3=>ty_lcs_result_t,
-      ls_newcandidate       TYPE zif_differ_diff3=>ty_lcs_result.
+      lt_candidates         TYPE zif_diff3=>ty_lcs_result_t,
+      ls_newcandidate       TYPE zif_diff3=>ty_lcs_result.
 
     DATA(lv_j) = 0.
     LOOP AT it_buffer2 ASSIGNING FIELD-SYMBOL(<lv_buffer2>).
@@ -672,7 +674,7 @@ CLASS zcl_differ_diff3 IMPLEMENTATION.
       lv_j = lv_j + 1.
     ENDLOOP.
 
-    DATA(ls_nullresult) = VALUE zif_differ_diff3=>ty_lcs_result(
+    DATA(ls_nullresult) = VALUE zif_diff3=>ty_lcs_result(
       key          = 0
       buffer1index = -1
       buffer2index = -1
@@ -747,11 +749,11 @@ CLASS zcl_differ_diff3 IMPLEMENTATION.
   ENDMETHOD.
 
 
-  METHOD zif_differ_diff3~merge.
+  METHOD zif_diff3~merge.
 
     DATA(ls_labels) = get_labels( is_labels ).
 
-    DATA(lt_regions) = zif_differ_diff3~diff3_merge(
+    DATA(lt_regions) = zif_diff3~diff3_merge(
       it_a                       = it_a
       it_o                       = it_o
       it_b                       = it_b
@@ -773,11 +775,11 @@ CLASS zcl_differ_diff3 IMPLEMENTATION.
   ENDMETHOD.
 
 
-  METHOD zif_differ_diff3~merge_diff3.
+  METHOD zif_diff3~merge_diff3.
 
     DATA(ls_labels) = get_labels( is_labels ).
 
-    DATA(lt_regions) = zif_differ_diff3~diff3_merge(
+    DATA(lt_regions) = zif_diff3~diff3_merge(
       it_a                       = it_a
       it_o                       = it_o
       it_b                       = it_b
@@ -801,11 +803,11 @@ CLASS zcl_differ_diff3 IMPLEMENTATION.
   ENDMETHOD.
 
 
-  METHOD zif_differ_diff3~merge_dig_in.
+  METHOD zif_diff3~merge_dig_in.
 
     DATA(ls_labels) = get_labels( is_labels ).
 
-    DATA(lt_regions) = zif_differ_diff3~diff3_merge(
+    DATA(lt_regions) = zif_diff3~diff3_merge(
       it_a                       = it_a
       it_o                       = it_o
       it_b                       = it_b
@@ -815,7 +817,7 @@ CLASS zcl_differ_diff3 IMPLEMENTATION.
       IF <ls_region>-ok IS NOT INITIAL.
         INSERT LINES OF <ls_region>-ok INTO TABLE rs_result-result.
       ELSE.
-        DATA(lt_c) = zif_differ_diff3~diff_comm(
+        DATA(lt_c) = zif_diff3~diff_comm(
           it_buffer1 = <ls_region>-conflict-a
           it_buffer2 = <ls_region>-conflict-b ).
 
@@ -837,7 +839,7 @@ CLASS zcl_differ_diff3 IMPLEMENTATION.
   ENDMETHOD.
 
 
-  METHOD zif_differ_diff3~patch.
+  METHOD zif_diff3~patch.
     " Applies a patch to a buffer.
     " Given buffer1 and buffer2, `patch(buffer1, diffPatch(buffer1, buffer2))` should give buffer2.
 
@@ -864,7 +866,7 @@ CLASS zcl_differ_diff3 IMPLEMENTATION.
   ENDMETHOD.
 
 
-  METHOD zif_differ_diff3~strip_patch.
+  METHOD zif_diff3~strip_patch.
     " Takes the output of diffPatch(), and removes extra information from it.
     " It can still be used by patch(), below, but can no longer be inverted.
 
