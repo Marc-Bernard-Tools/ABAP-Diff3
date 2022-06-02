@@ -5,13 +5,14 @@ CLASS lcl_helper DEFINITION.
 
   PUBLIC SECTION.
 
-    CLASS-METHODS:
+    CLASS-METHODS
       split
         IMPORTING
           iv_string        TYPE string
         RETURNING
-          VALUE(rt_result) TYPE string_table,
+          VALUE(rt_result) TYPE string_table.
 
+    CLASS-METHODS
       concat
         IMPORTING
           it_strings       TYPE string_table
