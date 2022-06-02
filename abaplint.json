@@ -49,7 +49,8 @@
 			"describeLines": true,
 			"exclude": [],
 			"severity": "Error",
-			"statics": true
+			"statics": true,
+			"testSeams": true
 		},
 		"begin_end_names": {
 			"exclude": [],
@@ -74,6 +75,7 @@
 			"move": true,
 			"refresh": true,
 			"severity": "Error",
+			"sort": true,
 			"unassign": true,
 			"write": true
 		},
@@ -91,10 +93,6 @@
 			"severity": "Error"
 		},
 		"check_include": {
-			"exclude": [],
-			"severity": "Error"
-		},
-		"check_no_handler_pragma": {
 			"exclude": [],
 			"severity": "Error"
 		},
@@ -162,7 +160,8 @@
 		"cyclic_oo": {
 			"exclude": [],
 			"severity": "Error",
-			"skip": []
+			"skip": [],
+			"skipSharedMemory": true
 		},
 		"cyclomatic_complexity": {
 			"exclude": [],
@@ -173,12 +172,13 @@
 			"deleteDynpro": true,
 			"deleteReport": true,
 			"deleteTextpool": true,
+			"dynamicSQL": true,
 			"exclude": [],
+			"exportDynpro": true,
 			"execSQL": true,
 			"generateDynpro": true,
 			"generateReport": true,
 			"generateSubroutine": true,
-			"importDynpro": true,
 			"insertReport": true,
 			"kernelCall": true,
 			"severity": "Error",
@@ -199,7 +199,7 @@
 		"double_space": {
 			"afterColon": true,
 			"endParen": true,
-			"exclude": [".*"],
+			"exclude": [],
 			"keywords": true,
 			"severity": "Error",
 			"startParen": true
@@ -210,7 +210,7 @@
 		},
 		"empty_line_in_statement": {
 			"allowChained": false,
-			"exclude": [".*"],
+			"exclude": [],
 			"severity": "Error"
 		},
 		"empty_statement": {
@@ -227,10 +227,13 @@
 			"select": true,
 			"severity": "Error",
 			"try": true,
+			"when": true,
 			"while": true
 		},
 		"exit_or_check": {
-			"exclude": [".*"],
+			"allowCheck": false,
+			"allowExit": false,
+			"exclude": [],
 			"severity": "Error"
 		},
 		"exporting": {
@@ -322,6 +325,7 @@
 			"ignoreExceptions": true,
 			"ignoreGlobalClassDefinition": false,
 			"ignoreGlobalInterface": false,
+			"selectionScreenBlockIndentation": false,
 			"severity": "Error"
 		},
 		"inline_data_old_versions": {
@@ -329,6 +333,7 @@
 			"severity": "Error"
 		},
 		"intf_referencing_clas": {
+			"allow": [],
 			"exclude": [],
 			"severity": "Error"
 		},
@@ -377,10 +382,6 @@
 			"patternKind": "required",
 			"severity": "Error",
 			"test": "^LTCL_.+$"
-		},
-		"local_testclass_location": {
-			"exclude": [],
-			"severity": "Error"
 		},
 		"local_variable_names": {
 			"exclude": [],
@@ -466,11 +467,12 @@
 		"no_public_attributes": {
 			"allowReadOnly": true,
 			"exclude": [],
+			"ignoreTestClasses": false,
 			"severity": "Error"
 		},
 		"object_naming": {
 			"auth": "^Z",
-			"clas": "^ZC(L|X)\\_DIFFER",
+			"clas": "^ZC(L|X)\\_DIFF3",
 			"doma": "^Z",
 			"dtel": "^Z",
 			"enqu": "^EZ_",
@@ -479,11 +481,11 @@
 			"idoc": "^Z",
 			"ignoreNames": [],
 			"ignorePatterns": [],
-			"intf": "^ZIF\\_DIFFER",
+			"intf": "^ZIF\\_DIFF3",
 			"msag": "^Z",
 			"patternKind": "required",
 			"pinf": "^Z",
-			"prog": "^Z_DIFFER",
+			"prog": "^Z_DIFF3",
 			"severity": "Error",
 			"shlp": "^Z",
 			"ssfo": "^Z",
@@ -500,15 +502,21 @@
 			"compute": true,
 			"divide": true,
 			"exclude": [],
+			"exitFromSQL": true,
 			"fieldSymbolStructure": true,
+			"freeMemory": true,
 			"load": true,
 			"move": true,
 			"multiply": true,
+			"occurences": true,
 			"occurs": true,
+			"pack": true,
 			"parameter": true,
 			"ranges": true,
 			"refresh": true,
+			"regex": true,
 			"requested": true,
+			"selectWithoutInto": true,
 			"setExtended": true,
 			"severity": "Error",
 			"sortByFS": true,
@@ -596,7 +604,8 @@
 			"endSelect": true,
 			"exclude": [".*"],
 			"selectStar": true,
-			"severity": "Error"
+			"severity": "Error",
+			"starOkayIfFewColumns": 10
 		},
 		"selection_screen_naming": {
 			"exclude": [],
