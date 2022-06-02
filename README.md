@@ -20,11 +20,11 @@ SAP Basis 7.4 or higher
 
 You can install ABAP Diff3 using [abapGit](https://github.com/abapGit/abapGit) either creating a new online repository for https://github.com/Marc-Bernard-Tools/ABAP-Diff3 or downloading the repository [ZIP file](https://github.com/Marc-Bernard-Tools/ABAP-Diff3/archive/main.zip) and creating a new offline repository.
 
-We recommend using package `$ABAPDIFF3`.
+Recommend SAP package: `$DIFF3`.
 
 ## Usage
 
-todo
+The [test classes](https://github.com/Marc-Bernard-Tools/ABAP-Diff3/blob/main/src/zcl_diff3.clas.testclasses.abap) contain examples for all interface methods. 
 
 ## Contributions
 
