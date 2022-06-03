@@ -1,3 +1,11 @@
+![Version](https://img.shields.io/endpoint?url=https://shield.abap.space/version-shield-json/github/Marc-Bernard-Tools/ABAP-Diff3/src/zcl_diff3.clas.abap/c_version&label=Version&color=blue)
+![Checks](https://img.shields.io/github/checks-status/Marc-Bernard-Tools/ABAP-Diff3/main?label=Checks)
+
+[![License](https://img.shields.io/github/license/Marc-Bernard-Tools/ABAP-Diff3?label=License&color=green)](LICENSE)
+[![REUSE Status](https://api.reuse.software/badge/github.com/Marc-Bernard-Tools/ABAP-Diff3)](https://api.reuse.software/info/github.com/Marc-Bernard-Tools/ABAP-Diff3)
+[![ClearlyDefined Score](https://img.shields.io/clearlydefined/score/git/github/marc-bernard-tools/abap-diff3/...?label=ClearlyDefined%20Score)](https://clearlydefined.io/definitions/git/github/marc-bernard-tools/abap-diff3/...)
+[![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-2.0-4baaaa.svg?color=green)](CODE_OF_CONDUCT.md)
+
 # ABAP Diff3
 
 Library to highlight the content difference between two or three string-tables (diff3).
