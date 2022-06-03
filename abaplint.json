@@ -17,7 +17,7 @@
 	},
 	"rules": {
 		"7bit_ascii": {
-			"exclude": [".*testclasses.*"],
+			"exclude": [],
 			"severity": "Error"
 		},
 		"abapdoc": {
@@ -256,7 +256,7 @@
 		"forbidden_void_type": {
 			"check": [
 				"^stringtab$",
-				"^char1$",
+				"^char[0-9]+$",
 				"^int4$",
 				"^rs_c_true$",
 				"^rs_c_false$",
@@ -314,7 +314,7 @@
 		},
 		"in_statement_indentation": {
 			"blockStatements": 2,
-			"exclude": [".*"],
+			"exclude": [],
 			"ignoreExceptions": true,
 			"severity": "Error"
 		},
@@ -442,7 +442,7 @@
 			"severity": "Error"
 		},
 		"mix_returning": {
-			"exclude": [".*"],
+			"exclude": [],
 			"severity": "Error"
 		},
 		"msag_consistency": {
@@ -485,7 +485,7 @@
 			"msag": "^Z",
 			"patternKind": "required",
 			"pinf": "^Z",
-			"prog": "^Z_DIFF3",
+			"prog": "^Z",
 			"severity": "Error",
 			"shlp": "^Z",
 			"ssfo": "^Z",
@@ -591,7 +591,7 @@
 			"severity": "Error"
 		},
 		"remove_descriptions": {
-			"exclude": [".*"],
+			"exclude": [],
 			"ignoreExceptions": false,
 			"ignoreWorkflow": true,
 			"severity": "Error"
@@ -602,7 +602,7 @@
 		},
 		"select_performance": {
 			"endSelect": true,
-			"exclude": [".*"],
+			"exclude": [],
 			"selectStar": true,
 			"severity": "Error",
 			"starOkayIfFewColumns": 10
