@@ -17,6 +17,8 @@ CLASS zcl_diff3 DEFINITION
 
   PUBLIC SECTION.
 
+    CONSTANTS c_version TYPE string VALUE '1.0.0'.
+
     INTERFACES zif_diff3.
 
     CLASS-METHODS create
