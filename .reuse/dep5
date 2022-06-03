@@ -1,7 +1,7 @@
 Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
-Upstream-Name: ABAP ...
+Upstream-Name: ABAP Diff3
 Upstream-Contact: Marc Bernard <hello@marcbernardtools.com>
-Source: https://github.com/Marc-Bernard-Tools/ABAP-...
+Source: https://github.com/Marc-Bernard-Tools/ABAP-Diff3
 
 Files: *
 Copyright: 2022 Marc Bernard <https://marcbernardtools.com/>
