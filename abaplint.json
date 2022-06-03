@@ -314,7 +314,7 @@
 		},
 		"in_statement_indentation": {
 			"blockStatements": 2,
-			"exclude": [],
+			"exclude": [".*"],
 			"ignoreExceptions": true,
 			"severity": "Error"
 		},
