@@ -1,13 +1,5 @@
 {
-	"dependencies": [
-		{
-			"url": "https://github.com/abaplint/deps",
-			"folder": "/deps",
-			"files": "/src/**/*.*"
-		}
-	],
 	"global": {
-		"exclude": [],
 		"files": "/src/**/*.*",
 		"skipGeneratedFunctionGroups": true,
 		"skipGeneratedGatewayClasses": true,
@@ -15,20 +7,21 @@
 		"skipIncludesWithoutMain": false,
 		"useApackDependencies": false
 	},
+  "syntax": {
+		"errorNamespace": ".",
+		"version": "Cloud"
+	},
+	"dependencies": [
+		{
+			"url": "https://github.com/open-abap/open-abap-core",
+			"folder": "/deps",
+			"files": "/src/**/*.*"
+		}
+	],
 	"rules": {
-		"7bit_ascii": {
-			"exclude": [],
-			"severity": "Error"
-		},
-		"abapdoc": {
-			"checkLocal": false,
-			"exclude": [".*"],
-			"severity": "Error"
-		},
-		"allowed_object_naming": {
-			"exclude": [],
-			"severity": "Error"
-		},
+		"7bit_ascii": true,
+		"abapdoc": false,
+		"allowed_object_naming": true,
 		"allowed_object_types": {
 			"allowed": [
 				"CLAS",
@@ -47,8 +40,8 @@
 			"defaultKey": false,
 			"define": true,
 			"describeLines": true,
-			"exclude": [],
-			"severity": "Error",
+      "exportToDatabase": true,
+      "exportToMemory": true,
 			"statics": true,
 			"testSeams": true
 		},
@@ -106,7 +99,7 @@
 			"openDataset": true,
 			"readTable": true,
 			"selectSingle": false,
-			"selectTable": true,			
+			"selectTable": true,
 			"severity": "Error",
 			"updateDatabase": true
 		},
@@ -359,10 +352,7 @@
 			"exclude": [],
 			"severity": "Error"
 		},
-		"line_break_style": {
-			"exclude": [],
-			"severity": "Error"
-		},
+		"line_break_style": false,
 		"line_length": {
 			"exclude": [],
 			"length": 120,
@@ -732,11 +722,5 @@
 			"exclude": [],
 			"severity": "Error"
 		}
-	},
-	"syntax": {
-		"errorNamespace": "^(LCL_|LIF_|Y|Z)",
-		"globalConstants": [],
-		"globalMacros": [],
-		"version": "v740sp08"
 	}
 }
